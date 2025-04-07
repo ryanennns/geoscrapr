@@ -1,12 +1,6 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
-
-Schedule::command('elo:singleplayer', [])->daily();
-Schedule::command('snapshot:generate', [])->daily();
+Schedule::command('elo:singleplayer')->dailyAt('00:00');
+Schedule::command('snapshot:generate')->dailyAt('12:00');
