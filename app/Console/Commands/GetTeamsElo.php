@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\GeoGuessrHttp;
 use App\Models\Player;
+use App\Models\RatingChange;
 use App\Models\Team;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -22,7 +23,7 @@ class GetTeamsElo extends Command
         $keepFetching = true;
         $initPlayersCount = Player::query()->count();
         $initTeamsCount = Team::query()->count();
-        $initRatingChangeCount = Player::query()->where('rateable_type', Team::class)->count();
+        $initRatingChangeCount = RatingChange::query()->where('rateable_type', Team::class)->count();
         for ($i = 0; $keepFetching; $i += 100) {
             try {
                 $response = Http::withHeaders([
@@ -72,8 +73,8 @@ class GetTeamsElo extends Command
 
         $playerDiff = Player::query()->count() - $initPlayersCount;
         $teamDiff = Team::query()->count() - $initTeamsCount;
-        $diffInRatingChanges = Player::query()->where('rateable_type', Team::class)->count() - $initRatingChangeCount;
-        $this->info("Added $playerDiff users");
+        $diffInRatingChanges = RatingChange::query()->where('rateable_type', Team::class)->count() - $initRatingChangeCount;
+        $this->info("Added $playerDiff players");
         $this->info("Added $teamDiff teams, and $diffInRatingChanges ratings changed.");
     }
 }

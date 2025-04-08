@@ -9,6 +9,10 @@ class PlayerObserver
 {
     public function updating(Player $player): void
     {
+        if (!$player->rating) {
+            return;
+        }
+
         if ($player->isDirty('rating')) {
             $player->ratingChanges()->create(['rating' => $player->rating]);
         }
@@ -16,6 +20,10 @@ class PlayerObserver
 
     public function created(Player $player): void
     {
+        if (!$player->rating) {
+            return;
+        }
+
         $player->ratingChanges()->create(['rating' => $player->rating]);
     }
 }

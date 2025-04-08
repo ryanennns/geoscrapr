@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\GeoGuessrHttp;
 use App\Models\Player;
+use App\Models\RatingChange;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -19,7 +20,7 @@ class GetSingleplayerElo extends Command
     {
         $keepFetching = true;
         $initPlayersCount = Player::query()->count();
-        $initRatingChangeCount = Player::query()->where('rateable_type', Player::class)->count();
+        $initRatingChangeCount = RatingChange::query()->where('rateable_type', Player::class)->count();
         for ($i = 0; $keepFetching; $i += 100) {
             try {
                 $response = Http::withHeaders([
@@ -56,7 +57,7 @@ class GetSingleplayerElo extends Command
         }
 
         $diff = Player::query()->count(0) - $initPlayersCount;
-        $diffInRatingChanges = Player::query()->where('rateable_type', Player::class)->count() - $initRatingChangeCount;
+        $diffInRatingChanges = RatingChange::query()->where('rateable_type', Player::class)->count() - $initRatingChangeCount;
         $this->info("Added $diff users, and $diffInRatingChanges ratings changed.");
     }
 }
