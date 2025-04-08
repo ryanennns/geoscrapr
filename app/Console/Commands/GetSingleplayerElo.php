@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\GeoGuessrHttp;
 use App\Models\Player;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
@@ -11,13 +12,6 @@ class GetSingleplayerElo extends Command
 {
     private const BASE_URL = 'https://www.geoguessr.com/api/v4/ranked-system/ratings';
     private const LIMIT = 100;
-    const HEADERS = [
-        "content-type"       => "application/json",
-        "sec-ch-ua"          => "\"Google Chrome\";v=\"129\", \"Not=A?Brand\";v=\"8\", \"Chromium\";v=\"129\"",
-        "sec-ch-ua-mobile"   => "?0",
-        "sec-ch-ua-platform" => "\"Linux\"",
-        "x-client"           => "web",
-    ];
 
     protected $signature = 'elo:singleplayer';
     protected $description = 'Command description';
@@ -33,7 +27,7 @@ class GetSingleplayerElo extends Command
                 $ncfa = Config::get('geo.ncfa');
                 $session = Config::get('geo.session');
                 $response = Http::withHeaders([
-                    ...self::HEADERS,
+                    ...GeoGuessrHttp::HEADERS,
                     "cookie" => "devicetoken=$deviceToken; _cfuvid=$cfuvid; _ncfa=$ncfa; _session=$session",
                 ])->get(self::BASE_URL, [
                     'offset' => $i,

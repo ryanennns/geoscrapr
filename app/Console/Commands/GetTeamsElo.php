@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\GeoGuessrHttp;
+use App\Models\Player;
+use App\Models\Team;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
+
+class GetTeamsElo extends Command
+{
+    private const LIMIT = 100;
+    private const BASE_URL = 'https://www.geoguessr.com/api/v4/ranked-team-duels/ratings';
+
+    protected $signature = 'elo:teams';
+
+    protected $description = 'Command description';
+
+    public function handle()
+    {
+        $keepFetching = true;
+        $players = Player::query()->count();
+        $teams = Team::query()->count();
+        for ($i = 0; $keepFetching; $i += 100) {
+            try {
+                $response = Http::withHeaders([
+                    ...GeoGuessrHttp::HEADERS,
+                    "cookie" => GeoGuessrHttp::cookieString(),
+                ])->get(self::BASE_URL, [
+                    'offset' => $i,
+                    'limit'  => self::LIMIT
+                ]);
+
+                if (!$response->successful()) {
+                    throw new \Exception('ooga');
+                }
+
+                $teams = collect(json_decode($response->body()));
+
+                if ($teams->count() === 0) {
+                    break;
+                }
+
+                $teams->each(function ($team) {
+                    collect($team->members)->each(function ($player) {
+                        Player::query()->updateOrCreate(['user_id' => $player->userId], [
+                            'name'         => $player->nick,
+                            'user_id'      => $player->userId,
+                            'country_code' => $player->countryCode,
+                        ]);
+                    });
+
+                    Team::query()->updateOrCreate(['team_id' => $team->teamId], [
+                        'team_id'  => $team->teamId,
+                        'rating'   => $team->rating,
+                        'name'     => $team->teamName,
+                        'player_a' => $team->members[0]->userId,
+                        'player_b' => $team->members[1]->userId,
+                    ]);
+                });
+
+                $this->info('Players: ' . Player::query()->count() . ' $i = ' . $i);
+            } catch (\Exception $e) {
+                $this->error('An error occurred - ' . $e->getMessage());
+                $keepFetching = false;
+            }
+        }
+
+        $playerDiff = Player::query()->count() - $players;
+        $teamDiff = Team::query()->count() - $teams;
+        $this->info("Added $playerDiff users");
+        $this->info("Added $teamDiff teams");
+    }
+}

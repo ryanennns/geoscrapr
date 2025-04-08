@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('elo_snapshots', function (Blueprint $table) {
             $table->id();
-            $table->date('date')->unique();
-            $table->enum('gamemode', ['solo, team'])->default('solo');
+            $table->date('date');
+            $table->enum('gamemode', ['solo', 'team'])->default('solo');
             $table->json('buckets');
             $table->timestamps();
         });
