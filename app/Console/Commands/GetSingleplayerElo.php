@@ -5,12 +5,11 @@ namespace App\Console\Commands;
 use App\GeoGuessrHttp;
 use App\Models\Player;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 
 class GetSingleplayerElo extends Command
 {
-    private const BASE_URL = 'https://www.geoguessr.com/api/v4/ranked-system/ratings';
+    private const ENDPOINT = 'api/v4/ranked-system/ratings';
     private const LIMIT = 100;
 
     protected $signature = 'elo:singleplayer';
@@ -19,32 +18,28 @@ class GetSingleplayerElo extends Command
     public function handle(): void
     {
         $keepFetching = true;
-        $players = Player::query()->count();
+        $initPlayersCount = Player::query()->count();
         for ($i = 0; $keepFetching; $i += 100) {
             try {
-                $deviceToken = Config::get('geo.device_token');
-                $cfuvid = Config::get('geo.cfuvid');
-                $ncfa = Config::get('geo.ncfa');
-                $session = Config::get('geo.session');
                 $response = Http::withHeaders([
                     ...GeoGuessrHttp::HEADERS,
-                    "cookie" => "devicetoken=$deviceToken; _cfuvid=$cfuvid; _ncfa=$ncfa; _session=$session",
-                ])->get(self::BASE_URL, [
+                    "cookie" => GeoGuessrHttp::cookieString()
+                ])->get(GeoGuessrHttp::BASE_URL . self::ENDPOINT, [
                     'offset' => $i,
                     'limit'  => self::LIMIT
                 ]);
 
                 if (!$response->successful()) {
-                    throw new \Exception('ooga');
+                    throw new \Exception("Request to GeoGuessr API failed with status {${$response->status}}");
                 }
 
-                $c = collect(json_decode($response->body()));
+                $players = collect(json_decode($response->body()));
 
-                if ($c->count() === 0) {
+                if ($players->count() === 0) {
                     break;
                 }
 
-                $c->each(function ($player) {
+                $players->each(function ($player) {
                     Player::query()->updateOrCreate(['user_id' => $player->userId], [
                         'name'         => $player->nick,
                         'rating'       => $player->rating,
@@ -59,7 +54,7 @@ class GetSingleplayerElo extends Command
             }
         }
 
-        $diff = Player::query()->count(0) - $players;
+        $diff = Player::query()->count(0) - $initPlayersCount;
         $this->info("Added $diff users");
     }
 }

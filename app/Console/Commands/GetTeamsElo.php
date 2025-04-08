@@ -11,29 +11,29 @@ use Illuminate\Support\Facades\Http;
 class GetTeamsElo extends Command
 {
     private const LIMIT = 100;
-    private const BASE_URL = 'https://www.geoguessr.com/api/v4/ranked-team-duels/ratings';
+    private const ENDPOINT = 'api/v4/ranked-team-duels/ratings';
 
     protected $signature = 'elo:teams';
 
     protected $description = 'Command description';
 
-    public function handle()
+    public function handle(): void
     {
         $keepFetching = true;
-        $players = Player::query()->count();
-        $teams = Team::query()->count();
+        $initPlayersCount = Player::query()->count();
+        $initTeamsCount = Team::query()->count();
         for ($i = 0; $keepFetching; $i += 100) {
             try {
                 $response = Http::withHeaders([
                     ...GeoGuessrHttp::HEADERS,
                     "cookie" => GeoGuessrHttp::cookieString(),
-                ])->get(self::BASE_URL, [
+                ])->get(GeoGuessrHttp::BASE_URL . self::ENDPOINT, [
                     'offset' => $i,
                     'limit'  => self::LIMIT
                 ]);
 
                 if (!$response->successful()) {
-                    throw new \Exception('ooga');
+                    throw new \Exception("Request to GeoGuessr API failed with status {${$response->status}}");
                 }
 
                 $teams = collect(json_decode($response->body()));
@@ -60,15 +60,17 @@ class GetTeamsElo extends Command
                     ]);
                 });
 
-                $this->info('Players: ' . Player::query()->count() . ' $i = ' . $i);
+                $this->info(
+                    'Players: ' . Player::query()->count() . ', Teams: ' . Team::query()->count() . ' $i = ' . $i
+                );
             } catch (\Exception $e) {
                 $this->error('An error occurred - ' . $e->getMessage());
                 $keepFetching = false;
             }
         }
 
-        $playerDiff = Player::query()->count() - $players;
-        $teamDiff = Team::query()->count() - $teams;
+        $playerDiff = Player::query()->count() - $initPlayersCount;
+        $teamDiff = Team::query()->count() - $initTeamsCount;
         $this->info("Added $playerDiff users");
         $this->info("Added $teamDiff teams");
     }
