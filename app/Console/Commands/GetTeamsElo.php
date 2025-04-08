@@ -22,6 +22,7 @@ class GetTeamsElo extends Command
         $keepFetching = true;
         $initPlayersCount = Player::query()->count();
         $initTeamsCount = Team::query()->count();
+        $initRatingChangeCount = Player::query()->where('rateable_type', Team::class)->count();
         for ($i = 0; $keepFetching; $i += 100) {
             try {
                 $response = Http::withHeaders([
@@ -71,7 +72,8 @@ class GetTeamsElo extends Command
 
         $playerDiff = Player::query()->count() - $initPlayersCount;
         $teamDiff = Team::query()->count() - $initTeamsCount;
+        $diffInRatingChanges = Player::query()->where('rateable_type', Team::class)->count() - $initRatingChangeCount;
         $this->info("Added $playerDiff users");
-        $this->info("Added $teamDiff teams");
+        $this->info("Added $teamDiff teams, and $diffInRatingChanges ratings changed.");
     }
 }

@@ -28,4 +28,9 @@ class Player extends Model
     {
         return $this->teamAsA()->first() ?? $this->teamAsB()->first();
     }
+
+    public function ratingChanges()
+    {
+        return $this->morphMany(RatingChange::class, 'rateable');
+    }
 }

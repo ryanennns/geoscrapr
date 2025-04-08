@@ -19,6 +19,7 @@ class GetSingleplayerElo extends Command
     {
         $keepFetching = true;
         $initPlayersCount = Player::query()->count();
+        $initRatingChangeCount = Player::query()->where('rateable_type', Player::class)->count();
         for ($i = 0; $keepFetching; $i += 100) {
             try {
                 $response = Http::withHeaders([
@@ -55,6 +56,7 @@ class GetSingleplayerElo extends Command
         }
 
         $diff = Player::query()->count(0) - $initPlayersCount;
-        $this->info("Added $diff users");
+        $diffInRatingChanges = Player::query()->where('rateable_type', Player::class)->count() - $initRatingChangeCount;
+        $this->info("Added $diff users, and $diffInRatingChanges ratings changed.");
     }
 }

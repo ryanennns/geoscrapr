@@ -8,17 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('elo_snapshots', function (Blueprint $table) {
+        Schema::create('rating_changes', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->date('date');
-            $table->enum('gamemode', ['solo', 'team'])->default('solo');
-            $table->json('buckets');
+            $table->morphs('rateable');
+            $table->integer('rating');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('elo_snapshots');
+        Schema::dropIfExists('rating_changes');
     }
 };
