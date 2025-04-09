@@ -73,8 +73,7 @@ class GetTeamsElo extends Command
 
         $playerDiff = Player::query()->count() - $initPlayersCount;
         $teamDiff = Team::query()->count() - $initTeamsCount;
-        $diffInRatingChanges = RatingChange::query()->where('rateable_type', Team::class)->count() - $initRatingChangeCount;
-        $this->info("Added $playerDiff players");
-        $this->info("Added $teamDiff teams, and $diffInRatingChanges ratings changed.");
+        $ratingChangeDiff = RatingChange::query()->where('rateable_type', Team::class)->count() - $initRatingChangeCount;
+        $this->info("Added $playerDiff players, $teamDiff teams, and $ratingChangeDiff ratings changed.");
     }
 }

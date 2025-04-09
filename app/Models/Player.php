@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Query\Builder;
 
 class Player extends Model
 {
@@ -29,8 +32,13 @@ class Player extends Model
         return $this->teamAsA()->first() ?? $this->teamAsB()->first();
     }
 
-    public function ratingChanges()
+    public function ratingChanges(): MorphMany
     {
         return $this->morphMany(RatingChange::class, 'rateable');
+    }
+
+    public function scopeIsActive(Builder $query): void
+    {
+        $query->where('updated_at', '>=', Carbon::now()->subWeek());
     }
 }
