@@ -11,5 +11,7 @@ class EloSnapshot extends Model
     use HasFactory;
     use HasUuids;
 
+    const GAMEMODES = ['solo', 'team'];
+
     protected $guarded = [];
 }
