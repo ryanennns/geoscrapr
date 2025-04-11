@@ -16,6 +16,7 @@ class SearchPlayerController extends Controller
             ->whereNotNull('rating')
             ->where('name', 'like', "%$query")
             ->orWhere('user_id', 'like', "%$query%")
+            ->orderBy('rating', 'desc')
             ->limit(10)
             ->get();
     }

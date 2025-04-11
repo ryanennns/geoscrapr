@@ -13,13 +13,13 @@
                 type="text"
                 v-model="searchQuery"
                 @input="fetchPlayers"
-                placeholder="Search for a player..."
+                placeholder="Search for a player name or ID..."
                 class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
             <transition name="fade">
                 <button
                     v-if="searchQuery"
-                    @click="() => { searchQuery = ''; fetchPlayers(); }"
+                    @click="() => { searchQuery = ''; searchResults = []; }"
                     class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                 >
                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -33,19 +33,19 @@
 
         <ul
             v-if="searchResults.length"
-            class="absolute top-full left-0 z-10 bg-gray-50 border border-gray-200 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
+            class="absolute top-full left-0 z-10 bg-gray-50 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
         >
             <li
                 v-for="player in searchResults"
                 :key="player.id"
-                class="py-3 px-4 hover:bg-indigo-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                class="py-3 px-4 hover:bg-indigo-50 cursor-pointer transition-colors"
             >
                 <div class="flex justify-between items-center">
                     <span class="font-medium text-gray-800">
                       {{ getFlagEmoji(player.country_code) }} {{ player.name }}
                     </span>
                     <span
-                        class="flex items-center justify-center bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 py-1 px-2 rounded-full text-sm font-semibold w-26 h-full">
+                        class="flex items-center justify-center bg-indigo-100 text-indigo-800 py-1 px-2 rounded-full text-sm font-semibold w-26 h-full">
                         Rating: {{ player.rating }}
                     </span>
                 </div>

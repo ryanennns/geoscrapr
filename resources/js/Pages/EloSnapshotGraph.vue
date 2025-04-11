@@ -76,8 +76,6 @@ const availableDates = computed(() => {
     const soloDates = props.solo_snapshots.map(s => s.date)
     const teamDates = props.team_snapshots.map(s => s.date)
 
-    console.log('awooga', [...soloDates, ...teamDates])
-
     return [...new Set([...soloDates, ...teamDates])].sort().reverse()
 })
 
@@ -100,13 +98,8 @@ const formatDate = (date) => {
 }
 
 const currentSoloSnapshot = computed(() => {
-    console.log('awooga', formatDate(selectedDate.value));
-
     const formattedDate = formatDate(selectedDate.value)
-    return props.solo_snapshots.find(function (s) {
-        console.log('awooga', s.date, formattedDate, s.date === formattedDate)
-        return s.date === formattedDate;
-    })
+    return props.solo_snapshots.find(s => s.date === formattedDate)
 })
 
 const currentTeamSnapshot = computed(() => {
@@ -115,15 +108,15 @@ const currentTeamSnapshot = computed(() => {
 })
 
 const renderChart = (canvasRef, snapshot, isTeamChart = false, instanceRef) => {
-    if (!snapshot) return
+    if (!snapshot) {
+        return
+    }
 
     const entries = Object.entries(snapshot.buckets)
-    const lastNonZeroIndex = entries.map(([, v]) => v)
-        .reduce((lastIdx, val, idx) => val > 0 ? idx : lastIdx, 0)
+    const nonZeroEntries = entries.filter(([, v]) => v > 0)
 
-    const trimmed = entries.slice(0, lastNonZeroIndex + 1)
-    const labels = trimmed.map(([key]) => key)
-    const data = trimmed.map(([, val]) => val)
+    const labels = nonZeroEntries.map(([key]) => key)
+    const data = nonZeroEntries.map(([, val]) => val)
 
     const numericLabels = labels.map(label => parseInt(label.match(/\d+/)?.[0] || '0', 10))
     const min = Math.min(...numericLabels)
