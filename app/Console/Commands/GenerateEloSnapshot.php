@@ -21,11 +21,11 @@ class GenerateEloSnapshot extends Command
 
         $singleplayerBuckets = array_fill(0, $bucketCount, 0);
         try {
-            $query = Player::query()
+            $playerQuery = Player::query()
                 ->whereNotNull('rating')
                 ->select('rating');
 
-            $query->chunk(100, function ($players) use (&$singleplayerBuckets) {
+            $playerQuery->chunk(100, function ($players) use (&$singleplayerBuckets) {
                 foreach ($players as $player) {
                     $bucketIndex = min((int)($player->rating / self::INTERVAL_SIZE), count($singleplayerBuckets) - 1);
                     $singleplayerBuckets[$bucketIndex]++;
@@ -40,7 +40,7 @@ class GenerateEloSnapshot extends Command
                     $upper = $lower + self::INTERVAL_SIZE - 1;
                     return ["{$lower}-{$upper}" => $count];
                 }),
-                'n'        => $query->count(),
+                'n'        => $playerQuery->count(),
             ]);
         } catch (\Throwable $exception) {
             dd($exception->getMessage());
@@ -48,11 +48,11 @@ class GenerateEloSnapshot extends Command
 
         $teamsBuckets = array_fill(0, $bucketCount, 0);
         try {
-            $query = Team::query()
+            $teamQuery = Team::query()
                 ->whereNotNull('rating')
                 ->select('rating');
 
-            $query->chunk(100, function ($teams) use (&$teamsBuckets) {
+            $teamQuery->chunk(100, function ($teams) use (&$teamsBuckets) {
                 foreach ($teams as $team) {
                     $bucketIndex = min((int)($team->rating / self::INTERVAL_SIZE), count($teamsBuckets) - 1);
                     $teamsBuckets[$bucketIndex]++;
@@ -67,7 +67,7 @@ class GenerateEloSnapshot extends Command
                     $upper = $lower + self::INTERVAL_SIZE - 1;
                     return ["{$lower}-{$upper}" => $count];
                 }),
-                'n'        => $query->count(),
+                'n'        => $teamQuery->count(),
             ]);
         } catch (\Throwable $exception) {
             dd($exception->getMessage());

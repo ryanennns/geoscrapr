@@ -2,86 +2,101 @@
 <template>
     <div class="p-6">
         <h1 class="text-2xl font-bold mb-4">
-            ELO Distribution ({{ (new Date(props.snapshot.date)).toDateString() }}) — Total Players: {{ snapshot.n }}
+            Solo Elo Distribution ({{ (new Date(props.solo_snapshot.date)).toDateString() }}) — Total Players:
+            {{ props.solo_snapshot.n }}
         </h1>
         <div class="w-full max-w-full h-[60vh]">
-            <canvas ref="chartCanvas" class="w-full h-full"></canvas>
+            <canvas ref="soloChartCanvas" class="w-full h-full"></canvas>
+        </div>
+    </div>
+    <div class="p-6">
+        <h1 class="text-2xl font-bold mb-4">
+            Team Elo Distribution ({{ (new Date(props.team_snapshot.date)).toDateString() }}) — Total Players:
+            {{ props.team_snapshot.n }}
+        </h1>
+        <div class="w-full max-w-full h-[60vh]">
+            <canvas ref="teamChartCanvas" class="w-full h-full"></canvas>
         </div>
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { Chart, registerables } from 'chart.js'
+import {onMounted, ref} from 'vue'
+import {Chart, registerables} from 'chart.js'
 
 Chart.register(...registerables)
 
 const props = defineProps({
-    snapshot: Object,
+    solo_snapshot: Object,
+    team_snapshot: Object,
 })
 
-const chartCanvas = ref(null)
+const soloChartCanvas = ref(null)
+const teamChartCanvas = ref(null)
 
 onMounted(() => {
-    const rawBuckets = props.snapshot.buckets
+    const renderChart = (canvasRef, snapshot) => {
+        const rawBuckets = snapshot.buckets
+        const entries = Object.entries(rawBuckets)
 
-    const entries = Object.entries(rawBuckets)
+        const lastNonZeroIndex = entries.map(([, value]) => value)
+            .reduce((lastIndex, value, index) => value > 0 ? index : lastIndex, 0)
 
-    const lastNonZeroIndex = entries.map(([, value]) => value)
-        .reduce((lastIndex, value, index) => value > 0 ? index : lastIndex, 0)
+        const trimmedEntries = entries.slice(0, lastNonZeroIndex + 1)
+        const labels = trimmedEntries.map(([key]) => key)
+        const data = trimmedEntries.map(([, value]) => value)
 
-    const trimmedEntries = entries.slice(0, lastNonZeroIndex + 1)
+        new Chart(canvasRef.value, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    borderWidth: 1,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        enabled: true,
+                    },
+                    legend: {
+                        display: false,
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    },
+                },
+            },
+            plugins: [{
+                id: 'bar-value-labels',
+                afterDatasetsDraw(chart) {
+                    const {ctx, chartArea: {top}, scales: {x, y}} = chart
 
-    const labels = trimmedEntries.map(([key]) => key)
-    const data = trimmedEntries.map(([, value]) => value)
-
-    new Chart(chartCanvas.value, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                data,
-                borderWidth: 1,
+                    ctx.save()
+                    chart.data.datasets[0].data.forEach((value, i) => {
+                        ctx.fillStyle = '#000'
+                        ctx.font = '12px sans-serif'
+                        ctx.textAlign = 'center'
+                        ctx.fillText(
+                            value,
+                            x.getPixelForValue(i),
+                            y.getPixelForValue(value) - 6
+                        )
+                    })
+                    ctx.restore()
+                },
             }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                tooltip: {
-                    enabled: true,
-                },
-                legend: {
-                    display: false,
-                },
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                },
-            },
-        },
-        plugins: [{
-            id: 'bar-value-labels',
-            afterDatasetsDraw(chart) {
-                const { ctx, data, chartArea: { top }, scales: { x, y } } = chart
+        })
+    }
 
-                ctx.save()
-                chart.data.datasets[0].data.forEach((value, i) => {
-                    ctx.fillStyle = '#000'
-                    ctx.font = '12px sans-serif'
-                    ctx.textAlign = 'center'
-                    ctx.fillText(
-                        value,
-                        x.getPixelForValue(i),
-                        y.getPixelForValue(value) - 6
-                    )
-                })
-                ctx.restore()
-            }
-        }]
-    })
-
+    renderChart(soloChartCanvas, props.solo_snapshot)
+    renderChart(teamChartCanvas, props.team_snapshot)
 })
+
 
 </script>

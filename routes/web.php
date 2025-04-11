@@ -5,13 +5,19 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    $snapshot = EloSnapshot::query()->where('gamemode', 'solo')->latest('date')->first();
+    $soloSnapshot = EloSnapshot::query()->where('gamemode', 'solo')->latest('date')->first();
+    $teamSnapshot = EloSnapshot::query()->where('gamemode', 'team')->latest('date')->first();
 
     return Inertia::render('EloSnapshotGraph', [
-        'snapshot' => [
-            'date' => $snapshot->date,
-            'buckets' => json_decode($snapshot->buckets, true),
-            'n' => $snapshot->n,
+        'solo_snapshot' => [
+            'date'    => $soloSnapshot->date,
+            'buckets' => json_decode($soloSnapshot->buckets, true),
+            'n'       => $soloSnapshot->n,
         ],
+        'team_snapshot' => [
+            'date'    => $teamSnapshot->date,
+            'buckets' => json_decode($teamSnapshot->buckets, true),
+            'n'       => $teamSnapshot->n,
+        ]
     ]);
 });
