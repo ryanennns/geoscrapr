@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GetRatingChangeHistory;
 use App\Http\Controllers\SearchPlayerController;
 use App\Models\EloSnapshot;
 use Carbon\Carbon;
@@ -45,4 +46,5 @@ Route::get('/', function () {
 
 Route::prefix('players')->group(function () {
     Route::get('search', SearchPlayerController::class);
+    Route::get('history/{user_id}', GetRatingChangeHistory::class);
 });
