@@ -12,6 +12,7 @@ class SearchPlayerController extends Controller
         $query = $request->input('q');
 
         return Player::query()
+            ->whereNotNull('rating')
             ->where('name', 'like', "%$query")
             ->orWhere('user_id', 'like', "%$query%")
             ->limit(10)

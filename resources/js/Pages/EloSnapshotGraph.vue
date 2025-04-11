@@ -4,54 +4,75 @@
             <h1 class="text-3xl font-bold text-indigo-800">GeoGuessr Competitive Rating Distribution</h1>
             <p class="text-gray-600">Track player statistics and rating distributions</p>
         </div>
-        <div class="relative mb-10 w-full max-w-md mx-auto">
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                         fill="currentColor">
-                        <path fill-rule="evenodd"
-                              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                              clip-rule="evenodd"/>
-                    </svg>
+
+        <div class="flex justify-center items-center gap-4 mb-10 max-w-3xl mx-auto">
+            <div class="relative w-full max-w-md">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                             fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        v-model="searchQuery"
+                        @input="fetchPlayers"
+                        placeholder="Search for a player..."
+                        class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    />
+                    <transition name="fade">
+                        <button
+                            v-if="searchQuery"
+                            @click="() => { searchQuery = ''; fetchPlayers(); }"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                        >
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </transition>
                 </div>
-                <input
-                    type="text"
-                    v-model="searchQuery"
-                    @input="fetchPlayers"
-                    placeholder="Search for a player..."
-                    class="pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                />
+
+                <ul
+                    v-if="results.length"
+                    class="absolute top-full left-0 z-10 bg-gray-50 border border-gray-200 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
+                >
+                    <li
+                        v-for="player in results"
+                        :key="player.id"
+                        class="py-3 px-4 hover:bg-indigo-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                    >
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium text-gray-800">{{ player.name }}</span>
+                            <span
+                                class="items-center bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 py-1 px-2 rounded-full text-sm font-semibold w-26">
+                    Rating: {{ player.rating }}
+                </span>
+                        </div>
+                    </li>
+                </ul>
             </div>
 
-            <ul
-                v-if="results.length"
-                class="absolute top-full left-0 z-10 bg-gray-50 border border-gray-200 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
-            >
-                <li
-                    v-for="player in results"
-                    :key="player.id"
-                    class="py-3 px-4 hover:bg-indigo-50 cursor-pointer border-b last:border-b-0 transition-colors"
-                >
-                    <div class="flex justify-between items-center">
-                        <span class="font-medium text-gray-800">{{ player.name }}</span>
-                        <span
-                            class="bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 py-1 px-2 rounded-full text-sm font-semibold">
-                    Rating: {{ player.rating }}
-                        </span>
-                    </div>
-                </li>
-            </ul>
+            <div class="w-40">
+                <div class="relative">
+                    <Datepicker
+                        v-model="selectedDate"
+                        :enable-time-picker="false"
+                        :allowed-dates="availableDatesObjects"
+                        @update:model-value="updateCharts"
+                        placeholder="Pick a date"
+                        auto-apply
+                        clearable
+                    />
+                </div>
+            </div>
         </div>
 
-        <div class="mb-10 w-full max-w-md mx-auto text-center">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Select Snapshot Date</label>
-            <select v-model="selectedDate" @change="updateCharts"
-                    class="text-sm border-gray-300 rounded w-full px-3 py-2">
-                <option v-for="date in availableDates" :key="date" :value="date">
-                    {{ new Date(date).toDateString() }}
-                </option>
-            </select>
-        </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="bg-white p-6 rounded-xl shadow-md">
@@ -82,8 +103,10 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted} from 'vue'
+import {ref, computed, onMounted, watch} from 'vue'
 import {Chart, registerables} from 'chart.js'
+import Datepicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 const searchQuery = ref('')
 const results = ref([])
@@ -107,6 +130,9 @@ const fetchPlayers = () => {
     }, 300)
 }
 
+watch(() => searchQuery, () => {
+    fetchPlayers();
+});
 
 Chart.defaults.animation = false
 Chart.register(...registerables)
@@ -123,20 +149,46 @@ const soloChartInstance = ref(null)
 const teamChartInstance = ref(null)
 
 const availableDates = computed(() => {
-    // Union of all unique dates across both sets
     const soloDates = props.solo_snapshots.map(s => s.date)
     const teamDates = props.team_snapshots.map(s => s.date)
+
+    console.log('awooga', [...soloDates, ...teamDates])
+
     return [...new Set([...soloDates, ...teamDates])].sort().reverse()
 })
 
-const selectedDate = ref(availableDates.value[0])
+function parseLocalDate(dateStr) {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    return new Date(year, month - 1, day) // this is local midnight
+}
 
-const currentSoloSnapshot = computed(() =>
-    props.solo_snapshots.find(s => s.date === selectedDate.value)
+const availableDatesObjects = computed(() => {
+    return availableDates.value.map(parseLocalDate)
+})
+const selectedDate = ref(
+    availableDates.value[0] ? parseLocalDate(availableDates.value[0]) : new Date()
 )
-const currentTeamSnapshot = computed(() =>
-    props.team_snapshots.find(s => s.date === selectedDate.value)
-)
+const formatDate = (date) => {
+    if (!date) return null
+    return date instanceof Date
+        ? date.toISOString().split('T')[0]
+        : date
+}
+
+const currentSoloSnapshot = computed(() => {
+    console.log('awooga', formatDate(selectedDate.value));
+
+    const formattedDate = formatDate(selectedDate.value)
+    return props.solo_snapshots.find(function (s) {
+        console.log('awooga', s.date, formattedDate, s.date === formattedDate)
+        return s.date === formattedDate;
+    })
+})
+
+const currentTeamSnapshot = computed(() => {
+    const formattedDate = formatDate(selectedDate.value)
+    return props.team_snapshots.find(s => s.date === formattedDate)
+})
 
 const renderChart = (canvasRef, snapshot, isTeamChart = false, instanceRef) => {
     if (!snapshot) return
@@ -252,3 +304,15 @@ const updateCharts = () => {
 
 onMounted(updateCharts)
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

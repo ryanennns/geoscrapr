@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\SearchPlayerController;
 use App\Models\EloSnapshot;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,12 +30,12 @@ Route::get('/', function () {
 
     return Inertia::render('EloSnapshotGraph', [
         'solo_snapshots' => $soloSnapshots->map(fn($snapshot) => [
-            'date'    => $snapshot->date,
+            'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
             'buckets' => json_decode($snapshot->buckets, true),
             'n'       => $snapshot->n,
         ])->toArray(),
         'team_snapshots' => $teamSnapshots->map(fn($snapshot) => [
-            'date'    => $snapshot->date,
+            'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
             'buckets' => json_decode($snapshot->buckets, true),
             'n'       => $snapshot->n,
         ])->toArray(),
