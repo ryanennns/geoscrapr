@@ -1,21 +1,45 @@
-<!-- resources/js/Pages/EloSnapshotGraph.vue -->
 <template>
-    <div class="p-6">
-        <h1 class="text-2xl font-bold mb-4">
-            Solo Elo Distribution ({{ (new Date(props.solo_snapshot.date)).toDateString() }}) — Total Players:
-            {{ props.solo_snapshot.n }}
-        </h1>
-        <div class="w-full max-w-full h-[60vh]">
-            <canvas ref="soloChartCanvas" class="w-full h-full"></canvas>
+    <div class="p-6 m-4">
+        <div class="relative mb-8 w-full max-w-md">
+            <input
+                type="text"
+                v-model="searchQuery"
+                @input="fetchPlayers"
+                placeholder="Search for a player..."
+                class="p-2 border rounded w-full"
+            />
+            <ul
+                v-if="results.length"
+                class="absolute top-full left-0 z-10 bg-white border border-gray-300 w-full shadow-lg max-h-64 overflow-y-auto"
+            >
+                <li
+                    v-for="player in results"
+                    :key="player.id"
+                    class="py-2 px-4 hover:bg-gray-100 cursor-pointer border-b"
+                >
+                    {{ player.name }} — ELO: {{ player.rating }}
+                </li>
+            </ul>
         </div>
-    </div>
-    <div class="p-6">
-        <h1 class="text-2xl font-bold mb-4">
-            Team Elo Distribution ({{ (new Date(props.team_snapshot.date)).toDateString() }}) — Total Players:
-            {{ props.team_snapshot.n }}
-        </h1>
-        <div class="w-full max-w-full h-[60vh]">
-            <canvas ref="teamChartCanvas" class="w-full h-full"></canvas>
+        <div class="flex flex-row">
+            <div class="mr-2">
+                <h1 class="text-2xl font-bold">
+                    Solo Elo Distribution ({{ (new Date(props.solo_snapshot.date)).toDateString() }})
+                </h1>
+                <h2 class="mb-4">n = {{ props.solo_snapshot.n }}</h2>
+                <div class="w-full max-w-full h-[60vh]">
+                    <canvas ref="soloChartCanvas" class="w-full h-full"></canvas>
+                </div>
+            </div>
+            <div class="ml-2">
+                <h1 class="text-2xl font-bold">
+                    Team Elo Distribution ({{ (new Date(props.team_snapshot.date)).toDateString() }})
+                </h1>
+                <h2 class="mb-4">n = {{ props.team_snapshot.n }}</h2>
+                <div class="w-full max-w-full h-[60vh]">
+                    <canvas ref="teamChartCanvas" class="w-full h-full"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -33,6 +57,30 @@ const props = defineProps({
 
 const soloChartCanvas = ref(null)
 const teamChartCanvas = ref(null)
+
+const searchQuery = ref('')
+const results = ref([])
+
+let debounceTimeout = null
+const fetchPlayers = () => {
+    clearTimeout(debounceTimeout)
+
+    debounceTimeout = setTimeout(async () => {
+        if (searchQuery.value.length < 2) {
+            results.value = []
+            return
+        }
+
+        try {
+            const response = await fetch(`/players/search?q=${encodeURIComponent(searchQuery.value)}`)
+            if (!response.ok) throw new Error('Network response was not ok')
+            results.value = await response.json()
+        } catch (err) {
+            console.error('Player search failed:', err)
+        }
+    }, 300)
+}
+
 
 onMounted(() => {
     const renderChart = (canvasRef, snapshot) => {
@@ -97,6 +145,5 @@ onMounted(() => {
     renderChart(soloChartCanvas, props.solo_snapshot)
     renderChart(teamChartCanvas, props.team_snapshot)
 })
-
 
 </script>

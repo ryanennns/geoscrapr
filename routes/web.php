@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SearchPlayerController;
 use App\Models\EloSnapshot;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,4 +21,9 @@ Route::get('/', function () {
             'n'       => $teamSnapshot->n,
         ]
     ]);
+});
+
+
+Route::prefix('players')->group(function () {
+    Route::get('search', SearchPlayerController::class);
 });
