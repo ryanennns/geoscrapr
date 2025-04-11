@@ -8,19 +8,11 @@
         <div class="flex justify-center items-center gap-4 mb-10 max-w-3xl mx-auto">
             <PlayerSearch />
 
-            <div class="w-40">
-                <div class="relative">
-                    <Datepicker
-                        v-model="selectedDate"
-                        :enable-time-picker="false"
-                        :allowed-dates="availableDatesObjects"
-                        @update:model-value="updateCharts"
-                        placeholder="Pick a date"
-                        auto-apply
-                        clearable
-                    />
-                </div>
-            </div>
+            <DateSelector
+                v-model="selectedDate"
+                :availableDates="availableDatesObjects"
+                @update:model-value="updateCharts"
+            />
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -57,6 +49,7 @@ import {Chart, registerables} from 'chart.js'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
+import DateSelector from "../Components/DateSelector.vue";
 
 Chart.defaults.animation = false
 Chart.register(...registerables)
