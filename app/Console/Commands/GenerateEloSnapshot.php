@@ -21,16 +21,19 @@ class GenerateEloSnapshot extends Command
 
         $singleplayerBuckets = array_fill(0, $bucketCount, 0);
         try {
-            $playerQuery = Player::query()
+            $playerN = Player::query()
                 ->whereNotNull('rating')
-                ->select('rating');
+                ->count();
 
-            $playerQuery->chunk(100, function ($players) use (&$singleplayerBuckets) {
-                foreach ($players as $player) {
-                    $bucketIndex = min((int)($player->rating / self::INTERVAL_SIZE), count($singleplayerBuckets) - 1);
-                    $singleplayerBuckets[$bucketIndex]++;
-                }
-            });
+            Player::query()
+                ->whereNotNull('rating')
+                ->select('rating')
+                ->chunk(100, function ($players) use (&$singleplayerBuckets) {
+                    foreach ($players as $player) {
+                        $bucketIndex = min((int)($player->rating / self::INTERVAL_SIZE), count($singleplayerBuckets) - 1);
+                        $singleplayerBuckets[$bucketIndex]++;
+                    }
+                });
 
             EloSnapshot::query()->create([
                 'date'     => now(),
@@ -38,9 +41,9 @@ class GenerateEloSnapshot extends Command
                 'buckets'  => collect($singleplayerBuckets)->mapWithKeys(function ($count, $i) {
                     $lower = $i * self::INTERVAL_SIZE;
                     $upper = $lower + self::INTERVAL_SIZE - 1;
-                    return ["{$lower}-{$upper}" => $count];
+                    return ["$lower-$upper" => $count];
                 }),
-                'n'        => $playerQuery->count(),
+                'n'        => $playerN,
             ]);
         } catch (\Throwable $exception) {
             dd($exception->getMessage());
@@ -48,16 +51,18 @@ class GenerateEloSnapshot extends Command
 
         $teamsBuckets = array_fill(0, $bucketCount, 0);
         try {
-            $teamQuery = Team::query()
+            $teamN = Team::query()
                 ->whereNotNull('rating')
-                ->select('rating');
+                ->count();
 
-            $teamQuery->chunk(100, function ($teams) use (&$teamsBuckets) {
-                foreach ($teams as $team) {
-                    $bucketIndex = min((int)($team->rating / self::INTERVAL_SIZE), count($teamsBuckets) - 1);
-                    $teamsBuckets[$bucketIndex]++;
-                }
-            });
+            Team::query()
+                ->whereNotNull('rating')
+                ->select('rating')->chunk(100, function ($teams) use (&$teamsBuckets) {
+                    foreach ($teams as $team) {
+                        $bucketIndex = min((int)($team->rating / self::INTERVAL_SIZE), count($teamsBuckets) - 1);
+                        $teamsBuckets[$bucketIndex]++;
+                    }
+                });
 
             EloSnapshot::query()->create([
                 'date'     => now(),
@@ -65,9 +70,9 @@ class GenerateEloSnapshot extends Command
                 'buckets'  => collect($teamsBuckets)->mapWithKeys(function ($count, $i) {
                     $lower = $i * self::INTERVAL_SIZE;
                     $upper = $lower + self::INTERVAL_SIZE - 1;
-                    return ["{$lower}-{$upper}" => $count];
+                    return ["$lower-$upper" => $count];
                 }),
-                'n'        => $teamQuery->count(),
+                'n'        => $teamN,
             ]);
         } catch (\Throwable $exception) {
             dd($exception->getMessage());

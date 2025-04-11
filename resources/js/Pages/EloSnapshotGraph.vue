@@ -4,6 +4,44 @@
             <h1 class="text-3xl font-bold text-indigo-800">GeoGuessr Competitive Rating Distribution</h1>
             <p class="text-gray-600">Track player statistics and rating distributions</p>
         </div>
+        <div class="relative mb-10 w-full max-w-md mx-auto">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                         fill="currentColor">
+                        <path fill-rule="evenodd"
+                              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <input
+                    type="text"
+                    v-model="searchQuery"
+                    @input="fetchPlayers"
+                    placeholder="Search for a player..."
+                    class="pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                />
+            </div>
+
+            <ul
+                v-if="results.length"
+                class="absolute top-full left-0 z-10 bg-gray-50 border border-gray-200 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
+            >
+                <li
+                    v-for="player in results"
+                    :key="player.id"
+                    class="py-3 px-4 hover:bg-indigo-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                >
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-gray-800">{{ player.name }}</span>
+                        <span
+                            class="bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 py-1 px-2 rounded-full text-sm font-semibold">
+                    Rating: {{ player.rating }}
+                        </span>
+                    </div>
+                </li>
+            </ul>
+        </div>
 
         <div class="mb-10 w-full max-w-md mx-auto text-center">
             <label class="block text-sm font-medium text-gray-700 mb-2">Select Snapshot Date</label>
@@ -16,15 +54,11 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Solo Chart -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800">Solo Rating Distribution</h2>
-                        <p class="text-sm text-gray-500">{{ new Date(selectedDate).toDateString() }}</p>
-                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Solo Rating Distribution</h2>
                     <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                        n = {{ currentSoloSnapshot?.n || 0 }}
+                        n = {{ currentSoloSnapshot?.n.toLocaleString() || 0 }}
                     </span>
                 </div>
                 <div class="w-full h-[60vh]">
@@ -32,15 +66,11 @@
                 </div>
             </div>
 
-            <!-- Team Chart -->
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800">Team Rating Distribution</h2>
-                        <p class="text-sm text-gray-500">{{ new Date(selectedDate).toDateString() }}</p>
-                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Team Rating Distribution</h2>
                     <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
-                        n = {{ currentTeamSnapshot?.n || 0 }}
+                        n = {{ currentTeamSnapshot?.n.toLocaleString() || 0 }}
                     </span>
                 </div>
                 <div class="w-full h-[60vh]">
@@ -55,6 +85,30 @@
 import {ref, computed, onMounted} from 'vue'
 import {Chart, registerables} from 'chart.js'
 
+const searchQuery = ref('')
+const results = ref([])
+
+let debounceTimeout = null
+const fetchPlayers = () => {
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(async () => {
+        if (searchQuery.value.length < 2) {
+            results.value = []
+            return
+        }
+
+        try {
+            const response = await fetch(`/players/search?q=${encodeURIComponent(searchQuery.value)}`)
+            if (!response.ok) throw new Error('Network response was not ok')
+            results.value = await response.json()
+        } catch (err) {
+            console.error('Player search failed:', err)
+        }
+    }, 300)
+}
+
+
+Chart.defaults.animation = false
 Chart.register(...registerables)
 
 const props = defineProps({
@@ -164,12 +218,10 @@ const renderChart = (canvasRef, snapshot, isTeamChart = false, instanceRef) => {
                 const {ctx, scales: {x, y}} = chart
                 ctx.save()
                 chart.data.datasets[0].data.forEach((value, i) => {
-                    if (value > 0) {
-                        ctx.fillStyle = '#292929'
-                        ctx.font = 'bold 12px sans-serif'
-                        ctx.textAlign = 'center'
-                        ctx.fillText(value, x.getPixelForValue(i), y.getPixelForValue(value) - 8)
-                    }
+                    ctx.fillStyle = '#292929'
+                    ctx.font = 'bold 12px sans-serif'
+                    ctx.textAlign = 'center'
+                    ctx.fillText(value.toLocaleString(), x.getPixelForValue(i), y.getPixelForValue(value) - 8)
                 })
                 ctx.restore()
             },
@@ -177,9 +229,25 @@ const renderChart = (canvasRef, snapshot, isTeamChart = false, instanceRef) => {
     })
 }
 
+let lastTrigger = 0
+const debounceDelay = 500
+let timeoutHandle = null
+
 const updateCharts = () => {
-    renderChart(soloChartCanvas, currentSoloSnapshot.value, false, soloChartInstance)
-    renderChart(teamChartCanvas, currentTeamSnapshot.value, true, teamChartInstance)
+    const now = Date.now()
+
+    if (now - lastTrigger > debounceDelay) {
+        // fire immediately
+        lastTrigger = now
+        renderChart(soloChartCanvas, currentSoloSnapshot.value, false, soloChartInstance)
+        renderChart(teamChartCanvas, currentTeamSnapshot.value, true, teamChartInstance)
+
+        // reset lock after 500ms
+        clearTimeout(timeoutHandle)
+        timeoutHandle = setTimeout(() => {
+            lastTrigger = 0
+        }, debounceDelay)
+    }
 }
 
 onMounted(updateCharts)
