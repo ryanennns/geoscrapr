@@ -41,7 +41,9 @@
                 class="py-3 px-4 hover:bg-indigo-50 cursor-pointer border-b last:border-b-0 transition-colors"
             >
                 <div class="flex justify-between items-center">
-                    <span class="font-medium text-gray-800">{{ player.name }}</span>
+                    <span class="font-medium text-gray-800">
+                      {{ getFlagEmoji(player.country_code) }} {{ player.name }}
+                    </span>
                     <span
                         class="flex items-center justify-center bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 py-1 px-2 rounded-full text-sm font-semibold w-26 h-full">
                         Rating: {{ player.rating }}
@@ -82,6 +84,23 @@ const fetchPlayers = () => {
 watch(() => searchQuery, () => {
     fetchPlayers();
 });
+
+const getFlagEmoji = (countryCode) => {
+    if (!countryCode || countryCode.length !== 2) {
+        return '🏴'
+    }
+
+    try {
+        return String.fromCodePoint(
+            ...countryCode
+                .toUpperCase()
+                .split('')
+                .map(char => 127397 + char.charCodeAt())
+        )
+    } catch {
+        return '🏴'
+    }
+}
 </script>
 
 <style scoped>

@@ -58,7 +58,7 @@ import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
 
-// Chart.defaults.animation = false
+Chart.defaults.animation = false
 Chart.register(...registerables)
 
 const props = defineProps({
@@ -83,7 +83,7 @@ const availableDates = computed(() => {
 
 function parseLocalDate(dateStr) {
     const [year, month, day] = dateStr.split('-').map(Number)
-    return new Date(year, month - 1, day) // this is local midnight
+    return new Date(year, month - 1, day)
 }
 
 const availableDatesObjects = computed(() => {
@@ -215,12 +215,10 @@ const updateCharts = () => {
     const now = Date.now()
 
     if (now - lastTrigger > debounceDelay) {
-        // fire immediately
         lastTrigger = now
         renderChart(soloChartCanvas, currentSoloSnapshot.value, false, soloChartInstance)
         renderChart(teamChartCanvas, currentTeamSnapshot.value, true, teamChartInstance)
 
-        // reset lock after 500ms
         clearTimeout(timeoutHandle)
         timeoutHandle = setTimeout(() => {
             lastTrigger = 0

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Player;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class SearchPlayerController extends Controller
 {
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): Collection
     {
         $query = $request->input('q');
 
