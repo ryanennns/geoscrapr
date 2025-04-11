@@ -46,7 +46,6 @@
 <script setup>
 import {ref, computed, onMounted, watch} from 'vue'
 import {Chart, registerables} from 'chart.js'
-import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
 import DateSelector from "../Components/DateSelector.vue";
@@ -103,23 +102,9 @@ const currentTeamSnapshot = computed(() => {
 
 const {renderChart} = useRatingChart();
 
-let lastTrigger = 0
-const debounceDelay = 500
-let timeoutHandle = null
-
 const updateCharts = () => {
-    const now = Date.now()
-
-    if (now - lastTrigger > debounceDelay) {
-        lastTrigger = now
-        renderChart(soloChartCanvas, currentSoloSnapshot.value, false, soloChartInstance)
-        renderChart(teamChartCanvas, currentTeamSnapshot.value, true, teamChartInstance)
-
-        clearTimeout(timeoutHandle)
-        timeoutHandle = setTimeout(() => {
-            lastTrigger = 0
-        }, debounceDelay)
-    }
+    renderChart(soloChartCanvas, currentSoloSnapshot.value, false, soloChartInstance)
+    renderChart(teamChartCanvas, currentTeamSnapshot.value, true, teamChartInstance)
 }
 
 onMounted(updateCharts)
