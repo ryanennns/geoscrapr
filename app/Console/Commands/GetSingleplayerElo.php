@@ -32,7 +32,10 @@ class GetSingleplayerElo extends Command
                     'limit'  => self::LIMIT
                 ]);
 
-                if (!$response->successful()) throw new \Exception("Request to GeoGuessr API failed with status {${$response->status}}");
+                if (!$response->successful()) {
+                    $this->error("Responded with $response->status");
+                    throw new \Exception("Request to GeoGuessr API failed with status {${$response->status}}");
+                }
 
                 $players = collect(json_decode($response->body()));
 
@@ -52,6 +55,8 @@ class GetSingleplayerElo extends Command
             } catch (\Exception $e) {
                 $this->error('An error occurred - ' . $e->getMessage());
                 $keepFetching = false;
+
+                Log::error($e->getMessage());
             }
         }
 
