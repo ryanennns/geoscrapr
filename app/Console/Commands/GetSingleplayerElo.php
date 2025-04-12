@@ -7,6 +7,7 @@ use App\Models\Player;
 use App\Models\RatingChange;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GetSingleplayerElo extends Command
 {
@@ -31,9 +32,7 @@ class GetSingleplayerElo extends Command
                     'limit'  => self::LIMIT
                 ]);
 
-                if (!$response->successful()) {
-                    throw new \Exception("Request to GeoGuessr API failed with status {${$response->status}}");
-                }
+                if (!$response->successful()) throw new \Exception("Request to GeoGuessr API failed with status {${$response->status}}");
 
                 $players = collect(json_decode($response->body()));
 
@@ -59,5 +58,7 @@ class GetSingleplayerElo extends Command
         $diff = Player::query()->count(0) - $initPlayersCount;
         $diffInRatingChanges = RatingChange::query()->where('rateable_type', Player::class)->count() - $initRatingChangeCount;
         $this->info("Added $diff users, and $diffInRatingChanges ratings changed.");
+
+        Log::info("Added $diff users, and $diffInRatingChanges ratings changed.");
     }
 }

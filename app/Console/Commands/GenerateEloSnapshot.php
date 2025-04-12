@@ -6,6 +6,7 @@ use App\Models\EloSnapshot;
 use App\Models\Player;
 use App\Models\Team;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class GenerateEloSnapshot extends Command
 {
@@ -45,6 +46,8 @@ class GenerateEloSnapshot extends Command
                 }),
                 'n'        => $playerN,
             ]);
+
+            Log::info("Generated singleplayer ELO snapshot for $playerN players");
         } catch (\Throwable $exception) {
             dd($exception->getMessage());
         }
@@ -74,8 +77,10 @@ class GenerateEloSnapshot extends Command
                 }),
                 'n'        => $teamN,
             ]);
+
+            Log::info("Generated teams ELO snapshot for $teamN players");
         } catch (\Throwable $exception) {
-            dd($exception->getMessage());
+            Log::error($exception->getMessage());
         }
     }
 }

@@ -8,6 +8,7 @@ use App\Models\RatingChange;
 use App\Models\Team;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GetTeamsElo extends Command
 {
@@ -75,5 +76,7 @@ class GetTeamsElo extends Command
         $teamDiff = Team::query()->count() - $initTeamsCount;
         $ratingChangeDiff = RatingChange::query()->where('rateable_type', Team::class)->count() - $initRatingChangeCount;
         $this->info("Added $playerDiff players, $teamDiff teams, and $ratingChangeDiff ratings changed.");
+
+        Log::info("Added $playerDiff players, $teamDiff teams, and $ratingChangeDiff ratings changed.");
     }
 }
