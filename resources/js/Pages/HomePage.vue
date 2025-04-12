@@ -8,7 +8,7 @@
                           d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <p class="text-lg font-semibold text-gray-700">This website is best experienced on desktop!</p>
-                <p class="text-gray-500 mt-2">Please come back on a larger screen to explore the charts and stats.</p>
+                <p class="text-gray-500 mt-2">Please visit on a larger screen to explore the charts and stats.</p>
             </div>
         </div>
         <template v-else>
@@ -32,10 +32,10 @@
                     <div class="flex justify-between items-start mb-4">
                         <h2 class="text-2xl font-bold text-gray-800">Solo Rating Distribution</h2>
                         <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                        n = {{ currentSoloSnapshot?.n.toLocaleString() || 0 }}
-                    </span>
+                            n = {{ currentSoloSnapshot?.n.toLocaleString() || 0 }}
+                        </span>
                     </div>
-                    <div class="w-full h-[60vh]">
+                    <div class="w-full h-60 lg:h-[60vh]">
                         <canvas ref="soloChartCanvas" class="w-full h-full"></canvas>
                     </div>
                 </div>
@@ -44,10 +44,10 @@
                     <div class="flex justify-between items-start mb-4">
                         <h2 class="text-2xl font-bold text-gray-800">Team Rating Distribution</h2>
                         <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
-                        n = {{ currentTeamSnapshot?.n.toLocaleString() || 0 }}
-                    </span>
+                            n = {{ currentTeamSnapshot?.n.toLocaleString() || 0 }}
+                        </span>
                     </div>
-                    <div class="w-full h-[60vh]">
+                    <div class="w-full h-60 lg:h-[60vh]">
                         <canvas ref="teamChartCanvas" class="w-full h-full"></canvas>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted} from 'vue'
+import {ref, computed, onMounted, watch, onBeforeUnmount} from 'vue'
 import {Chart, registerables} from 'chart.js'
 import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
@@ -65,14 +65,34 @@ import DateSelector from "../Components/DateSelector.vue";
 import {useRatingChart} from "@composables/useRatingChart.js";
 
 const isSmallScreen = ref(false)
+const wasSmallScreen = ref(false)
+const resizeTimer = ref(null)
 
-onMounted(() => {
-    const checkSize = () => {
-        isSmallScreen.value = window.innerWidth < 1300
+const checkSize = () => {
+    wasSmallScreen.value = isSmallScreen.value
+    isSmallScreen.value = window.innerWidth < 1300
+
+    if (resizeTimer.value) {
+        clearTimeout(resizeTimer.value)
     }
 
+    resizeTimer.value = setTimeout(() => {
+        if (wasSmallScreen.value && !isSmallScreen.value) {
+            setTimeout(initializeCharts, 100)
+        }
+    }, 250)
+}
+
+onMounted(() => {
     checkSize()
     window.addEventListener('resize', checkSize)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', checkSize)
+    if (resizeTimer.value) {
+        clearTimeout(resizeTimer.value)
+    }
 })
 
 Chart.defaults.animation = false
@@ -104,9 +124,11 @@ function parseLocalDate(dateStr) {
 const availableDatesObjects = computed(() => {
     return availableDates.value.map(parseLocalDate)
 })
+
 const selectedDate = ref(
     availableDates.value[0] ? parseLocalDate(availableDates.value[0]) : new Date()
 )
+
 const formatDate = (date) => {
     if (!date) return null
     return date instanceof Date
@@ -127,9 +149,37 @@ const currentTeamSnapshot = computed(() => {
 const {renderChart} = useRatingChart();
 
 const updateCharts = () => {
-    renderChart(soloChartCanvas, currentSoloSnapshot.value, false, soloChartInstance)
-    renderChart(teamChartCanvas, currentTeamSnapshot.value, true, teamChartInstance)
+    if (!isSmallScreen.value) {
+        renderChart(soloChartCanvas, currentSoloSnapshot.value, false, soloChartInstance)
+        renderChart(teamChartCanvas, currentTeamSnapshot.value, true, teamChartInstance)
+    }
 }
 
-onMounted(updateCharts)
+const initializeCharts = () => {
+    if (soloChartInstance.value) {
+        soloChartInstance.value.destroy()
+        soloChartInstance.value = null
+    }
+
+    if (teamChartInstance.value) {
+        teamChartInstance.value.destroy()
+        teamChartInstance.value = null
+    }
+
+    updateCharts()
+}
+
+watch(isSmallScreen, (newValue, oldValue) => {
+    if (!newValue && oldValue) {
+        setTimeout(initializeCharts, 100)
+    }
+})
+
+onMounted(() => {
+    if (!isSmallScreen.value) {
+        initializeCharts()
+    }
+})
+
+watch(selectedDate, updateCharts)
 </script>
