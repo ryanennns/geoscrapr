@@ -12,7 +12,7 @@
                                 {{ getFlagEmoji(player.country_code) }}
                                 {{ props.player.name }} -
                                 {{ props.player.rating }}
-                                <a :href=generateProfileUrl(props.player.user_id)>
+                                <a :href=generateProfileUrl(props.player.user_id) target="_blank">
                                     <p class="text-gray-600 font-mono underline font-light">
                                         {{ props.player.user_id }}
                                     </p>
