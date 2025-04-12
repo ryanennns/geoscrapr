@@ -32,8 +32,10 @@ class GetSingleplayerElo extends Command
                     'limit'  => self::LIMIT
                 ]);
 
+                dd($response);
+
                 if (!$response->successful()) {
-                    $this->error("Responded with $response->status");
+                    $this->error(json_encode($response));
                     throw new \Exception("Request to GeoGuessr API failed with status {${$response->status}}");
                 }
 
