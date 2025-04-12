@@ -5,7 +5,7 @@
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/75"
             @click.self="emitClose"
         >
-            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl" style="height: 360px;">
                 <div class="flex justify-between items-start mb-4">
                         <span>
                             <h2 class="text-xl font-bold">
@@ -31,21 +31,21 @@
                     </button>
                 </div>
 
-                <div v-if="props.playerRatingHistory.length > 1" class="mt-4">
-                    <h3 class="text-lg font-semibold mb-2">Rating History</h3>
-                    <div class="w-full h-64">
-                        <canvas ref="ratingChartCanvas"></canvas>
+                <div class="h-64 mt-4 flex-grow overflow-hidden">
+                    <div v-if="props.playerRatingHistory.length > 1" class="h-full">
+                        <h3 class="text-lg font-semibold mb-2">Rating History</h3>
+                        <div class="w-full h-52">
+                            <canvas ref="ratingChartCanvas"></canvas>
+                        </div>
                     </div>
-                </div>
-                <div v-else-if="props.isLoadingHistory" class="mt-4 text-center py-8">
-                    <div class="spinner-container flex justify-center items-center py-10">
-                        <div
-                            class="spinner w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                    <div v-else-if="props.isLoadingHistory" class="h-full flex flex-col justify-center items-center">
+                        <div class="spinner-container flex justify-center items-center">
+                            <div
+                                class="spinner w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                        </div>
+                        <p class="text-gray-500 mt-4">Loading rating history...</p>
                     </div>
-                    <p class="text-gray-500 mt-4">Loading rating history...</p>
-                </div>
-                <div v-else-if="props.playerRatingHistory.length <= 1" class="mt-4 text-center py-8">
-                    <div class="flex flex-col items-center">
+                    <div v-else-if="props.playerRatingHistory.length <= 1" class="h-full flex flex-col justify-center items-center">
                         <svg class="h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -55,15 +55,6 @@
                             player!</p>
                         <p class="text-gray-500 mt-2">Check back later or try another player.</p>
                     </div>
-                </div>
-
-                <div class="mt-6 flex justify-end">
-                    <button
-                        @click="emitClose"
-                        class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-                    >
-                        Close
-                    </button>
                 </div>
             </div>
         </div>
@@ -278,4 +269,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.2s;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
 </style>
