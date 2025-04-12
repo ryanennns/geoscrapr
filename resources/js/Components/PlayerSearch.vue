@@ -6,13 +6,16 @@
                      fill="currentColor">
                     <path fill-rule="evenodd"
                           d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                          clip-rule="evenodd"/>
+                          clip-rule="evenodd"
+                    />
                 </svg>
             </div>
             <input
                 type="text"
                 v-model="searchQuery"
                 @input="fetchPlayers"
+                @focus="fetchPlayers"
+                @blur="() => showDropdown = false"
                 placeholder="Search for a player name or ID..."
                 class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
@@ -32,25 +35,15 @@
         </div>
 
         <ul
-            v-if="searchResults.length"
+            v-if="searchResults.length && showDropdown"
             class="absolute top-full left-0 z-10 bg-gray-50 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
         >
-            <li
+            <PlayerSearchResult
                 v-for="player in searchResults"
                 :key="player.id"
-                @click="handlePlayerClick(player)"
-                class="py-3 px-4 hover:bg-indigo-50 cursor-pointer transition-colors"
-            >
-                <div class="flex justify-between items-center">
-                    <span class="font-medium text-gray-800">
-                      {{ getFlagEmoji(player.country_code) }} {{ player.name }}
-                    </span>
-                    <span
-                        class="flex items-center justify-center bg-indigo-100 text-indigo-800 py-1 px-2 rounded-full text-sm font-semibold w-26 h-full">
-                        Rating: {{ player.rating }}
-                    </span>
-                </div>
-            </li>
+                :player="player"
+                @player-click="handlePlayerClick"
+            />
         </ul>
 
         <transition name="fade">
@@ -66,12 +59,10 @@
 </template>
 
 <script setup>
-import {ref, watch, onUnmounted} from "vue";
+import {ref} from "vue";
 import {Chart, registerables} from "chart.js";
-import {usePlayerUtils} from "../../composables/usePlayerUtils.js";
 import RatingHistoryModal from "./RatingHistoryModal.vue";
-
-const {getFlagEmoji} = usePlayerUtils();
+import PlayerSearchResult from "./PlayerSearchResult.vue";
 
 Chart.register(...registerables);
 
@@ -79,12 +70,14 @@ const searchQuery = ref('');
 const searchResults = ref([]);
 const selectedPlayer = ref(null);
 const showModal = ref(false);
+const showDropdown = ref(true);
 const closeModal = () => showModal.value = false;
 const playerRatingHistory = ref([]);
 const isLoadingHistory = ref(false);
 
 let debounceTimeout = null;
 const fetchPlayers = () => {
+    showDropdown.value = true;
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(async () => {
         if (searchQuery.value.length < 2) {
@@ -104,43 +97,27 @@ const fetchPlayers = () => {
     }, 300);
 };
 
-watch(searchQuery, () => {
-    fetchPlayers();
-});
-
 const handlePlayerClick = async (player) => {
     selectedPlayer.value = player;
+
+    showDropdown.value = false;
     showModal.value = true;
     playerRatingHistory.value = [];
     isLoadingHistory.value = true;
 
-    const startTime = Date.now();
-
     try {
         const res = await fetch(`/players/history/${player.user_id}`);
-        if (!res.ok) throw new Error("Failed to fetch player details");
+        if (!res.ok) {
+            throw new Error("Failed to fetch player details")
+        }
 
         const historyData = await res.json();
 
         playerRatingHistory.value = historyData.sort((a, b) =>
             new Date(a.created_at) - new Date(b.created_at)
         );
-
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, 300 - elapsedTime);
-
-        if (remainingTime > 0) {
-            await new Promise(resolve => setTimeout(resolve, remainingTime));
-        }
     } catch (err) {
         console.error("Error loading player details:", err);
-
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, 150 - elapsedTime);
-
-        if (remainingTime > 0) {
-            await new Promise(resolve => setTimeout(resolve, remainingTime));
-        }
     } finally {
         isLoadingHistory.value = false;
     }

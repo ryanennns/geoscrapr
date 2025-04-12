@@ -187,13 +187,11 @@ const renderRatingChart = () => {
                     beginAtZero: false,
                     title: {
                         display: true,
-                        text: 'Rating'
                     }
                 },
                 x: {
                     title: {
                         display: true,
-                        text: 'Date'
                     },
                     ticks: {
                         maxTicksLimit: 10
