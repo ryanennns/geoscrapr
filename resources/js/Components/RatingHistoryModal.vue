@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import {usePlayerUtils} from "../../composables/usePlayerUtils.js";
+import {usePlayerUtils} from "@composables/usePlayerUtils.js";
 import {nextTick, onUnmounted, ref, watch} from "vue";
 import {Chart} from "chart.js";
 
@@ -121,6 +121,38 @@ const getDatesInRange = (startDate, endDate) => {
     return dates;
 };
 
+const calculateYAxisTicks = (minValue, maxValue) => {
+    const standardIntervals = [10, 25, 50, 100, 200, 500, 1000];
+
+    let interval = standardIntervals[0];
+
+    const range = maxValue - minValue;
+
+    const targetTickCount = 5;
+
+    for (let i = 0; i < standardIntervals.length; i++) {
+        if (range / standardIntervals[i] <= targetTickCount) {
+            interval = standardIntervals[i];
+            break;
+        }
+    }
+
+    const minTick = Math.floor(minValue / interval) * interval - interval;
+    const maxTick = Math.ceil(maxValue / interval) * interval + interval;
+
+    const ticks = [];
+    for (let tick = minTick; tick <= maxTick; tick += interval) {
+        ticks.push(tick);
+    }
+
+    return {
+        min: minTick,
+        max: maxTick,
+        interval: interval,
+        ticks: ticks
+    };
+};
+
 const renderRatingChart = () => {
     if (!ratingChartCanvas.value || props.playerRatingHistory.length <= 1) return;
 
@@ -162,6 +194,12 @@ const renderRatingChart = () => {
 
     const {labels, data} = processData();
 
+    const validData = data.filter(value => value !== null);
+    const minRating = Math.min(...validData);
+    const maxRating = Math.max(...validData);
+
+    const yAxis = calculateYAxisTicks(minRating, maxRating);
+
     ratingChartInstance.value = new Chart(ctx, {
         type: 'line',
         data: {
@@ -185,6 +223,14 @@ const renderRatingChart = () => {
             scales: {
                 y: {
                     beginAtZero: false,
+                    min: yAxis.min,
+                    max: yAxis.max,
+                    ticks: {
+                        callback: function(value) {
+                            return yAxis.ticks.includes(value) ? value : null;
+                        },
+                        stepSize: yAxis.interval
+                    },
                     title: {
                         display: true,
                     }

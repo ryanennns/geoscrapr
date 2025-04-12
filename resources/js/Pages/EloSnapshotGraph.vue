@@ -44,12 +44,12 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted, watch} from 'vue'
+import {ref, computed, onMounted} from 'vue'
 import {Chart, registerables} from 'chart.js'
 import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
 import DateSelector from "../Components/DateSelector.vue";
-import {useRatingChart} from "../../composables/useRatingChart.js";
+import {useRatingChart} from "@composables/useRatingChart.js";
 
 Chart.defaults.animation = false
 Chart.register(...registerables)

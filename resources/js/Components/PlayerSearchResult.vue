@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import {usePlayerUtils} from "../../composables/usePlayerUtils.js";
+import {usePlayerUtils} from "@composables/usePlayerUtils.js";
 
 const {getFlagEmoji} = usePlayerUtils()
 
