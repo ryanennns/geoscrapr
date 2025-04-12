@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GetRatingChangeHistory;
 use App\Http\Controllers\SearchPlayerController;
+use App\Http\Middleware\VerifyRequestReferer;
 use App\Models\EloSnapshot;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
@@ -29,7 +30,7 @@ Route::get('/', function () {
         ->limit(10)
         ->get();
 
-    return Inertia::render('EloSnapshotGraph', [
+    return Inertia::render('HomePage', [
         'solo_snapshots' => $soloSnapshots->map(fn($snapshot) => [
             'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
             'buckets' => json_decode($snapshot->buckets, true),
@@ -44,7 +45,9 @@ Route::get('/', function () {
 });
 
 
-Route::prefix('players')->group(function () {
-    Route::get('search', SearchPlayerController::class);
-    Route::get('history/{user_id}', GetRatingChangeHistory::class);
-});
+Route::prefix('players')
+    ->middleware([VerifyRequestReferer::class, 'throttle:60,1'])
+    ->group(function () {
+        Route::get('search', SearchPlayerController::class);
+        Route::get('history/{user_id}', GetRatingChangeHistory::class);
+    });
