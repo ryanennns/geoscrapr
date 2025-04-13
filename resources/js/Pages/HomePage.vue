@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import {ref, computed, onMounted, watch, onBeforeUnmount} from 'vue'
+import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {Chart, registerables} from 'chart.js'
 import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
@@ -101,6 +101,7 @@ Chart.register(...registerables)
 const props = defineProps({
     solo_snapshots: Array,
     team_snapshots: Array,
+    dates: Array,
 })
 
 const soloChartCanvas = ref(null)
@@ -108,6 +109,9 @@ const teamChartCanvas = ref(null)
 
 const soloChartInstance = ref(null)
 const teamChartInstance = ref(null)
+
+const soloSnapshots = ref(props.solo_snapshots);
+const teamSnapshots = ref(props.team_snapshots);
 
 const availableDates = computed(() => {
     const soloDates = props.solo_snapshots.map(s => s.date)
@@ -122,7 +126,7 @@ function parseLocalDate(dateStr) {
 }
 
 const availableDatesObjects = computed(() => {
-    return availableDates.value.map(parseLocalDate)
+    return props.dates.map(parseLocalDate)
 })
 
 const selectedDate = ref(
@@ -136,14 +140,36 @@ const formatDate = (date) => {
         : date
 }
 
+const fetchSnapshot = async (date) => {
+    const response = await fetch(`/snapshots?date=${formatDate(date)}`)
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch snapshot for ${date}.`)
+    }
+
+    return await response.json();
+}
+
 const currentSoloSnapshot = computed(() => {
-    const formattedDate = formatDate(selectedDate.value)
-    return props.solo_snapshots.find(s => s.date === formattedDate)
+    return soloSnapshots.value.find(s => s.date === formatDate(selectedDate.value))
 })
 
 const currentTeamSnapshot = computed(() => {
-    const formattedDate = formatDate(selectedDate.value)
-    return props.team_snapshots.find(s => s.date === formattedDate)
+    return teamSnapshots.value.find(s => s.date === formatDate(selectedDate.value))
+})
+
+watch(selectedDate, async () => {
+    if (
+        soloSnapshots.value.find(s => s.date === formatDate(selectedDate.value)) &&
+        teamSnapshots.value.find(s => s.date === formatDate(selectedDate.value))
+    ) {
+        return;
+    }
+
+    const snapshots = await fetchSnapshot(selectedDate.value)
+
+    soloSnapshots.value.push(snapshots.solo)
+    teamSnapshots.value.push(snapshots.team)
 })
 
 const {renderChart} = useRatingChart();
@@ -181,5 +207,5 @@ onMounted(() => {
     }
 })
 
-watch(selectedDate, updateCharts)
+watch([currentSoloSnapshot, currentTeamSnapshot, selectedDate], updateCharts)
 </script>

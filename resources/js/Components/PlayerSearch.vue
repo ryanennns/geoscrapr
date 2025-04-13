@@ -106,12 +106,12 @@ const handlePlayerClick = async (player) => {
     isLoadingHistory.value = true;
 
     try {
-        const res = await fetch(`/players/history/${player.user_id}`);
-        if (!res.ok) {
+        const response = await fetch(`/players/history/${player.user_id}`);
+        if (!response.ok) {
             throw new Error("Failed to fetch player details")
         }
 
-        const historyData = await res.json();
+        const historyData = await response.json();
 
         playerRatingHistory.value = historyData.sort((a, b) =>
             new Date(a.created_at) - new Date(b.created_at)
