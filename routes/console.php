@@ -2,6 +2,6 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('elo:singleplayer')->dailyAt('14:26');
-Schedule::command('elo:teams')->dailyAt('14:46');
-Schedule::command('snapshot:generate')->dailyAt('15:06');
+Schedule::command('elo:singleplayer')->dailyAt('04:00');
+Schedule::command('elo:teams')->dailyAt('04:15');
+Schedule::command('snapshot:generate')->dailyAt('04:30');
