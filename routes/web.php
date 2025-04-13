@@ -1,53 +1,21 @@
 <?php
 
 use App\Http\Controllers\GetRatingChangeHistory;
+use App\Http\Controllers\GetSnapshotForDate;
+use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SearchPlayerController;
 use App\Http\Middleware\VerifyRequestReferer;
-use App\Models\EloSnapshot;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-const RAW = 'date IN (
-        SELECT MAX(date)
-        FROM elo_snapshots
-        WHERE gamemode = "solo"
-        GROUP BY DATE(date)
-    )';
-
-Route::get('/', function () {
-    $soloSnapshots = EloSnapshot::query()
-        ->where('gamemode', 'solo')
-        ->whereRaw(RAW)
-        ->orderByDesc('date')
-        ->limit(10)
-        ->get();
-
-    $teamSnapshots = EloSnapshot::query()
-        ->where('gamemode', 'team')
-        ->whereRaw(RAW)
-        ->orderByDesc('date')
-        ->limit(10)
-        ->get();
-
-    return Inertia::render('HomePage', [
-        'solo_snapshots' => $soloSnapshots->map(fn($snapshot) => [
-            'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
-            'buckets' => json_decode($snapshot->buckets, true),
-            'n'       => $snapshot->n,
-        ])->toArray(),
-        'team_snapshots' => $teamSnapshots->map(fn($snapshot) => [
-            'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
-            'buckets' => json_decode($snapshot->buckets, true),
-            'n'       => $snapshot->n,
-        ])->toArray(),
-    ]);
-});
+Route::get('/', HomePageController::class);
 
 
-Route::prefix('players')
-    ->middleware([VerifyRequestReferer::class, 'throttle:60,1'])
+Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
     ->group(function () {
-        Route::get('search', SearchPlayerController::class);
-        Route::get('history/{user_id}', GetRatingChangeHistory::class);
+        Route::prefix('players')->group(function () {
+            Route::get('search', SearchPlayerController::class);
+            Route::get('history/{user_id}', GetRatingChangeHistory::class);
+        });
+
+        Route::get('snapshots', GetSnapshotForDate::class);
     });
