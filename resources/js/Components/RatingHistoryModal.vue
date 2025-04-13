@@ -173,11 +173,16 @@ const renderRatingChart = () => {
         const labels = [];
         const data = [];
 
+        let lastKnownRating = firstRecord.rating;
         allDates.forEach(date => {
             const dateString = formatDateString(date);
             labels.push(date.toLocaleDateString());
 
-            data.push(ratingsByDate[dateString] || null);
+            if (ratingsByDate[dateString]) {
+                lastKnownRating = ratingsByDate[dateString];
+            }
+
+            data.push(lastKnownRating);
         });
 
         return {labels, data};
