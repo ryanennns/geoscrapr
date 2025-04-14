@@ -156,24 +156,47 @@ const renderRatingChart = () => {
             ])
         );
 
-        const mostRecentRecord = [...props.playerRatingHistory].sort(
+        const sortedRatingHistory = [...props.playerRatingHistory].sort(
             (a, b) => new Date(b.created_at) - new Date(a.created_at)
-        )[0];
+        );
 
-        const mostRecentRating = mostRecentRecord?.rating ?? props.player.rating;
+        // in my head, we need the first rating *before* our accepted range. i.e. if we want the last
+        // seven days of rating history, we want the first record that occurs outside that range (the first
+        // record that is older than seven days) to fill any blank spaces between seven days ago and the first
+        // record that appears in our data set. To do this, we sort this data from newest to oldest, then find
+        // the first element that has as created_at timestamp before our start date variable...
+
+        const leftOfStartDate = sortedRatingHistory.find(r => new Date(r.created_at) < startDate)
+        const oldestRating = sortedRatingHistory[sortedRatingHistory.length - 1]
 
         const labels = [];
         const data = [];
+
+        // ...then, we have a "hierarchy" of preferable data to fill in for the first potentially empty
+        // days of data. The most preferable is the real rating the user had coming into the time frame
+        // represented by this graph. If that doesn't exit though, we'll settle for the first element in
+        // our list, aka the last element in our sorted list. Then, if that doesn't exist, that means we
+        // have no rating changes to speak of and can fill in the whole graph with the player's current rating.
+
+        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.player.rating;
 
         allDates.forEach(date => {
             const dateString = formatDateString(date);
             labels.push(date.toLocaleDateString());
 
-            ratingsByDate[dateString] ?
-                data.push(ratingsByDate[dateString]) :
-                data.push(mostRecentRating);
+            // then we can traverse our data set, checking if we have a rating for the current date. If so,
+            // we'd rather append that -- so we update "mostRecentRating" with the correct value. Otherwise,
+            // we continue to backfill this with the most recent rating.
+            if (ratingsByDate[dateString]) {
+                mostRecentRating = ratingsByDate[dateString]
+            }
+
+            data.push(mostRecentRating);
         });
 
+        // I haven't geeked over a programming challenge like this in a long time.
+        // Very satisfying when it worked! Shouts out to Radu C for being a valuable?
+        // set for testing and also for being a GeoGuessr legend.
         return {labels, data};
     };
 
