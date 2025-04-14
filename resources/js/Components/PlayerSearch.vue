@@ -12,6 +12,7 @@
             </div>
             <input
                 type="text"
+                ref="searchInput"
                 v-model="searchQuery"
                 @input="fetchPlayers"
                 @focus="fetchPlayers"
@@ -66,6 +67,7 @@ import PlayerSearchResult from "./PlayerSearchResult.vue";
 
 Chart.register(...registerables);
 
+const searchInput = ref('');
 const searchQuery = ref('');
 const searchResults = ref([]);
 const selectedPlayer = ref(null);
@@ -98,6 +100,8 @@ const fetchPlayers = () => {
 };
 
 const handlePlayerClick = async (player) => {
+    searchInput.value?.blur();
+
     selectedPlayer.value = player;
 
     showDropdown.value = false;
