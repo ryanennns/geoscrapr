@@ -222,5 +222,11 @@ const displayRows = computed(() => {
     });
 });
 
-const handlePlayerClick = (player) => emit("playerClick", {player});
+const handlePlayerClick = (player) => {
+    if (player.player_a || player.player_b) {
+        return;
+    }
+
+    emit("playerClick", {player})
+};
 </script>
