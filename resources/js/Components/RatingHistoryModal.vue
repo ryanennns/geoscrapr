@@ -76,13 +76,21 @@ const {getFlagEmoji, generateProfileUrl} = usePlayerUtils();
 const ratingChartCanvas = ref(null);
 const ratingChartInstance = ref(null);
 
+const handleKeydown = (e) => {
+    if (e.key !== 'Escape') {
+        return;
+    }
+
+    emitClose();
+}
+
 const emitClose = () => {
+    emit('close');
+
     if (ratingChartInstance.value) {
         ratingChartInstance.value.destroy();
         ratingChartInstance.value = null;
     }
-
-    emit('close');
 }
 
 const props = defineProps({
@@ -298,6 +306,14 @@ watch(
     },
     {immediate: true}
 );
+
+watch(() => props.showModal, (show) => {
+    if (show) {
+        window.addEventListener('keydown', handleKeydown);
+    } else {
+        window.removeEventListener('keydown', handleKeydown);
+    }
+});
 
 onUnmounted(() => {
     if (ratingChartInstance.value) {
