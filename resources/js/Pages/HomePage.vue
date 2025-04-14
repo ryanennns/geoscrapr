@@ -93,7 +93,7 @@ const isLoadingHistory = ref(false);
 const onPlayerClick = async (payload) => {
     const player = payload.player
     selectedPlayer.value = player;
-    showModal.value = true;
+    setTimeout(() => showModal.value = true, 25);
 
     try {
         isLoadingHistory.value = true;

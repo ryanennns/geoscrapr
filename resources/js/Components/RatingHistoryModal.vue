@@ -32,8 +32,8 @@
                 </div>
 
                 <div class="h-64 mt-4 flex-grow overflow-hidden">
-                    <div v-if="props.playerRatingHistory.length > 1" class="h-full">
-                        <h3 class="text-lg font-semibold mb-2">Rating History</h3>
+                    <div v-if="props.playerRatingHistory.length > 0" class="h-full">
+                        <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
                         <div class="w-full h-52">
                             <canvas ref="ratingChartCanvas"></canvas>
                         </div>
@@ -46,7 +46,7 @@
                         <p class="text-gray-500 mt-4">Loading rating history...</p>
                     </div>
                     <div
-                        v-else-if="props.playerRatingHistory.length <= 1"
+                        v-else
                         class="h-full flex flex-col justify-center items-center"
                     >
                         <svg class="h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -75,6 +75,7 @@ const {getFlagEmoji, generateProfileUrl} = usePlayerUtils();
 
 const ratingChartCanvas = ref(null);
 const ratingChartInstance = ref(null);
+const daysToShow = ref(7);
 
 const handleKeydown = (e) => {
     if (e.key !== 'Escape') {
@@ -88,8 +89,10 @@ const emitClose = () => {
     emit('close');
 
     if (ratingChartInstance.value) {
-        ratingChartInstance.value.destroy();
-        ratingChartInstance.value = null;
+        setTimeout(() => {
+            ratingChartInstance.value.destroy();
+            ratingChartInstance.value = null;
+        }, 100);
     }
 }
 
@@ -131,7 +134,7 @@ const calculateStepSize = (range) => {
 };
 
 const renderRatingChart = () => {
-    if (!ratingChartCanvas.value || props.playerRatingHistory.length <= 1) return;
+    if (!ratingChartCanvas.value || props.playerRatingHistory.length === 0) return;
 
     if (ratingChartInstance.value) {
         ratingChartInstance.value.destroy();
@@ -140,41 +143,43 @@ const renderRatingChart = () => {
     const ctx = ratingChartCanvas.value.getContext('2d');
 
     const processData = () => {
-        const ratingsByDate = {};
+        const today = new Date();
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() - daysToShow.value);
 
-        props.playerRatingHistory.forEach(record => {
-            const date = new Date(record.created_at);
-            const dateString = formatDateString(date);
-            ratingsByDate[dateString] = record.rating;
-        });
+        const allDates = getDatesInRange(startDate, today);
 
-        const firstRecord = props.playerRatingHistory[0];
-        const lastRecord = props.playerRatingHistory[props.playerRatingHistory.length - 1];
+        const ratingsByDate = Object.fromEntries(
+            props.playerRatingHistory.map(record => [
+                formatDateString(new Date(record.created_at)),
+                record.rating
+            ])
+        );
 
-        const firstDate = new Date(firstRecord.created_at);
-        const lastDate = new Date(lastRecord.created_at);
+        const mostRecentRecord = [...props.playerRatingHistory].sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        )[0];
 
-        const allDates = getDatesInRange(firstDate, lastDate);
+        const mostRecentRating = mostRecentRecord?.rating ?? props.player.rating;
 
         const labels = [];
         const data = [];
 
-        let lastKnownRating = firstRecord.rating;
         allDates.forEach(date => {
             const dateString = formatDateString(date);
             labels.push(date.toLocaleDateString());
 
-            if (ratingsByDate[dateString]) {
-                lastKnownRating = ratingsByDate[dateString];
-            }
-
-            data.push(lastKnownRating);
+            ratingsByDate[dateString] ?
+                data.push(ratingsByDate[dateString]) :
+                data.push(mostRecentRating);
         });
 
         return {labels, data};
     };
 
     const {labels, data} = processData();
+
+    if (data.length === 0) return;
 
     const validData = data.filter(value => value !== null);
     const minRating = Math.min(...validData);
@@ -281,9 +286,7 @@ const renderRatingChart = () => {
                             return tooltipItems[0].label;
                         },
                         label: function (context) {
-                            return context.raw !== null
-                                ? `Rating: ${context.raw}`
-                                : 'No data for this date';
+                            return `Rating: ${context.raw}`;
                         }
                     }
                 }
@@ -297,9 +300,9 @@ const renderRatingChart = () => {
 };
 
 watch(
-    () => [props.playerRatingHistory, props.showModal],
+    () => [props.playerRatingHistory, props.showModal, props.player],
     async ([history, show]) => {
-        if (show && history.length > 1) {
+        if (show && props.playerRatingHistory) {
             await nextTick();
             renderRatingChart();
         }
@@ -316,6 +319,7 @@ watch(() => props.showModal, (show) => {
 });
 
 onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown);
     if (ratingChartInstance.value) {
         ratingChartInstance.value.destroy();
     }
