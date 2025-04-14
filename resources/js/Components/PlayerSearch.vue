@@ -12,12 +12,12 @@
             </div>
             <input
                 type="text"
-                ref="searchInput"
+                ref="searchInputElement"
                 v-model="searchQuery"
                 @input="fetchPlayers"
                 @focus="fetchPlayers"
                 @blur="() => showDropdown = false"
-                @keydown.esc="searchInput.value?.blur"
+                @keydown.esc="searchInputElement.value?.blur"
                 placeholder="Search for a player name or ID..."
                 class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
@@ -47,36 +47,17 @@
                 @player-click="handlePlayerClick"
             />
         </ul>
-
-        <transition name="fade">
-            <RatingHistoryModal
-                :show-modal=showModal
-                :player=selectedPlayer
-                :player-rating-history=playerRatingHistory
-                :is-loading-history=isLoadingHistory
-                @close=closeModal
-            />
-        </transition>
     </div>
 </template>
 
 <script setup>
 import {ref} from "vue";
-import {Chart, registerables} from "chart.js";
-import RatingHistoryModal from "./RatingHistoryModal.vue";
 import PlayerSearchResult from "./PlayerSearchResult.vue";
 
-Chart.register(...registerables);
-
-const searchInput = ref('');
+const searchInputElement = ref('');
 const searchQuery = ref('');
 const searchResults = ref([]);
-const selectedPlayer = ref(null);
-const showModal = ref(false);
 const showDropdown = ref(true);
-const closeModal = () => showModal.value = false;
-const playerRatingHistory = ref([]);
-const isLoadingHistory = ref(false);
 
 let debounceTimeout = null;
 const fetchPlayers = () => {
@@ -100,32 +81,10 @@ const fetchPlayers = () => {
     }, 300);
 };
 
+const emit = defineEmits(['playerClick'])
 const handlePlayerClick = async (player) => {
-    searchInput.value?.blur();
-
-    selectedPlayer.value = player;
-
-    showDropdown.value = false;
-    showModal.value = true;
-    playerRatingHistory.value = [];
-    isLoadingHistory.value = true;
-
-    try {
-        const response = await fetch(`/players/history/${player.user_id}`);
-        if (!response.ok) {
-            throw new Error("Failed to fetch player details")
-        }
-
-        const historyData = await response.json();
-
-        playerRatingHistory.value = historyData.sort((a, b) =>
-            new Date(a.created_at) - new Date(b.created_at)
-        );
-    } catch (err) {
-        console.error("Error loading player details:", err);
-    } finally {
-        isLoadingHistory.value = false;
-    }
+    searchInputElement.value?.blur();
+    emit('playerClick', {player})
 };
 </script>
 

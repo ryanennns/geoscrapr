@@ -30,7 +30,8 @@
                     <tr
                         v-for="(player, index) in leaderboardData"
                         :key="player.id"
-                        class="hover:bg-indigo-50 transition-colors"
+                        class="hover:bg-indigo-50 transition-colors cursor-pointer"
+                        @click="handlePlayerClick(player)"
                     >
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium">
@@ -63,11 +64,14 @@
 import {ref} from "vue";
 import {usePlayerUtils} from "@composables/usePlayerUtils.js";
 
+const emit = defineEmits(['playerClick'])
 const props = defineProps({
     players: Array,
 })
 
 const {getFlagEmoji} = usePlayerUtils()
+
 const leaderboardData = ref(props.players || []);
+const handlePlayerClick = (player) => emit('playerClick', {player})
 
 </script>
