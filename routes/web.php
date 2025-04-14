@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DownloadSqliteController;
 use App\Http\Controllers\GetPlayersController;
 use App\Http\Controllers\GetRatingChangeHistory;
 use App\Http\Controllers\GetSnapshotForDate;
@@ -23,3 +24,5 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
         Route::get('snapshots', GetSnapshotForDate::class);
         Route::get('/teams', GetTeamsController::class);
     });
+
+Route::post('/download-sqlite', DownloadSqliteController::class);

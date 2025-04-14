@@ -112,4 +112,5 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    'database_token' => env('SQLITE_DOWNLOAD_TOKEN', 'token'),
 ];
