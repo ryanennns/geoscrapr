@@ -37,7 +37,7 @@
                             n = {{ currentSoloSnapshot?.n.toLocaleString() || 0 }}
                         </span>
                     </div>
-                    <div class="w-full h-60 lg:h-[60vh]">
+                    <div class="w-full h-64 lg:h-[62vh]">
                         <canvas ref="soloChartCanvas" class="w-full h-full"></canvas>
                     </div>
                 </div>
@@ -49,14 +49,13 @@
                             n = {{ currentTeamSnapshot?.n.toLocaleString() || 0 }}
                         </span>
                     </div>
-                    <div class="w-full h-60 lg:h-[60vh]">
+                    <div class="w-full h-64 lg:h-[62vh]">
                         <canvas ref="teamChartCanvas" class="w-full h-full"></canvas>
                     </div>
                 </div>
             </div>
 
-            <PlayerLeaderboard :players="props.leaderboard" @player-click="onPlayerClick"/>
-
+            <PlayerLeaderboard :players="props.leaderboard" @player-click="onPlayerClick" class="h-[93vh]"/>
             <transition name="fade">
                 <RatingHistoryModal
                     :show-modal=showModal
@@ -117,7 +116,10 @@ const onPlayerClick = async (payload) => {
 
 const checkSize = () => {
     wasSmallScreen.value = isSmallScreen.value
-    isSmallScreen.value = window.innerWidth < 1300
+    isSmallScreen.value =
+        window.innerWidth < 768 ||
+        window.innerHeight < 500 ||
+        window.innerWidth / window.innerHeight < 0.8;
 
     if (resizeTimer.value) {
         clearTimeout(resizeTimer.value)
