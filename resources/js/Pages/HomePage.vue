@@ -12,13 +12,15 @@
             </div>
         </div>
         <template v-else>
-            <div class="mb-8 text-center">
+            <div class="mb-8 text-center ">
                 <h1 class="text-3xl font-bold text-indigo-800">GeoGuessr Competitive Rating Distribution</h1>
                 <p class="text-gray-600">Track player statistics and rating distributions</p>
             </div>
 
             <div class="flex justify-center items-center gap-4 mb-10 max-w-3xl mx-auto">
-                <PlayerSearch/>
+                <PlayerSearch
+                    @player-click="onPlayerClick"
+                />
 
                 <DateSelector
                     v-model="selectedDate"
@@ -52,6 +54,18 @@
                     </div>
                 </div>
             </div>
+
+            <PlayerLeaderboard :players="props.leaderboard" @player-click="onPlayerClick"/>
+
+            <transition name="fade">
+                <RatingHistoryModal
+                    :show-modal=showModal
+                    :player=selectedPlayer
+                    :player-rating-history=playerRatingHistory
+                    :is-loading-history=isLoadingHistory
+                    @close=closeModal
+                />
+            </transition>
         </template>
     </div>
 </template>
@@ -63,10 +77,43 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
 import DateSelector from "../Components/DateSelector.vue";
 import {useRatingChart} from "@composables/useRatingChart.js";
+import PlayerLeaderboard from "./PlayerLeaderboard.vue";
+import RatingHistoryModal from "../Components/RatingHistoryModal.vue";
 
 const isSmallScreen = ref(false)
 const wasSmallScreen = ref(false)
 const resizeTimer = ref(null)
+
+// modal
+const selectedPlayer = ref(null);
+const showModal = ref(false);
+const closeModal = () => showModal.value = false;
+const playerRatingHistory = ref([]);
+const isLoadingHistory = ref(false);
+
+const onPlayerClick = async (payload) => {
+    const player = payload.player
+    selectedPlayer.value = player;
+    showModal.value = true;
+
+    try {
+        isLoadingHistory.value = true;
+        const response = await fetch(`/players/history/${player.user_id}`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch player details")
+        }
+
+        const historyData = await response.json();
+
+        playerRatingHistory.value = historyData.sort((a, b) =>
+            new Date(a.created_at) - new Date(b.created_at)
+        );
+    } catch (err) {
+        console.error("Error loading player details:", err);
+    } finally {
+        isLoadingHistory.value = false;
+    }
+}
 
 const checkSize = () => {
     wasSmallScreen.value = isSmallScreen.value
@@ -102,6 +149,7 @@ const props = defineProps({
     solo_snapshots: Array,
     team_snapshots: Array,
     dates: Array,
+    leaderboard: Array,
 })
 
 const soloChartCanvas = ref(null)

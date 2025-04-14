@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EloSnapshot;
+use App\Models\Player;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -58,6 +59,10 @@ class HomePageController extends Controller
                 'n'       => $snapshot->n,
             ])->toArray(),
             'dates'          => $dates,
+            'leaderboard'    => Player::query()
+                ->orderBy('rating', 'desc')
+                ->limit(10)
+                ->get(),
         ]);
     }
 }
