@@ -59,7 +59,10 @@ class HomePageController extends Controller
                 'n'       => $snapshot->n,
             ])->toArray(),
             'dates'          => $dates,
-            'leaderboard'    => Player::query()->orderBy('elo', 'desc')->limit(10)->get(),
+            'leaderboard'    => Player::query()
+                ->orderBy('rating', 'desc')
+                ->limit(10)
+                ->get(),
         ]);
     }
 }

@@ -12,7 +12,7 @@
             </div>
         </div>
         <template v-else>
-            <div class="mb-8 text-center">
+            <div class="mb-8 text-center ">
                 <h1 class="text-3xl font-bold text-indigo-800">GeoGuessr Competitive Rating Distribution</h1>
                 <p class="text-gray-600">Track player statistics and rating distributions</p>
             </div>
