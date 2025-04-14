@@ -17,6 +17,7 @@
                 @input="fetchPlayers"
                 @focus="fetchPlayers"
                 @blur="() => showDropdown = false"
+                @keydown.esc="searchInput.value?.blur"
                 placeholder="Search for a player name or ID..."
                 class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />

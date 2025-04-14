@@ -52,6 +52,8 @@
                     </div>
                 </div>
             </div>
+
+            <PlayerLeaderboard :players="props.leaderboard"/>
         </template>
     </div>
 </template>
@@ -63,6 +65,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
 import DateSelector from "../Components/DateSelector.vue";
 import {useRatingChart} from "@composables/useRatingChart.js";
+import PlayerLeaderboard from "./PlayerLeaderboard.vue";
 
 const isSmallScreen = ref(false)
 const wasSmallScreen = ref(false)
@@ -102,6 +105,7 @@ const props = defineProps({
     solo_snapshots: Array,
     team_snapshots: Array,
     dates: Array,
+    leaderboard: Array,
 })
 
 const soloChartCanvas = ref(null)
