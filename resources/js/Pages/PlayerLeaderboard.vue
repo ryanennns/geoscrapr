@@ -50,7 +50,7 @@
                         </th>
                         <th scope="col"
                             class="w-5/12 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Player
+                            {{ isSolo ? "Player" : "Team"}}
                         </th>
                         <th scope="col"
                             class="w-3/12 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -97,52 +97,103 @@
     </div>
 </template>
 <script setup>
-import {ref, computed, watch} from "vue";
+import {ref, computed, watch, onMounted} from "vue";
 import {usePlayerUtils} from "@composables/usePlayerUtils.js";
 import CountryDropdown from "../Components/CountryDropdown.vue";
 
 const emit = defineEmits(['playerClick', 'countryFilterChange'])
 const props = defineProps({
     players: Array,
-})
+});
 
 const {getFlagEmoji} = usePlayerUtils();
+
+const dataCache = ref({
+    solo: {
+        all: null,
+        byCountry: {}
+    },
+    team: {
+        all: null,
+    }
+});
 
 const leaderboardData = ref(props.players || []);
 const selectedCountry = ref('');
 const selectedMode = ref("solo");
+const isLoading = ref(false);
+
+onMounted(() => {
+    if (props.players && props.players.length > 0) {
+        dataCache.value.solo.all = props.players;
+    }
+});
 
 const isSolo = computed(() => {
     return selectedMode.value === "solo";
 });
 
-const handleModeChange = async (event) => {
+const handleModeChange = (event) => {
     selectedMode.value = event.target.value;
+    updateLeaderboard();
 };
 
-const handleCountryFilterChange = async (event) => {
+const handleCountryFilterChange = (event) => {
     selectedCountry.value = event.country;
+    updateLeaderboard();
 };
 
-watch([selectedCountry, selectedMode], async () => {
-    const url = selectedMode.value === "solo" ? "players" : "teams";
+const updateLeaderboard = async () => {
+    const mode = selectedMode.value;
+    const country = selectedCountry.value;
 
-    if (selectedCountry.value === "" && selectedMode.value === "solo") {
-        leaderboardData.value = props.players;
-
+    if (country === "" && mode === "solo" && dataCache.value.solo.all) {
+        leaderboardData.value = dataCache.value.solo.all;
         return;
     }
 
-    const response = await fetch(`/${url}?country=${selectedCountry.value}`);
-
-    if (!response.ok) {
-        throw new Error();
+    if (mode === "team" && dataCache.value.team.all) {
+        leaderboardData.value = dataCache.value.team.all;
+        return;
     }
 
-    const json = await response.json();
+    const cacheKey = country || 'all';
+    if (dataCache.value[mode][cacheKey] !== undefined && dataCache.value[mode][cacheKey] !== null) {
+        leaderboardData.value = dataCache.value[mode][cacheKey];
+        return;
+    }
 
-    leaderboardData.value = json ?? [];
-});
+    try {
+        isLoading.value = true;
+        const url = mode === "solo" ? "players" : "teams";
+        const response = await fetch(`/${url}${country ? `?country=${country}` : ''}`);
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch ${mode} data for ${country || 'all countries'}`);
+        }
+
+        const json = await response.json();
+
+        dataCache.value[mode][cacheKey] = json;
+
+        leaderboardData.value = json || [];
+    } catch (error) {
+        console.error("Error fetching leaderboard data:", error);
+        leaderboardData.value = [];
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+watch(() => props.players, (newPlayers) => {
+    if (newPlayers && newPlayers.length > 0) {
+        dataCache.value.solo.all = newPlayers;
+
+        if (selectedMode.value === "solo" && !selectedCountry.value) {
+            leaderboardData.value = newPlayers;
+        }
+    }
+}, { deep: true });
 
 const displayRows = computed(() => {
     const rows = [...leaderboardData.value];
@@ -159,7 +210,7 @@ const displayRows = computed(() => {
     }
 
     return rows.map((r) => {
-        if (r.id.includes('placeholder')) {
+        if (r.id && r.id.includes('placeholder')) {
             return {...r, flag: '🏴'}
         }
 
