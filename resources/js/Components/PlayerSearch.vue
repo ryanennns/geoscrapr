@@ -59,10 +59,25 @@ const searchQuery = ref('');
 const searchResults = ref([]);
 const showDropdown = ref(true);
 
+const searchCache = ref({})
+const maybeClearCache = () => {
+    const keys = Object.keys(searchCache.value);
+    if (keys.length >= 10) {
+        delete searchCache.value[keys[0]]
+    }
+}
+
 let debounceTimeout = null;
 const fetchPlayers = () => {
     showDropdown.value = true;
     clearTimeout(debounceTimeout);
+
+    if (searchCache.value[searchQuery.value]) {
+        searchResults.value = searchCache.value[searchQuery.value]
+
+        return;
+    }
+
     debounceTimeout = setTimeout(async () => {
         if (searchQuery.value.length < 2) {
             searchResults.value = [];
@@ -74,7 +89,13 @@ const fetchPlayers = () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            searchResults.value = await response.json();
+
+            const json = await response.json()
+
+            searchCache.value[searchQuery.value] = json
+            maybeClearCache();
+
+            searchResults.value = json;
         } catch (err) {
             console.error('Player search failed:', err);
         }
