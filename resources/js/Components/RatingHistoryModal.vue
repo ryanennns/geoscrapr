@@ -45,7 +45,10 @@
                         </div>
                         <p class="text-gray-500 mt-4">Loading rating history...</p>
                     </div>
-                    <div v-else-if="props.playerRatingHistory.length <= 1" class="h-full flex flex-col justify-center items-center">
+                    <div
+                        v-else-if="props.playerRatingHistory.length <= 1"
+                        class="h-full flex flex-col justify-center items-center"
+                    >
                         <svg class="h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -112,36 +115,11 @@ const getDatesInRange = (startDate, endDate) => {
     return dates;
 };
 
-const calculateYAxisTicks = (minValue, maxValue) => {
-    const standardIntervals = [10, 25, 50, 100, 200, 500, 1000];
-
-    let interval = standardIntervals[0];
-
-    const range = maxValue - minValue;
-
-    const targetTickCount = 5;
-
-    for (let i = 0; i < standardIntervals.length; i++) {
-        if (range / standardIntervals[i] <= targetTickCount) {
-            interval = standardIntervals[i];
-            break;
-        }
-    }
-
-    const minTick = Math.floor(minValue / interval) * interval - interval;
-    const maxTick = Math.ceil(maxValue / interval) * interval + interval;
-
-    const ticks = [];
-    for (let tick = minTick; tick <= maxTick; tick += interval) {
-        ticks.push(tick);
-    }
-
-    return {
-        min: minTick,
-        max: maxTick,
-        interval: interval,
-        ticks: ticks
-    };
+const calculateStepSize = (range) => {
+    if (range <= 100) return 50;
+    if (range <= 200) return 100;
+    if (range <= 400) return 250;
+    return Math.ceil(range / 4 / 50) * 50;
 };
 
 const renderRatingChart = () => {
@@ -194,7 +172,16 @@ const renderRatingChart = () => {
     const minRating = Math.min(...validData);
     const maxRating = Math.max(...validData);
 
-    const yAxis = calculateYAxisTicks(minRating, maxRating);
+    const range = maxRating - minRating;
+    const step = calculateStepSize(range)
+
+    const buffer = step * 2;
+    const yMin = Math.floor((minRating - buffer / 2) / step) * step;
+    const yMax = Math.ceil((maxRating + buffer / 2) / step) * step;
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.4)');
+    gradient.addColorStop(1, 'rgba(79, 70, 229, 0.05)');
 
     ratingChartInstance.value = new Chart(ctx, {
         type: 'line',
@@ -203,46 +190,88 @@ const renderRatingChart = () => {
             datasets: [{
                 label: 'Rating',
                 data: data,
-                backgroundColor: 'rgba(79, 70, 229, 0.2)',
-                borderColor: 'rgba(79, 70, 229, 1)',
-                borderWidth: 2,
-                tension: 0.1,
-                pointBackgroundColor: 'rgba(79, 70, 229, 1)',
-                pointRadius: 4,
+                backgroundColor: gradient,
+                borderColor: 'rgba(79, 70, 229, 0.9)',
+                borderWidth: 2.5,
+                tension: 0,
+                fill: true,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: 'rgba(79, 70, 229, 1)',
+                pointBorderWidth: 2,
                 pointHoverRadius: 6,
+                pointHoverBackgroundColor: 'white',
+                pointHoverBorderColor: 'rgba(79, 70, 229, 1)',
+                pointHoverBorderWidth: 3,
                 spanGaps: true
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             scales: {
                 y: {
                     beginAtZero: false,
-                    min: yAxis.min,
-                    max: yAxis.max,
+                    min: yMin,
+                    max: yMax,
                     ticks: {
-                        callback: function(value) {
-                            return yAxis.ticks.includes(value) ? value : null;
+                        stepSize: step,
+                        font: {
+                            size: 11
                         },
-                        stepSize: yAxis.interval
+                        padding: 8,
+                        color: '#64748b'
                     },
-                    title: {
-                        display: true,
+                    grid: {
+                        color: 'rgba(226, 232, 240, 0.8)'
+                    },
+                    border: {
+                        dash: [4, 4]
                     }
                 },
                 x: {
-                    title: {
-                        display: true,
-                    },
                     ticks: {
-                        maxTicksLimit: 10
+                        maxTicksLimit: Math.min(10, labels.length),
+                        maxRotation: 45,
+                        minRotation: 45,
+                        font: {
+                            size: 10
+                        },
+                        padding: 5,
+                        color: '#64748b'
+                    },
+                    grid: {
+                        color: 'rgba(226, 232, 240, 0.6)'
                     }
                 }
             },
             plugins: {
+                legend: {
+                    display: false
+                },
                 tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    titleColor: '#1e293b',
+                    bodyColor: '#334155',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 6,
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                    titleFont: {
+                        size: 13,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 12
+                    },
                     callbacks: {
+                        title: function (tooltipItems) {
+                            return tooltipItems[0].label;
+                        },
                         label: function (context) {
                             return context.raw !== null
                                 ? `Rating: ${context.raw}`
@@ -250,6 +279,10 @@ const renderRatingChart = () => {
                         }
                     }
                 }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeOutQuart'
             }
         }
     });
@@ -277,6 +310,7 @@ onUnmounted(() => {
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.2s;
 }
+
 .fade-enter-from, .fade-leave-to {
     opacity: 0;
 }
