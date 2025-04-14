@@ -3,6 +3,7 @@
 use App\Http\Controllers\GetPlayersController;
 use App\Http\Controllers\GetRatingChangeHistory;
 use App\Http\Controllers\GetSnapshotForDate;
+use App\Http\Controllers\GetTeamsController;
 use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SearchPlayerController;
 use App\Http\Middleware\VerifyRequestReferer;
@@ -20,4 +21,5 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
         });
 
         Route::get('snapshots', GetSnapshotForDate::class);
+        Route::get('/teams', GetTeamsController::class);
     });

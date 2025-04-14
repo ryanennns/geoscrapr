@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Player;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class GetPlayersController extends Controller
 {
@@ -13,7 +14,7 @@ class GetPlayersController extends Controller
             'country' => 'string',
         ]);
 
-        $country = $validate['country'];
+        $country = Arr::get($validate, 'country');
 
         return Player::query()
             ->where('country_code', $country)
