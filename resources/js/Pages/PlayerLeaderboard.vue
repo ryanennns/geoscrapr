@@ -114,7 +114,7 @@
                                         :title="countryMap[player.country_code]"
                                     >
                                 </div>
-                                <div v-else class="flex">
+                                <div v-else-if="player.player_a?.country_code && player.player_b?.country_code" class="flex">
                                     <img
                                         class="px-1"
                                         :src="`https://flagcdn.com/32x24/${player.player_a.country_code}.png`"
