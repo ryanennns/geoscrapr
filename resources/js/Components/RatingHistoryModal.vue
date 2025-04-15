@@ -39,14 +39,14 @@
                         </div>
                         <p class="text-gray-500 mt-4">Loading rating history...</p>
                     </div>
-                    <div v-show="props.playerRatingHistory.length > 0 && !props.loading" class="h-full">
+                    <div v-show="props.playerRatingHistory.length > 1 && !props.loading" class="h-full">
                         <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
                         <div class="w-full h-52">
                             <canvas ref="ratingChartCanvas"></canvas>
                         </div>
                     </div>
                     <div
-                        v-show="props.playerRatingHistory < 1 && !props.loading"
+                        v-show="props.playerRatingHistory <= 1 && !props.loading"
                         class="h-full flex flex-col justify-center items-center"
                     >
                         <svg class="h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
