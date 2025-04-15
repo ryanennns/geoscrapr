@@ -32,32 +32,38 @@
                 </div>
 
                 <div class="h-64 mt-4 flex-grow overflow-hidden">
-                    <div v-if="props.playerRatingHistory.length > 0" class="h-full">
-                        <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
-                        <div class="w-full h-52">
-                            <canvas ref="ratingChartCanvas"></canvas>
+                    <transition name="fade">
+                        <div v-show="props.loading" class="h-full flex flex-col justify-center items-center">
+                            <div class="spinner-container flex justify-center items-center">
+                                <div
+                                    class="spinner w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                            </div>
+                            <p class="text-gray-500 mt-4">Loading rating history...</p>
                         </div>
-                    </div>
-                    <div v-else-if="props.isLoadingHistory" class="h-full flex flex-col justify-center items-center">
-                        <div class="spinner-container flex justify-center items-center">
-                            <div
-                                class="spinner w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                    </transition>
+                    <transition name="fade">
+                        <div v-show="props.playerRatingHistory.length > 0 && !props.loading" class="h-full">
+                            <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
+                            <div class="w-full h-52">
+                                <canvas ref="ratingChartCanvas"></canvas>
+                            </div>
                         </div>
-                        <p class="text-gray-500 mt-4">Loading rating history...</p>
-                    </div>
-                    <div
-                        v-else
-                        class="h-full flex flex-col justify-center items-center"
-                    >
-                        <svg class="h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <p class="text-lg font-semibold text-gray-700">:( We don't have any data for this
-                            player!</p>
-                        <p class="text-gray-500 mt-2">Check back later or try another player.</p>
-                    </div>
+                    </transition>
+                    <transition name="fade">
+                        <div
+                            v-show="props.playerRatingHistory < 1 && !props.loading"
+                            class="h-full flex flex-col justify-center items-center"
+                        >
+                            <svg class="h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-lg font-semibold text-gray-700">:( We don't have any data for this
+                                player!</p>
+                            <p class="text-gray-500 mt-2">Check back later or try another player.</p>
+                        </div>
+                    </transition>
                 </div>
             </div>
         </div>
@@ -100,7 +106,7 @@ const props = defineProps({
     showModal: Boolean,
     player: Object,
     playerRatingHistory: Array,
-    isLoadingHistory: Boolean,
+    loading: Boolean,
 })
 
 const formatDateString = (date) => {

@@ -33,9 +33,10 @@
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <div class="flex justify-between items-start mb-4">
                         <h2 class="text-2xl font-bold text-gray-800">Solo Rating Distribution</h2>
-                        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                            n = {{ currentSoloSnapshot?.n.toLocaleString() || 0 }}
-                        </span>
+                        <Badge
+                            :text="`n = ${currentSoloSnapshot?.n.toLocaleString() || 0}`"
+                            class="bg-blue-100 text-blue-800"
+                        />
                     </div>
                     <div class="w-full h-64 lg:h-[62vh]">
                         <canvas ref="soloChartCanvas" class="w-full h-full"></canvas>
@@ -45,9 +46,10 @@
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <div class="flex justify-between items-start mb-4">
                         <h2 class="text-2xl font-bold text-gray-800">Team Rating Distribution</h2>
-                        <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
-                            n = {{ currentTeamSnapshot?.n.toLocaleString() || 0 }}
-                        </span>
+                        <Badge
+                            :text="`n = ${currentTeamSnapshot?.n.toLocaleString() || 0}`"
+                            class="bg-green-100 text-green-800"
+                        />
                     </div>
                     <div class="w-full h-64 lg:h-[62vh]">
                         <canvas ref="teamChartCanvas" class="w-full h-full"></canvas>
@@ -61,7 +63,7 @@
                     :show-modal=showModal
                     :player=selectedPlayer
                     :player-rating-history=playerRatingHistory
-                    :is-loading-history=isLoadingHistory
+                    :loading=isLoadingHistory
                     @close=closeModal
                 />
             </transition>
@@ -78,6 +80,7 @@ import DateSelector from "../Components/DateSelector.vue";
 import {useRatingChart} from "@composables/useRatingChart.js";
 import PlayerLeaderboard from "./PlayerLeaderboard.vue";
 import RatingHistoryModal from "../Components/RatingHistoryModal.vue";
+import Badge from "../Components/Badge.vue";
 
 const isSmallScreen = ref(false)
 const wasSmallScreen = ref(false)
@@ -110,7 +113,7 @@ const onPlayerClick = async (payload) => {
     } catch (err) {
         console.error("Error loading player details:", err);
     } finally {
-        isLoadingHistory.value = false;
+        setTimeout(() => isLoadingHistory.value = false, 150 + Math.random() * 150)
     }
 }
 
