@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div
-                        v-show="props.playerRatingHistory < 1 && !props.loading"
+                        v-show="props.playerRatingHistory <= 1 && !props.loading"
                         class="h-full flex flex-col justify-center items-center"
                     >
                         <svg class="h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
