@@ -107,8 +107,8 @@ const onPlayerClick = async (payload) => {
 
         const historyData = await response.json();
 
-        playerRatingHistory.value = historyData.sort((a, b) =>
-            new Date(a.created_at) - new Date(b.created_at)
+        playerRatingHistory.value = historyData.sort(
+            (a, b) => new Date(a.created_at) - new Date(b.created_at)
         );
     } catch (err) {
         console.error("Error loading player details:", err);

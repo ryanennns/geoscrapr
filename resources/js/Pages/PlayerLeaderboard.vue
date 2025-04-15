@@ -69,7 +69,11 @@
                 </div>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 table-fixed">
+                <LeaderboardLoadingSkeleton
+                    v-show="loading"
+                    :is-solo="isSolo"
+                />
+                <table v-show="!loading" class="min-w-full divide-y divide-gray-200 table-fixed">
                     <thead class="bg-gray-50">
                     <tr>
                         <th scope="col"
@@ -114,15 +118,15 @@
                                         :title="countryMap[player.country_code]"
                                     >
                                 </div>
-                                <div v-else-if="player.player_a?.country_code && player.player_b?.country_code" class="flex">
+                                <div v-else-if="player.player_a?.country_code && player.player_b?.country_code"
+                                     class="flex">
                                     <img
-                                        class="px-1"
                                         :src="`https://flagcdn.com/32x24/${player.player_a.country_code}.png`"
                                         :alt="player.country_code"
                                         :title="countryMap[player.country_code]"
                                     >
                                     <img
-                                        class="px-1"
+                                        class="pl-1"
                                         :src="`https://flagcdn.com/32x24/${player.player_b.country_code}.png`"
                                         :alt="player.country_code"
                                         :title="countryMap[player.country_code]"
@@ -144,15 +148,14 @@
 </template>
 <script setup>
 import {ref, computed, watch, onMounted} from "vue";
-import {countryMap, usePlayerUtils} from "@composables/usePlayerUtils.js";
+import {countryMap} from "@composables/usePlayerUtils.js";
 import CountryDropdown from "../Components/CountryDropdown.vue";
+import LeaderboardLoadingSkeleton from "../Components/LeaderboardLoadingSkeleton.vue";
 
 const emit = defineEmits(['playerClick', 'countryFilterChange'])
 const props = defineProps({
     players: Array,
 });
-
-const {getFlagEmoji} = usePlayerUtils();
 
 const dataCache = ref({
     asc: {
@@ -176,7 +179,7 @@ const dataCache = ref({
 });
 
 const leaderboardData = ref(props.players || []);
-const isLoading = ref(false);
+const loading = ref(false);
 
 onMounted(() => {
     if (props.players && props.players.length > 0) {
@@ -218,7 +221,7 @@ const updateLeaderboard = async () => {
     }
 
     try {
-        isLoading.value = true;
+        loading.value = true;
         const url = mode === "solo" ? "players" : "teams";
 
         const params = new URLSearchParams();
@@ -246,7 +249,7 @@ const updateLeaderboard = async () => {
         console.error("Error fetching leaderboard data:", error);
         leaderboardData.value = [];
     } finally {
-        isLoading.value = false;
+        setTimeout(() => loading.value = false, 300);
     }
 };
 
