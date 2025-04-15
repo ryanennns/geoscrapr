@@ -114,19 +114,24 @@
                                         :title="countryMap[player.country_code]"
                                     >
                                 </div>
-                                <div v-else class="flex">
-                                    <img
-                                        class="px-1"
-                                        :src="`https://flagcdn.com/32x24/${player.player_a.country_code}.png`"
-                                        :alt="player.country_code"
-                                        :title="countryMap[player.country_code]"
-                                    >
-                                    <img
-                                        class="px-1"
-                                        :src="`https://flagcdn.com/32x24/${player.player_b.country_code}.png`"
-                                        :alt="player.country_code"
-                                        :title="countryMap[player.country_code]"
-                                    >
+                                <div v-else-if="selectedMode.value === 'team'" class="flex">
+                                    <div v-if="!player.country_code">
+                                        <img
+                                            class="px-1"
+                                            :src="`https://flagcdn.com/32x24/${player.player_a.country_code}.png`"
+                                            :alt="player.country_code"
+                                            :title="countryMap[player.country_code]"
+                                        >
+                                        <img
+                                            class="px-1"
+                                            :src="`https://flagcdn.com/32x24/${player.player_b.country_code}.png`"
+                                            :alt="player.country_code"
+                                            :title="countryMap[player.country_code]"
+                                        >
+                                    </div>
+                                    <div v-else>
+                                        🏴 / 🏴
+                                    </div>
                                 </div>
                             </div>
                         </td>
