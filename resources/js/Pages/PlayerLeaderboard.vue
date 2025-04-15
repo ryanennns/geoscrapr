@@ -176,8 +176,6 @@ const dataCache = ref({
 });
 
 const leaderboardData = ref(props.players || []);
-const selectedCountry = ref('');
-const selectedMode = ref("solo");
 const isLoading = ref(false);
 
 onMounted(() => {
@@ -186,15 +184,14 @@ onMounted(() => {
     }
 });
 
-const isSolo = computed(() => {
-    return selectedMode.value === "solo";
-});
-
+const selectedMode = ref("solo");
+const isSolo = computed(() => selectedMode.value === "solo");
 const handleModeChange = (event) => {
     selectedMode.value = event.target.value;
     updateLeaderboard();
 };
 
+const selectedCountry = ref('');
 const handleCountryFilterChange = (event) => {
     selectedCountry.value = event.country;
     updateLeaderboard();
@@ -277,17 +274,7 @@ const displayRows = computed(() => {
         });
     }
 
-    return rows.map((r) => {
-        if (r.id && r.id.includes('placeholder')) {
-            return {...r, flag: '🏴'}
-        }
-
-        if (r.country_code) {
-            return {...r, flag: getFlagEmoji(r.country_code)}
-        }
-
-        return {...r, flag: `${getFlagEmoji(r.player_a.country_code)}/${getFlagEmoji(r.player_b.country_code)}`}
-    });
+    return rows;
 });
 
 const handlePlayerClick = (player) => {
