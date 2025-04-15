@@ -38,6 +38,34 @@
                             </svg>
                         </div>
                     </div>
+
+                    <div class="relative">
+                        <select
+                            class="appearance-none bg-green-100 text-green-800 text-sm font-medium px-3 py-1 pr-8 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+                            @change="handleSortOrderChange"
+                        >
+                            <option value="desc">🔽 Descending</option>
+                            <option value="asc">🔼 Ascending</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-green-800"
+                        >
+                            <svg
+                                class="h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M19 9l-7 7-7-7"
+                                ></path>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -50,7 +78,7 @@
                         </th>
                         <th scope="col"
                             class="w-5/12 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            {{ isSolo ? "Player" : "Team"}}
+                            {{ isSolo ? "Player" : "Team" }}
                         </th>
                         <th scope="col"
                             class="w-3/12 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -79,9 +107,27 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <span class="mr-2 text-2xl">
-                                    {{ player.flag }}
-                                </span>
+                                <div v-if="player.country_code">
+                                    <img
+                                        :src="`https://flagcdn.com/32x24/${player.country_code}.png`"
+                                        :alt="player.country_code"
+                                        :title="countryMap[player.country_code]"
+                                    >
+                                </div>
+                                <div v-else class="flex">
+                                    <img
+                                        class="px-1"
+                                        :src="`https://flagcdn.com/32x24/${player.player_a.country_code}.png`"
+                                        :alt="player.country_code"
+                                        :title="countryMap[player.country_code]"
+                                    >
+                                    <img
+                                        class="px-1"
+                                        :src="`https://flagcdn.com/32x24/${player.player_b.country_code}.png`"
+                                        :alt="player.country_code"
+                                        :title="countryMap[player.country_code]"
+                                    >
+                                </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -98,7 +144,7 @@
 </template>
 <script setup>
 import {ref, computed, watch, onMounted} from "vue";
-import {usePlayerUtils} from "@composables/usePlayerUtils.js";
+import {countryMap, usePlayerUtils} from "@composables/usePlayerUtils.js";
 import CountryDropdown from "../Components/CountryDropdown.vue";
 
 const emit = defineEmits(['playerClick', 'countryFilterChange'])
@@ -109,12 +155,23 @@ const props = defineProps({
 const {getFlagEmoji} = usePlayerUtils();
 
 const dataCache = ref({
-    solo: {
-        all: null,
-        byCountry: {}
+    asc: {
+        solo: {
+            all: null,
+            byCountry: {}
+        },
+        team: {
+            all: null,
+        }
     },
-    team: {
-        all: null,
+    desc: {
+        solo: {
+            all: null,
+            byCountry: {}
+        },
+        team: {
+            all: null,
+        }
     }
 });
 
@@ -125,7 +182,7 @@ const isLoading = ref(false);
 
 onMounted(() => {
     if (props.players && props.players.length > 0) {
-        dataCache.value.solo.all = props.players;
+        dataCache.value[selectedOrder.value].solo.all = props.players;
     }
 });
 
@@ -147,26 +204,37 @@ const updateLeaderboard = async () => {
     const mode = selectedMode.value;
     const country = selectedCountry.value;
 
-    if (country === "" && mode === "solo" && dataCache.value.solo.all) {
-        leaderboardData.value = dataCache.value.solo.all;
+    if (country === "" && mode === "solo" && dataCache.value[selectedOrder.value].solo.all) {
+        leaderboardData.value = dataCache.value[selectedOrder.value].solo.all;
         return;
     }
 
-    if (mode === "team" && dataCache.value.team.all) {
-        leaderboardData.value = dataCache.value.team.all;
+    if (mode === "team" && dataCache.value[selectedOrder.value].team.all) {
+        leaderboardData.value = dataCache.value[selectedOrder.value].team.all;
         return;
     }
 
     const cacheKey = country || 'all';
-    if (dataCache.value[mode][cacheKey] !== undefined && dataCache.value[mode][cacheKey] !== null) {
-        leaderboardData.value = dataCache.value[mode][cacheKey];
+    if (dataCache.value[selectedOrder.value][mode][cacheKey] !== undefined && dataCache.value[selectedOrder.value][mode][cacheKey] !== null) {
+        leaderboardData.value = dataCache.value[selectedOrder.value][mode][cacheKey];
         return;
     }
 
     try {
         isLoading.value = true;
         const url = mode === "solo" ? "players" : "teams";
-        const response = await fetch(`/${url}${country ? `?country=${country}` : ''}`);
+
+        const params = new URLSearchParams();
+
+        if (country) {
+            params.append("country", country);
+        }
+
+        if (selectedOrder.value) {
+            params.append("order", selectedOrder.value);
+        }
+
+        const response = await fetch(`/${url}?${params.toString()}`);
 
         if (!response.ok) {
             throw new Error(`Failed to fetch ${mode} data for ${country || 'all countries'}`);
@@ -174,7 +242,7 @@ const updateLeaderboard = async () => {
 
         const json = await response.json();
 
-        dataCache.value[mode][cacheKey] = json;
+        dataCache.value[selectedOrder.value][mode][cacheKey] = json;
 
         leaderboardData.value = json || [];
     } catch (error) {
@@ -187,13 +255,13 @@ const updateLeaderboard = async () => {
 
 watch(() => props.players, (newPlayers) => {
     if (newPlayers && newPlayers.length > 0) {
-        dataCache.value.solo.all = newPlayers;
+        dataCache.value[selectedOrder.value].solo.all = newPlayers;
 
         if (selectedMode.value === "solo" && !selectedCountry.value) {
             leaderboardData.value = newPlayers;
         }
     }
-}, { deep: true });
+}, {deep: true});
 
 const displayRows = computed(() => {
     const rows = [...leaderboardData.value];
@@ -229,4 +297,11 @@ const handlePlayerClick = (player) => {
 
     emit("playerClick", {player})
 };
+
+const selectedOrder = ref("desc");
+const handleSortOrderChange = (event) => {
+    selectedOrder.value = event.target.value;
+    updateLeaderboard();
+};
+
 </script>

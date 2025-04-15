@@ -24,17 +24,23 @@
 
 <script setup>
 import {countryMap, usePlayerUtils} from "@composables/usePlayerUtils.js";
-import {computed} from "vue";
+import {computed, onMounted, ref} from "vue";
 
 const {getFlagEmoji} = usePlayerUtils()
 
 const props = defineProps({disabled: Boolean})
 
+const apiCountries = ref([]);
+const countryMapMethod = c => ({ code: c, name: countryMap[c] })
+const countrySortMethod = (a, b) => a.name?.localeCompare(b.name);
 const availableCountries = computed(() => {
-    return Object.keys(countryMap).map(c => ({
-        code: c,
-        name: countryMap[c],
-    })).sort((a, b) => a.name.localeCompare(b.name))
+    return apiCountries.value.length < 1 ?
+        Object.keys(countryMap)
+            .map(countryMapMethod)
+            .sort(countrySortMethod) :
+        apiCountries.value
+            .map(countryMapMethod)
+            .sort(countrySortMethod);
 });
 
 const emits = defineEmits(['change'])
@@ -42,4 +48,16 @@ const emits = defineEmits(['change'])
 const handleCountryFilterChange = (event) => {
     emits('change', {country: event.target.value})
 }
+
+onMounted(async () => {
+    const response = await fetch('countries');
+
+    if (!response.ok) {
+        throw new Error(response.status);
+
+        return;
+    }
+
+    apiCountries.value = await response.json();
+})
 </script>
