@@ -7,18 +7,18 @@
         >
             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl" style="height: 360px;">
                 <div class="flex justify-between items-start mb-4">
-                        <span>
-                            <h2 class="text-xl font-bold">
-                                {{ getFlagEmoji(player.country_code) }}
-                                {{ props.player.name }} -
-                                {{ props.player.rating }}
-                                <a :href=generateProfileUrl(props.player.user_id) target="_blank">
-                                    <p class="text-gray-600 font-mono underline font-light">
-                                        {{ props.player.user_id }}
-                                    </p>
-                                </a>
-                            </h2>
-                        </span>
+                    <span>
+                        <h2 class="text-xl font-bold">
+                            {{ getFlagEmoji(player.country_code) }}
+                            {{ props.player.name }} -
+                            {{ props.player.rating }}
+                            <a :href=generateProfileUrl(props.player.user_id) target="_blank">
+                                <p class="text-gray-600 font-mono underline font-light">
+                                    {{ props.player.user_id }}
+                                </p>
+                            </a>
+                        </h2>
+                    </span>
                     <button
                         @click="emitClose"
                         class="text-gray-500 hover:text-gray-700"
@@ -32,32 +32,18 @@
                 </div>
 
                 <div class="h-64 mt-4 flex-grow overflow-hidden">
-                    <div v-show="props.loading" class="h-full flex flex-col justify-center items-center">
-                        <div class="spinner-container flex justify-center items-center">
-                            <div
-                                class="spinner w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                        </div>
-                        <p class="text-gray-500 mt-4">Loading rating history...</p>
-                    </div>
+                    <LoadingSpinner v-show="props.loading" text="Loading rating history"/>
                     <div v-show="props.playerRatingHistory.length > 1 && !props.loading" class="h-full">
                         <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
                         <div class="w-full h-52">
-                            <canvas ref="ratingChartCanvas"></canvas>
+                            <canvas ref="ratingChartCanvas"/>
                         </div>
                     </div>
-                    <div
+                    <ErrorMessage
+                        heading="We don't have any data for this player!"
+                        subheading="Check back later or try another player."
                         v-show="props.playerRatingHistory.length <= 1 && !props.loading"
-                        class="h-full flex flex-col justify-center items-center"
-                    >
-                        <svg class="h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <p class="text-lg font-semibold text-gray-700">:( We don't have any data for this
-                            player!</p>
-                        <p class="text-gray-500 mt-2">Check back later or try another player.</p>
-                    </div>
+                    />
                 </div>
             </div>
         </div>
@@ -68,6 +54,8 @@
 import {usePlayerUtils} from "@composables/usePlayerUtils.js";
 import {nextTick, onUnmounted, ref, watch} from "vue";
 import {Chart} from "chart.js";
+import LoadingSpinner from "./LoadingSpinner.vue";
+import ErrorMessage from "./ErrorMessage.vue";
 
 const emit = defineEmits(['close'])
 
@@ -110,7 +98,6 @@ const formatDateString = (date) => {
 const getDatesInRange = (startDate, endDate) => {
     const dates = [];
     const currentDate = new Date(startDate);
-
     const endDateCopy = new Date(endDate);
 
     currentDate.setHours(0, 0, 0, 0);
@@ -202,7 +189,9 @@ const renderRatingChart = () => {
 
     const {labels, data} = processData();
 
-    if (data.length === 0) return;
+    if (data.length === 0) {
+        return;
+    }
 
     const validData = data.filter(value => value !== null);
     const minRating = Math.min(...validData);
@@ -324,7 +313,7 @@ const renderRatingChart = () => {
 
 watch(
     () => [props.playerRatingHistory, props.showModal, props.player],
-    async ([history, show]) => {
+    async ([_, show]) => {
         if (show && props.playerRatingHistory) {
             await nextTick();
             renderRatingChart();
@@ -333,13 +322,11 @@ watch(
     {immediate: true}
 );
 
-watch(() => props.showModal, (show) => {
-    if (show) {
-        window.addEventListener('keydown', handleKeydown);
-    } else {
-        window.removeEventListener('keydown', handleKeydown);
-    }
-});
+watch(() => props.showModal, (show) =>
+    show ?
+        window.addEventListener('keydown', handleKeydown) :
+        window.removeEventListener('keydown', handleKeydown)
+);
 
 onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown);
