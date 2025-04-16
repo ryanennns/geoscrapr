@@ -1,0 +1,16 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.json",
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.vue"],
+    "exclude": ["node_modules"],
+    "compilerOptions": {
+        "module": "esnext",
+        "allowJs": true,
+        "checkJs": false,
+        "noImplicitAny": false,
+        "strict": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["resources/js/*"]
+        }
+    }
+}

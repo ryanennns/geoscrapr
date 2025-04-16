@@ -63,20 +63,21 @@
     </transition>
 </template>
 
-<script setup>
-import {countryMap, usePlayerUtils} from "@composables/usePlayerUtils.js";
-import {nextTick, onUnmounted, ref, watch} from "vue";
-import {Chart} from "chart.js";
-import LoadingSpinner from "./LoadingSpinner.vue";
-import ErrorMessage from "./ErrorMessage.vue";
-import Flag from "./Flag.vue";
+<script setup lang="ts">
+import {nextTick, onMounted, onUnmounted, ref, watch} from "vue";
+import {Chart, type TooltipItem} from "chart.js";
+import LoadingSpinner from "@/Components/LoadingSpinner.vue";
+import Flag from "@/Components/Flag.vue";
+import ErrorMessage from "@/Components/ErrorMessage.vue";
+import {usePlayerUtils} from "@/composables/usePlayerUtils";
+import type {Player, Rating} from "@/Types/core.ts";
 
 const emit = defineEmits(['close'])
 
 const {generateProfileUrl} = usePlayerUtils();
 
-const ratingChartCanvas = ref(null);
-const ratingChartInstance = ref(null);
+const ratingChartCanvas = ref<HTMLCanvasElement>();
+const ratingChartInstance = ref<Chart | null>(null);
 const daysToShow = ref(7);
 
 const handleKeydown = (e) => {
@@ -92,25 +93,27 @@ const emitClose = () => {
 
     if (ratingChartInstance.value) {
         setTimeout(() => {
-            ratingChartInstance.value.destroy();
+            ratingChartInstance.value?.destroy();
             ratingChartInstance.value = null;
         }, 100);
     }
 }
 
-const props = defineProps({
-    showModal: Boolean,
-    player: Object,
-    playerRatingHistory: Array,
-    loading: Boolean,
-})
+interface Props {
+    showModal: boolean,
+    player: Player,
+    playerRatingHistory: Rating[],
+    loading: boolean,
+}
 
-const formatDateString = (date) => {
+const props = defineProps<Props>()
+
+const formatDateString = (date: Date) => {
     return date.toISOString().split('T')[0];
 };
 
-const getDatesInRange = (startDate, endDate) => {
-    const dates = [];
+const getDatesInRange = (startDate: Date, endDate: Date) => {
+    const dates: Date[] = [];
     const currentDate = new Date(startDate);
     const endDateCopy = new Date(endDate);
 
@@ -127,7 +130,7 @@ const getDatesInRange = (startDate, endDate) => {
     return dates;
 };
 
-const calculateStepSize = (range) => {
+const calculateStepSize = (range: number) => {
     if (range <= 100) return 50;
     if (range <= 200) return 100;
     if (range <= 400) return 250;
@@ -142,6 +145,12 @@ const renderRatingChart = () => {
     }
 
     const ctx = ratingChartCanvas.value.getContext('2d');
+
+    if (!ctx) {
+        console.error('unable to get chart canvas context')
+
+        return;
+    }
 
     const processData = () => {
         const today = new Date();
@@ -158,7 +167,7 @@ const renderRatingChart = () => {
         );
 
         const sortedRatingHistory = [...props.playerRatingHistory].sort(
-            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            (a, b) => (new Date(b.created_at)).getTime() - (new Date(a.created_at)).getTime()
         );
 
         // in my head, we need the first rating *before* our accepted range. i.e. if we want the last
@@ -170,8 +179,8 @@ const renderRatingChart = () => {
         const leftOfStartDate = sortedRatingHistory.find(r => new Date(r.created_at) < startDate)
         const oldestRating = sortedRatingHistory[sortedRatingHistory.length - 1]
 
-        const labels = [];
-        const data = [];
+        const labels: string[] = [];
+        const data: number[] = [];
 
         // ...then, we have a "hierarchy" of preferable data to fill in for the first potentially empty
         // days of data. The most preferable is the real rating the user had coming into the time frame
@@ -179,7 +188,7 @@ const renderRatingChart = () => {
         // our list, aka the last element in our sorted list. Then, if that doesn't exist, that means we
         // have no rating changes to speak of and can fill in the whole graph with the player's current rating.
 
-        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.player.rating;
+        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.player?.rating;
 
         allDates.forEach(date => {
             const dateString = formatDateString(date);
@@ -299,7 +308,6 @@ const renderRatingChart = () => {
                     borderWidth: 1,
                     padding: 12,
                     cornerRadius: 6,
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                     titleFont: {
                         size: 13,
                         weight: 'bold'
@@ -308,11 +316,11 @@ const renderRatingChart = () => {
                         size: 12
                     },
                     callbacks: {
-                        title: function (tooltipItems) {
+                        title(tooltipItems: TooltipItem<'line'>[]) {
                             return tooltipItems[0].label;
                         },
-                        label: function (context) {
-                            return `Rating: ${context.raw.toLocaleString()}`;
+                        label(context: TooltipItem<'line'>) {
+                            return `Rating: ${(context.raw as number).toLocaleString()}`;
                         }
                     }
                 }
@@ -348,6 +356,10 @@ onUnmounted(() => {
         ratingChartInstance.value.destroy();
     }
 });
+
+onMounted(() => {
+    console.log(props.playerRatingHistory)
+})
 </script>
 
 <style scoped>
