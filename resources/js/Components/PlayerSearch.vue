@@ -105,7 +105,7 @@ const fetchPlayers = () => {
 const emit = defineEmits(['playerClick'])
 const handlePlayerClick = async (player) => {
     searchInputElement.value?.blur();
-    emit('playerClick', {player})
+    emit('playerClick', player)
 };
 </script>
 

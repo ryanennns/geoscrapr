@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, onMounted, onUnmounted, ref, watch} from "vue";
+import {nextTick, onUnmounted, ref, watch} from "vue";
 import {Chart, type TooltipItem} from "chart.js";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
 import Flag from "@/Components/Flag.vue";
@@ -80,7 +80,7 @@ const ratingChartCanvas = ref<HTMLCanvasElement>();
 const ratingChartInstance = ref<Chart | null>(null);
 const daysToShow = ref(7);
 
-const handleKeydown = (e) => {
+const handleKeydown = (e: KeyboardEvent) => {
     if (e.key !== 'Escape') {
         return;
     }
@@ -356,10 +356,6 @@ onUnmounted(() => {
         ratingChartInstance.value.destroy();
     }
 });
-
-onMounted(() => {
-    console.log(props.playerRatingHistory)
-})
 </script>
 
 <style scoped>
