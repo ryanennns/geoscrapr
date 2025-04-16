@@ -312,7 +312,7 @@ const renderRatingChart = () => {
                             return tooltipItems[0].label;
                         },
                         label: function (context) {
-                            return `Rating: ${context.raw}`;
+                            return `Rating: ${context.raw.toLocaleString()}`;
                         }
                     }
                 }

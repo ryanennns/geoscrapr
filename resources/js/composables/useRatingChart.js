@@ -50,7 +50,7 @@ export function useRatingChart() {
                         bodyFont: {size: 13},
                         callbacks: {
                             title: items => `Rating Range: ${items[0].label}`,
-                            label: ctx => `Players: ${ctx.raw}`,
+                            label: ctx => `Players: ${ctx.raw.toLocaleString()}`,
                         }
                     },
                     legend: {display: false},
