@@ -269,6 +269,10 @@ export function usePlayerUtils() {
         }
     }
 
+    const getFlagImg = (countryCode, size = '24x18') => {
+        return `https://flagcdn.com/${size}/${countryCode}.png`
+    }
+
     const generateProfileUrl = (id) => {
         return `https://www.geoguessr.com/user/${id}`;
     }
@@ -281,6 +285,7 @@ export function usePlayerUtils() {
         getFlagEmoji,
         generateProfileUrl,
         getCountryName,
+        getFlagImg,
         countryMap,
     }
 }

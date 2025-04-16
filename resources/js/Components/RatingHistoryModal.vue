@@ -8,32 +8,45 @@
             <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl" style="height: 360px;">
                 <div class="flex justify-between items-start mb-4">
                     <span>
-                        <h2 class="text-xl font-bold">
-                            {{ getFlagEmoji(player.country_code) }}
+                        <span class="text-xl font-bold flex items-center">
+                            <Flag
+                                :country-code="player.country_code"
+                                dimensions="24x18"
+                                class="mr-1"
+                            />
                             {{ props.player.name }} -
                             {{ props.player.rating }}
-                            <a :href=generateProfileUrl(props.player.user_id) target="_blank">
-                                <p class="text-gray-600 font-mono underline font-light">
-                                    {{ props.player.user_id }}
-                                </p>
-                            </a>
-                        </h2>
+                        </span>
+                        <a :href=generateProfileUrl(props.player.user_id) target="_blank">
+                            <p class="text-gray-600 font-mono underline font-light">
+                                {{ props.player.user_id }}
+                            </p>
+                        </a>
                     </span>
                     <button
                         @click="emitClose"
                         class="text-gray-500 hover:text-gray-700"
                     >
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M6 18L18 6M6 6l12 12"/>
+                        <svg
+                            class="h-6 w-6"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                            />
                         </svg>
                     </button>
                 </div>
 
                 <div class="h-64 mt-4 flex-grow overflow-hidden">
                     <LoadingSpinner v-show="props.loading" text="Loading rating history"/>
-                    <div v-show="props.playerRatingHistory.length > 1 && !props.loading" class="h-full">
+                    <div v-show="props.playerRatingHistory.length > 0 && !props.loading" class="h-full">
                         <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
                         <div class="w-full h-52">
                             <canvas ref="ratingChartCanvas"/>
@@ -42,7 +55,7 @@
                     <ErrorMessage
                         heading="We don't have any data for this player!"
                         subheading="Check back later or try another player."
-                        v-show="props.playerRatingHistory.length <= 1 && !props.loading"
+                        v-show="props.playerRatingHistory.length < 1 && !props.loading"
                     />
                 </div>
             </div>
@@ -51,15 +64,16 @@
 </template>
 
 <script setup>
-import {usePlayerUtils} from "@composables/usePlayerUtils.js";
+import {countryMap, usePlayerUtils} from "@composables/usePlayerUtils.js";
 import {nextTick, onUnmounted, ref, watch} from "vue";
 import {Chart} from "chart.js";
 import LoadingSpinner from "./LoadingSpinner.vue";
 import ErrorMessage from "./ErrorMessage.vue";
+import Flag from "./Flag.vue";
 
 const emit = defineEmits(['close'])
 
-const {getFlagEmoji, generateProfileUrl} = usePlayerUtils();
+const {generateProfileUrl} = usePlayerUtils();
 
 const ratingChartCanvas = ref(null);
 const ratingChartInstance = ref(null);

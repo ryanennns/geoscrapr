@@ -112,25 +112,24 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div v-if="player.country_code">
-                                    <img
-                                        :src="`https://flagcdn.com/32x24/${player.country_code}.png`"
-                                        :alt="player.country_code"
-                                        :title="countryMap[player.country_code]"
-                                    >
+                                    <Flag
+                                        :country-code="player.country_code"
+                                        :dimensions="FLAG_IMG_SIZE"
+                                    />
                                 </div>
-                                <div v-else-if="player.player_a?.country_code && player.player_b?.country_code"
-                                     class="flex">
-                                    <img
-                                        :src="`https://flagcdn.com/32x24/${player.player_a.country_code}.png`"
-                                        :alt="player.country_code"
-                                        :title="countryMap[player.country_code]"
-                                    >
-                                    <img
-                                        class="pl-1"
-                                        :src="`https://flagcdn.com/32x24/${player.player_b.country_code}.png`"
-                                        :alt="player.country_code"
-                                        :title="countryMap[player.country_code]"
-                                    >
+                                <div
+                                    v-else-if="player.player_a?.country_code && player.player_b?.country_code"
+                                    class="flex"
+                                >
+                                    <Flag
+                                        :country-code="player.player_a.country_code"
+                                        :dimensions="FLAG_IMG_SIZE"
+                                        class="mr-1"
+                                    />
+                                    <Flag
+                                        :country-code="player.player_b.country_code"
+                                        :dimensions="FLAG_IMG_SIZE"
+                                    />
                                 </div>
                             </div>
                         </td>
@@ -147,10 +146,12 @@
     </div>
 </template>
 <script setup>
-import {ref, computed, watch, onMounted} from "vue";
-import {countryMap} from "@composables/usePlayerUtils.js";
+import {computed, onMounted, ref, watch} from "vue";
 import CountryDropdown from "../Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "../Components/LeaderboardLoadingSkeleton.vue";
+import Flag from "../Components/Flag.vue";
+
+const FLAG_IMG_SIZE = '32x24';
 
 const emit = defineEmits(['playerClick', 'countryFilterChange'])
 const props = defineProps({
