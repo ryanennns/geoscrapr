@@ -215,7 +215,7 @@ const renderRatingChart = () => {
     const step = calculateStepSize(range)
 
     const buffer = step * 2;
-    const yMin = Math.floor((minRating - buffer / 2) / step) * step;
+    const yMin = Math.max(0, Math.floor((minRating - buffer / 2) / step) * step);
     const yMax = Math.ceil((maxRating + buffer / 2) / step) * step;
 
     const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
