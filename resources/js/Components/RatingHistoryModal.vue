@@ -9,17 +9,19 @@
                 <div class="flex justify-between items-start mb-4">
                     <span>
                         <span class="text-xl font-bold flex items-center">
-                            <Flag
-                                :country-code="rateable.country_code"
-                                dimensions="24x18"
-                                class="mr-1"
-                            />
-                            {{ props.rateable.name }} -
-                            {{ props.rateable.rating }}
+                            <span v-for="countryCode in props.leaderboardRow.countryCodes">
+                                <Flag
+                                    :country-code="countryCode"
+                                    dimensions="24x18"
+                                    class="mr-1"
+                                />
+                            </span>
+                            {{ props.leaderboardRow.name }} -
+                            {{ props.leaderboardRow.rating }}
                         </span>
-                        <a :href=generateProfileUrl(props.rateable.user_id) target="_blank">
+                        <a :href=generateProfileUrl(props.leaderboardRow.id) target="_blank">
                             <p class="text-gray-600 font-mono underline font-light">
-                                {{ props.rateable.user_id }}
+                                {{ props.leaderboardRow.id }}
                             </p>
                         </a>
                     </span>
@@ -69,13 +71,13 @@ import {Chart, type TooltipItem} from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
 import {usePlayerUtils} from "@/composables/usePlayerUtils.ts";
-import type {Player, Rating} from "@/Types/core.ts";
+import type {LeaderboardRow, RatingChange} from "@/Types/core.ts";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
 
 interface Props {
     showModal: boolean,
-    rateable: Player,
-    ratingHistory: Rating[],
+    leaderboardRow: LeaderboardRow,
+    ratingHistory: RatingChange[],
     loading: boolean,
 }
 
@@ -188,7 +190,7 @@ const renderRatingChart = () => {
         // our list, aka the last element in our sorted list. Then, if that doesn't exist, that means we
         // have no rating changes to speak of and can fill in the whole graph with the player's current rating.
 
-        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.rateable?.rating;
+        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.leaderboardRow?.rating;
 
         allDates.forEach(date => {
             const dateString = formatDateString(date);
@@ -334,7 +336,7 @@ const renderRatingChart = () => {
 };
 
 watch(
-    () => [props.ratingHistory, props.showModal, props.rateable],
+    () => [props.ratingHistory, props.showModal, props.leaderboardRow],
     async ([_, show]) => {
         if (show && props.ratingHistory) {
             await nextTick();
@@ -344,10 +346,12 @@ watch(
     {immediate: true}
 );
 
-watch(() => props.showModal, (show) =>
-    show ?
-        window.addEventListener('keydown', handleKeydown) :
-        window.removeEventListener('keydown', handleKeydown)
+watch(
+    () => props.showModal,
+    (show) =>
+        show ?
+            window.addEventListener('keydown', handleKeydown) :
+            window.removeEventListener('keydown', handleKeydown)
 );
 
 onUnmounted(() => {

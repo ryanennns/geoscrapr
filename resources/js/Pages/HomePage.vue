@@ -60,8 +60,9 @@
             <PlayerLeaderboard :playersOrTeams="props.leaderboard" @player-click="onPlayerClick" class="h-[93vh]"/>
             <transition name="fade">
                 <RatingHistoryModal
+                    v-show="selectedLeaderboardRow !== null"
                     :show-modal=showModal
-                    :rateable=selectedPlayer
+                    :leaderboard-row=selectedLeaderboardRow
                     :rating-history=playerRatingHistory
                     :loading=isLoadingHistory
                     @close=closeModal
@@ -80,7 +81,7 @@ import DateSelector from "../Components/DateSelector.vue";
 import PlayerLeaderboard from "./PlayerLeaderboard.vue";
 import RatingHistoryModal from "../Components/RatingHistoryModal.vue";
 import Badge from "../Components/Badge.vue";
-import {EMPTY_PLAYER, type Player, type Rating, type Snapshot} from "@/Types/core.ts";
+import {EMPTY_LEADERBOARD_ROW, type LeaderboardRow, type Player, type RatingChange, type Snapshot} from "@/Types/core.ts";
 import {useRatingChart} from "@/composables/useRatingChart";
 
 interface Props {
@@ -97,20 +98,20 @@ const wasSmallScreen = ref<boolean>(false)
 const resizeTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // modal
-const selectedPlayer = ref<Player>(EMPTY_PLAYER);
+const selectedLeaderboardRow = ref<LeaderboardRow>(EMPTY_LEADERBOARD_ROW);
 const showModal = ref<boolean>(false);
 const closeModal = () => showModal.value = false;
-const playerRatingHistory = ref<Rating[]>([]);
+const playerRatingHistory = ref<RatingChange[]>([]);
 const isLoadingHistory = ref<boolean>(false);
 
-const onPlayerClick = async (payload: { player: Player }) => {
-    const player = payload.player
-    selectedPlayer.value = player;
-    setTimeout(() => showModal.value = true, 25);
+const onPlayerClick = async (event: { rateable: LeaderboardRow }) => {
+    const rateable = event.rateable
+    selectedLeaderboardRow.value = rateable;
 
+    setTimeout(() => showModal.value = true, 25);
     try {
         isLoadingHistory.value = true;
-        const response = await fetch(`/players/history/${player.user_id}`);
+        const response = await fetch(`/${rateable.type}s/history/${rateable.id}`);
         if (!response.ok) {
             throw new Error("Failed to fetch player details")
         }
@@ -118,7 +119,7 @@ const onPlayerClick = async (payload: { player: Player }) => {
         const historyData = await response.json();
 
         playerRatingHistory.value = historyData.sort(
-            (a: Rating, b: Rating) => (new Date(a.created_at)).getTime() - (new Date(b.created_at)).getTime()
+            (a: RatingChange, b: RatingChange) => (new Date(a.created_at)).getTime() - (new Date(b.created_at)).getTime()
         );
     } catch (err) {
         console.error("Error loading player details:", err);

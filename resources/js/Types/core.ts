@@ -19,17 +19,28 @@ export interface Team {
     updated_at: string
 }
 
-export const EMPTY_PLAYER: Player = {
-    id: '',
-    user_id: '',
-    name: '',
-    rating: 0,
-    country_code: '',
-    created_at: '2000-01-01',
-    updated_at: '2000-01-01',
+export type Rateable = Player | Team;
+
+export interface LeaderboardRow {
+    id: string
+    name: string
+    rating: number
+    countryCodes: string[]
+    teamPlayers?: Player[]
+    isPlaceholder: boolean
+    type: 'player' | 'team'
 }
 
-export interface Rating {
+export const EMPTY_LEADERBOARD_ROW: LeaderboardRow = {
+    id: '',
+    name: '',
+    rating: 0,
+    countryCodes: [],
+    isPlaceholder: true,
+    type: 'player'
+}
+
+export interface RatingChange {
     id: string
     rating: number
     rateable_id: string
