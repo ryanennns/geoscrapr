@@ -142,11 +142,18 @@ const closeModal = () => (showModal.value = false);
 const playerRatingHistory = ref<RatingChange[]>([]);
 const isLoadingHistory = ref<boolean>(false);
 
+const ratingHistoryCache = ref<Record<string, RatingChange[]>>({});
 const onPlayerClick = async (event: { rateable: LeaderboardRow }) => {
     const rateable = event.rateable;
     selectedLeaderboardRow.value = rateable;
 
     setTimeout(() => (showModal.value = true), 25);
+    if (ratingHistoryCache.value[rateable.id]?.length > 0) {
+        ratingHistoryCache.value[rateable.id]?.length;
+
+        return;
+    }
+
     try {
         isLoadingHistory.value = true;
         const response = await fetch(
@@ -157,6 +164,8 @@ const onPlayerClick = async (event: { rateable: LeaderboardRow }) => {
         }
 
         const historyData = await response.json();
+
+        ratingHistoryCache.value[rateable.id] = historyData;
 
         playerRatingHistory.value = historyData.sort(
             (a: RatingChange, b: RatingChange) =>
