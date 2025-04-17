@@ -82,13 +82,6 @@ const showDropdown = ref<boolean>(true);
 
 const searchCache = ref<Record<string, Player[]>>({});
 
-const maybeClearCache = () => {
-    const keys = Object.keys(searchCache.value);
-    if (keys.length >= 10) {
-        delete searchCache.value[keys[0]];
-    }
-};
-
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 const fetchPlayers = () => {
     showDropdown.value = true;
@@ -119,10 +112,7 @@ const fetchPlayers = () => {
 
             const json = await response.json();
 
-            searchCache.value[searchQuery.value] = json;
-            maybeClearCache();
-
-            console.log(JSON.stringify(json));
+            searchCache.value[searchQuery.value] = json.data;
 
             searchResults.value = json.data;
         } catch (err) {
