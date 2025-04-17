@@ -180,7 +180,7 @@ function parseLocalDate(dateStr: string) {
     return new Date(year, month - 1, day)
 }
 
-const availableDatesObjects = computed(() => {
+const availableDatesObjects = computed<Date[]>(() => {
     return props.dates.map(parseLocalDate)
 })
 
