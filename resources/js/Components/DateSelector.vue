@@ -1,4 +1,3 @@
-<!-- src/Components/DateSelector.vue -->
 <template>
     <div class="w-40">
         <div class="relative">
@@ -15,15 +14,17 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {ref, watch} from 'vue'
 import Datepicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
-const props = defineProps({
-    modelValue: Date,
-    availableDates: Array,
-})
+interface Props {
+    modelValue: Date
+    availableDates: Date[]
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits(['update:modelValue'])
 
@@ -33,7 +34,7 @@ watch(() => props.modelValue, (val) => {
     internalDate.value = val
 })
 
-const emitUpdate = (val) => {
+const emitUpdate = (val: Date) => {
     emit('update:modelValue', val)
 }
 </script>

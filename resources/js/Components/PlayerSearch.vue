@@ -17,7 +17,6 @@
                 @input="fetchPlayers"
                 @focus="fetchPlayers"
                 @blur="() => showDropdown = false"
-                @keydown.esc="searchInputElement.value?.blur"
                 placeholder="Search for a player name or ID..."
                 class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
@@ -50,16 +49,18 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {ref} from "vue";
 import PlayerSearchResult from "./PlayerSearchResult.vue";
+import type {Player} from "@/Types/core.ts";
 
-const searchInputElement = ref('');
-const searchQuery = ref('');
-const searchResults = ref([]);
-const showDropdown = ref(true);
+const searchInputElement = ref<HTMLInputElement>();
+const searchQuery = ref<string>('');
+const searchResults = ref<Player[]>([]);
+const showDropdown = ref<boolean>(true);
 
-const searchCache = ref({})
+const searchCache = ref<Record<string, Player[]>>({})
+
 const maybeClearCache = () => {
     const keys = Object.keys(searchCache.value);
     if (keys.length >= 10) {
@@ -67,10 +68,13 @@ const maybeClearCache = () => {
     }
 }
 
-let debounceTimeout = null;
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 const fetchPlayers = () => {
     showDropdown.value = true;
-    clearTimeout(debounceTimeout);
+
+    if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+    }
 
     if (searchCache.value[searchQuery.value]) {
         searchResults.value = searchCache.value[searchQuery.value]
@@ -95,7 +99,9 @@ const fetchPlayers = () => {
             searchCache.value[searchQuery.value] = json
             maybeClearCache();
 
-            searchResults.value = json;
+            console.log(JSON.stringify(json))
+
+            searchResults.value = json.data;
         } catch (err) {
             console.error('Player search failed:', err);
         }
@@ -103,9 +109,9 @@ const fetchPlayers = () => {
 };
 
 const emit = defineEmits(['playerClick'])
-const handlePlayerClick = async (player) => {
+const handlePlayerClick = async (player: Player) => {
     searchInputElement.value?.blur();
-    emit('playerClick', {player})
+    emit('playerClick', player)
 };
 </script>
 

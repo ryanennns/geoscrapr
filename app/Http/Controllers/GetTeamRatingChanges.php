@@ -2,23 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Player;
-use App\Models\RatingChange;
+use App\Models\Team;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class GetRatingChangeHistory extends Controller
+class GetTeamRatingChanges extends Controller
 {
     public function __invoke($id): Collection
     {
-        $player = Player::query()
-            ->where('id', $id)
-            ->firstOrFail();
+        $team = Team::query()->findOrFail($id);
 
-        $playerId = $player->id;
-
-        return $player->ratingChanges()
+        return $team->ratingChanges()
             ->select('rating_changes.*')
             ->join(DB::raw('(
                 SELECT MAX(id) as id
@@ -26,7 +20,7 @@ class GetRatingChangeHistory extends Controller
                 WHERE rateable_id = ?
                 GROUP BY DATE(created_at)
             ) as latest'), 'rating_changes.id', '=', 'latest.id')
-            ->addBinding($playerId, 'select') // bind the ? in the subquery
+            ->addBinding($team->id, 'select')
             ->get();
     }
 }

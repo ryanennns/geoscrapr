@@ -9,19 +9,39 @@
                 <div class="flex justify-between items-start mb-4">
                     <span>
                         <span class="text-xl font-bold flex items-center">
-                            <Flag
-                                :country-code="player.country_code"
-                                dimensions="24x18"
-                                class="mr-1"
-                            />
-                            {{ props.player.name }} -
-                            {{ props.player.rating }}
+                            <span v-for="countryCode in props.leaderboardRow.countryCodes">
+                                <Flag
+                                    :country-code="countryCode"
+                                    dimensions="24x18"
+                                    class="mr-1"
+                                />
+                            </span>
+                            <p class="">{{ props.leaderboardRow.name }}</p>
+                            <p class="font-light ml-1"> - {{ props.leaderboardRow.rating }}</p>
                         </span>
-                        <a :href=generateProfileUrl(props.player.user_id) target="_blank">
-                            <p class="text-gray-600 font-mono underline font-light">
-                                {{ props.player.user_id }}
-                            </p>
-                        </a>
+
+                        <span v-if="props.leaderboardRow.players" class="flex">
+                            <a :href=generateProfileUrl(props.leaderboardRow.players[1]?.user_id) target="_blank"
+                               class="mr-1">
+                                <p class="text-gray-600 font-mono underline font-light">
+                                    {{ props.leaderboardRow.players[1]?.name }}
+                                </p>
+                            </a>
+                            &
+                            <a :href=generateProfileUrl(props.leaderboardRow.players[0]?.user_id) target="_blank"
+                               class="ml-1">
+                                <p class="text-gray-600 font-mono underline font-light">
+                                    {{ props.leaderboardRow.players[0]?.name }}
+                                </p>
+                            </a>
+                        </span>
+                        <span v-else>
+                            <a :href=generateProfileUrl(props.leaderboardRow.geoGuessrId) target="_blank">
+                                <p class="text-gray-600 font-mono underline font-light">
+                                    {{ props.leaderboardRow.id }}
+                                </p>
+                            </a>
+                        </span>
                     </span>
                     <button
                         @click="emitClose"
@@ -46,16 +66,15 @@
 
                 <div class="h-64 mt-4 flex-grow overflow-hidden">
                     <LoadingSpinner v-show="props.loading" text="Loading rating history"/>
-                    <div v-show="props.playerRatingHistory.length > 0 && !props.loading" class="h-full">
-                        <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
-                        <div class="w-full h-52">
+                    <div v-show="props.ratingHistory.length > 0 && !props.loading" class="h-full">
+                        <div class="w-full h-60">
                             <canvas ref="ratingChartCanvas"/>
                         </div>
                     </div>
                     <ErrorMessage
                         heading="We don't have any data for this player!"
-                        subheading="Check back later or try another player."
-                        v-show="props.playerRatingHistory.length < 1 && !props.loading"
+                        sub-heading="Check back later or try another player."
+                        v-show="props.ratingHistory.length < 1 && !props.loading"
                     />
                 </div>
             </div>
@@ -63,23 +82,33 @@
     </transition>
 </template>
 
-<script setup>
-import {countryMap, usePlayerUtils} from "@composables/usePlayerUtils.js";
+<script setup lang="ts">
 import {nextTick, onUnmounted, ref, watch} from "vue";
-import {Chart} from "chart.js";
-import LoadingSpinner from "./LoadingSpinner.vue";
-import ErrorMessage from "./ErrorMessage.vue";
-import Flag from "./Flag.vue";
+import {Chart, type TooltipItem} from "chart.js";
+import Flag from "@/Components/Flag.vue";
+import ErrorMessage from "@/Components/ErrorMessage.vue";
+import {usePlayerUtils} from "@/composables/usePlayerUtils.ts";
+import type {LeaderboardRow, RatingChange} from "@/Types/core.ts";
+import LoadingSpinner from "@/Components/LoadingSpinner.vue";
+
+interface Props {
+    showModal: boolean,
+    leaderboardRow: LeaderboardRow,
+    ratingHistory: RatingChange[],
+    loading: boolean,
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits(['close'])
 
 const {generateProfileUrl} = usePlayerUtils();
+const ratingChartCanvas = ref<HTMLCanvasElement>();
+const ratingChartInstance = ref<Chart | null>(null);
 
-const ratingChartCanvas = ref(null);
-const ratingChartInstance = ref(null);
 const daysToShow = ref(7);
 
-const handleKeydown = (e) => {
+const handleKeydown = (e: KeyboardEvent) => {
     if (e.key !== 'Escape') {
         return;
     }
@@ -92,25 +121,18 @@ const emitClose = () => {
 
     if (ratingChartInstance.value) {
         setTimeout(() => {
-            ratingChartInstance.value.destroy();
+            ratingChartInstance.value?.destroy();
             ratingChartInstance.value = null;
         }, 100);
     }
 }
 
-const props = defineProps({
-    showModal: Boolean,
-    player: Object,
-    playerRatingHistory: Array,
-    loading: Boolean,
-})
-
-const formatDateString = (date) => {
+const formatDateString = (date: Date) => {
     return date.toISOString().split('T')[0];
 };
 
-const getDatesInRange = (startDate, endDate) => {
-    const dates = [];
+const getDatesInRange = (startDate: Date, endDate: Date) => {
+    const dates: Date[] = [];
     const currentDate = new Date(startDate);
     const endDateCopy = new Date(endDate);
 
@@ -127,7 +149,7 @@ const getDatesInRange = (startDate, endDate) => {
     return dates;
 };
 
-const calculateStepSize = (range) => {
+const calculateStepSize = (range: number) => {
     if (range <= 100) return 50;
     if (range <= 200) return 100;
     if (range <= 400) return 250;
@@ -135,13 +157,19 @@ const calculateStepSize = (range) => {
 };
 
 const renderRatingChart = () => {
-    if (!ratingChartCanvas.value || props.playerRatingHistory.length === 0) return;
+    if (!ratingChartCanvas.value || props.ratingHistory.length === 0) return;
 
     if (ratingChartInstance.value) {
         ratingChartInstance.value.destroy();
     }
 
     const ctx = ratingChartCanvas.value.getContext('2d');
+
+    if (!ctx) {
+        console.error('unable to get chart canvas context')
+
+        return;
+    }
 
     const processData = () => {
         const today = new Date();
@@ -151,14 +179,14 @@ const renderRatingChart = () => {
         const allDates = getDatesInRange(startDate, today);
 
         const ratingsByDate = Object.fromEntries(
-            props.playerRatingHistory.map(record => [
+            props.ratingHistory.map(record => [
                 formatDateString(new Date(record.created_at)),
                 record.rating
             ])
         );
 
-        const sortedRatingHistory = [...props.playerRatingHistory].sort(
-            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        const sortedRatingHistory = [...props.ratingHistory].sort(
+            (a, b) => (new Date(b.created_at)).getTime() - (new Date(a.created_at)).getTime()
         );
 
         // in my head, we need the first rating *before* our accepted range. i.e. if we want the last
@@ -170,8 +198,8 @@ const renderRatingChart = () => {
         const leftOfStartDate = sortedRatingHistory.find(r => new Date(r.created_at) < startDate)
         const oldestRating = sortedRatingHistory[sortedRatingHistory.length - 1]
 
-        const labels = [];
-        const data = [];
+        const labels: string[] = [];
+        const data: number[] = [];
 
         // ...then, we have a "hierarchy" of preferable data to fill in for the first potentially empty
         // days of data. The most preferable is the real rating the user had coming into the time frame
@@ -179,7 +207,7 @@ const renderRatingChart = () => {
         // our list, aka the last element in our sorted list. Then, if that doesn't exist, that means we
         // have no rating changes to speak of and can fill in the whole graph with the player's current rating.
 
-        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.player.rating;
+        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.leaderboardRow?.rating;
 
         allDates.forEach(date => {
             const dateString = formatDateString(date);
@@ -272,6 +300,18 @@ const renderRatingChart = () => {
                     }
                 },
                 x: {
+                    title: {
+                        display: true,
+                        text: `Rating History (Last ${daysToShow.value} Days)`,
+                        font: {
+                            size: 12,
+                            weight: 'lighter'
+                        },
+                        padding: {
+                            top: 10
+                        },
+                        color: '#1e293b'
+                    },
                     ticks: {
                         maxTicksLimit: Math.min(10, labels.length),
                         maxRotation: 45,
@@ -299,7 +339,6 @@ const renderRatingChart = () => {
                     borderWidth: 1,
                     padding: 12,
                     cornerRadius: 6,
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                     titleFont: {
                         size: 13,
                         weight: 'bold'
@@ -308,11 +347,11 @@ const renderRatingChart = () => {
                         size: 12
                     },
                     callbacks: {
-                        title: function (tooltipItems) {
+                        title(tooltipItems: TooltipItem<'line'>[]) {
                             return tooltipItems[0].label;
                         },
-                        label: function (context) {
-                            return `Rating: ${context.raw.toLocaleString()}`;
+                        label(context: TooltipItem<'line'>) {
+                            return `Rating: ${(context.raw as number).toLocaleString()}`;
                         }
                     }
                 }
@@ -326,9 +365,9 @@ const renderRatingChart = () => {
 };
 
 watch(
-    () => [props.playerRatingHistory, props.showModal, props.player],
+    () => [props.ratingHistory, props.showModal, props.leaderboardRow],
     async ([_, show]) => {
-        if (show && props.playerRatingHistory) {
+        if (show && props.ratingHistory) {
             await nextTick();
             renderRatingChart();
         }
@@ -336,10 +375,12 @@ watch(
     {immediate: true}
 );
 
-watch(() => props.showModal, (show) =>
-    show ?
-        window.addEventListener('keydown', handleKeydown) :
-        window.removeEventListener('keydown', handleKeydown)
+watch(
+    () => props.showModal,
+    (show) =>
+        show ?
+            window.addEventListener('keydown', handleKeydown) :
+            window.removeEventListener('keydown', handleKeydown)
 );
 
 onUnmounted(() => {

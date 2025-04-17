@@ -57,12 +57,13 @@
                 </div>
             </div>
 
-            <PlayerLeaderboard :players="props.leaderboard" @player-click="onPlayerClick" class="h-[93vh]"/>
+            <PlayerLeaderboard :playersOrTeams="props.leaderboard" @player-click="onPlayerClick" class="h-[93vh]"/>
             <transition name="fade">
                 <RatingHistoryModal
+                    v-show="selectedLeaderboardRow !== null"
                     :show-modal=showModal
-                    :player=selectedPlayer
-                    :player-rating-history=playerRatingHistory
+                    :leaderboard-row=selectedLeaderboardRow
+                    :rating-history=playerRatingHistory
                     :loading=isLoadingHistory
                     @close=closeModal
                 />
@@ -71,36 +72,46 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {Chart, registerables} from 'chart.js'
 import '@vuepic/vue-datepicker/dist/main.css'
 import PlayerSearch from "../Components/PlayerSearch.vue";
 import DateSelector from "../Components/DateSelector.vue";
-import {useRatingChart} from "@composables/useRatingChart.js";
 import PlayerLeaderboard from "./PlayerLeaderboard.vue";
 import RatingHistoryModal from "../Components/RatingHistoryModal.vue";
 import Badge from "../Components/Badge.vue";
+import {EMPTY_LEADERBOARD_ROW, type LeaderboardRow, type Player, type RatingChange, type Snapshot} from "@/Types/core.ts";
+import {useRatingChart} from "@/composables/useRatingChart";
 
-const isSmallScreen = ref(false)
-const wasSmallScreen = ref(false)
-const resizeTimer = ref(null)
+interface Props {
+    solo_snapshots: Snapshot[]
+    team_snapshots: Snapshot[]
+    dates: string[]
+    leaderboard: Player[]
+}
+
+const props = defineProps<Props>()
+
+const isSmallScreen = ref<boolean>(false)
+const wasSmallScreen = ref<boolean>(false)
+const resizeTimer = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // modal
-const selectedPlayer = ref(null);
-const showModal = ref(false);
+const selectedLeaderboardRow = ref<LeaderboardRow>(EMPTY_LEADERBOARD_ROW);
+const showModal = ref<boolean>(false);
 const closeModal = () => showModal.value = false;
-const playerRatingHistory = ref([]);
-const isLoadingHistory = ref(false);
+const playerRatingHistory = ref<RatingChange[]>([]);
+const isLoadingHistory = ref<boolean>(false);
 
-const onPlayerClick = async (payload) => {
-    const player = payload.player
-    selectedPlayer.value = player;
+const onPlayerClick = async (event: { rateable: LeaderboardRow }) => {
+    const rateable = event.rateable
+    selectedLeaderboardRow.value = rateable;
+
     setTimeout(() => showModal.value = true, 25);
-
     try {
         isLoadingHistory.value = true;
-        const response = await fetch(`/players/history/${player.user_id}`);
+        const response = await fetch(`/${rateable.type}s/history/${rateable.id}`);
         if (!response.ok) {
             throw new Error("Failed to fetch player details")
         }
@@ -108,7 +119,7 @@ const onPlayerClick = async (payload) => {
         const historyData = await response.json();
 
         playerRatingHistory.value = historyData.sort(
-            (a, b) => new Date(a.created_at) - new Date(b.created_at)
+            (a: RatingChange, b: RatingChange) => (new Date(a.created_at)).getTime() - (new Date(b.created_at)).getTime()
         );
     } catch (err) {
         console.error("Error loading player details:", err);
@@ -150,18 +161,11 @@ onBeforeUnmount(() => {
 Chart.defaults.animation = false
 Chart.register(...registerables)
 
-const props = defineProps({
-    solo_snapshots: Array,
-    team_snapshots: Array,
-    dates: Array,
-    leaderboard: Array,
-})
+const soloChartCanvas = ref<HTMLCanvasElement>()
+const teamChartCanvas = ref<HTMLCanvasElement>()
 
-const soloChartCanvas = ref(null)
-const teamChartCanvas = ref(null)
-
-const soloChartInstance = ref(null)
-const teamChartInstance = ref(null)
+const soloChartInstance = ref<Chart | null>(null)
+const teamChartInstance = ref<Chart | null>(null)
 
 const soloSnapshots = ref(props.solo_snapshots);
 const teamSnapshots = ref(props.team_snapshots);
@@ -173,28 +177,23 @@ const availableDates = computed(() => {
     return [...new Set([...soloDates, ...teamDates])].sort().reverse()
 })
 
-function parseLocalDate(dateStr) {
+function parseLocalDate(dateStr: string) {
     const [year, month, day] = dateStr.split('-').map(Number)
     return new Date(year, month - 1, day)
 }
 
-const availableDatesObjects = computed(() => {
+const availableDatesObjects = computed<Date[]>(() => {
     return props.dates.map(parseLocalDate)
 })
 
-const selectedDate = ref(
+const selectedDate = ref<Date>(
     availableDates.value[0] ? parseLocalDate(availableDates.value[0]) : new Date()
 )
 
-const formatDate = (date) => {
-    if (!date) return null
-    return date instanceof Date
-        ? date.toISOString().split('T')[0]
-        : date
-}
+const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
-const fetchSnapshot = async (date) => {
-    const response = await fetch(`/snapshots?date=${formatDate(date)}`)
+const fetchSnapshot = async (date: string) => {
+    const response = await fetch(`/snapshots?date=${date}}`)
 
     if (!response.ok) {
         throw new Error(`Failed to fetch snapshot for ${date}.`)
@@ -203,13 +202,13 @@ const fetchSnapshot = async (date) => {
     return await response.json();
 }
 
-const currentSoloSnapshot = computed(() => {
-    return soloSnapshots.value.find(s => s.date === formatDate(selectedDate.value))
-})
+const currentSoloSnapshot = computed<Snapshot | undefined>(
+    () => soloSnapshots.value.find(s => s.date === formatDate(selectedDate.value))
+)
 
-const currentTeamSnapshot = computed(() => {
-    return teamSnapshots.value.find(s => s.date === formatDate(selectedDate.value))
-})
+const currentTeamSnapshot = computed<Snapshot | undefined>(
+    () => teamSnapshots.value.find(s => s.date === formatDate(selectedDate.value))
+)
 
 watch(selectedDate, async () => {
     if (
@@ -219,7 +218,7 @@ watch(selectedDate, async () => {
         return;
     }
 
-    const snapshots = await fetchSnapshot(selectedDate.value)
+    const snapshots = await fetchSnapshot(formatDate(selectedDate.value))
 
     soloSnapshots.value.push(snapshots.solo)
     teamSnapshots.value.push(snapshots.team)

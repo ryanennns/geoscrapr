@@ -9,14 +9,16 @@
             {{ props.heading }}
         </p>
         <p class="text-gray-500 mt-2">
-            {{ props.subheading}}
+            {{ props.subHeading}}
         </p>
     </div>
 </template>
-<script setup>
-const props = defineProps({
-    heading: String,
-    subheading: String,
-})
+<script setup lang="ts">
+interface Props {
+    heading: string
+    subHeading: string
+}
+
+const props = defineProps<Props>()
 </script>
 

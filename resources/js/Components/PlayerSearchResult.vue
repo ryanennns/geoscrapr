@@ -15,18 +15,21 @@
     </li>
 </template>
 
-<script setup>
-import {usePlayerUtils} from "@composables/usePlayerUtils.js";
+<script setup lang="ts">
+import {usePlayerUtils} from "@/composables/usePlayerUtils.js";
+import type {Player} from "@/Types/core.ts";
+
+interface Props {
+    player: Player
+}
+
+const props = defineProps<Props>()
 
 const {getFlagEmoji} = usePlayerUtils()
 
-const props = defineProps({
-    player: Object,
-})
-
 const emit = defineEmits(['playerClick']);
 
-const handlePlayerClick = (player) => {
+const handlePlayerClick = (player: Player) => {
     emit('playerClick', player)
 }
 </script>
