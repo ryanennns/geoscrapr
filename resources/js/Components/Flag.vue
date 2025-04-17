@@ -6,13 +6,15 @@
     >
 </template>
 
-<script setup>
-import {countryMap, usePlayerUtils} from "@composables/usePlayerUtils.js";
+<script setup lang="ts">
+import {countryMap, usePlayerUtils} from "@/composables/usePlayerUtils.js";
 
-const props = defineProps({
-    countryCode: String,
-    dimensions: String,
-})
+interface Props {
+    countryCode: string
+    dimensions: string
+}
+
+const props = defineProps<Props>()
 
 const {getFlagImg} = usePlayerUtils();
 </script>

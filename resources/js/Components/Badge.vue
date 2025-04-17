@@ -1,14 +1,13 @@
 <template>
     <span class="text-sm font-medium px-3 py-1 rounded-full">
-        {{ text }}
+        {{ props.text }}
     </span>
 </template>
 
-<script setup>
-defineProps({
-    text: {
-        type: String,
-        required: true
-    }
-})
+<script setup lang="ts">
+interface Props {
+    text: string,
+}
+
+const props = defineProps<Props>()
 </script>

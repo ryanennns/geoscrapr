@@ -31,7 +31,7 @@
                 <div class="h-4 bg-gray-200 rounded w-1/6"></div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-                <div v-if="isSolo">
+                <div v-if="props.isSolo">
                     <div class="h-6 w-9 bg-gray-200 rounded"/>
                 </div>
                 <div v-else class="flex">
@@ -47,8 +47,10 @@
     </table>
 </template>
 
-<script setup>
-const props = defineProps({
-    isSolo: Boolean
-})
+<script setup lang="ts">
+interface Props {
+    isSolo: boolean
+}
+
+const props = defineProps<Props>()
 </script>

@@ -22,17 +22,27 @@
     </div>
 </template>
 
-<script setup>
-import {countryMap, usePlayerUtils} from "@composables/usePlayerUtils.js";
+<script setup lang="ts">
+import {countryMap, usePlayerUtils} from "@/composables/usePlayerUtils.js";
 import {computed, onMounted, ref} from "vue";
+
+interface Props {
+    disabled: boolean
+}
+
+const props = defineProps<Props>()
 
 const {getFlagEmoji} = usePlayerUtils()
 
-const props = defineProps({disabled: Boolean})
-
 const apiCountries = ref([]);
-const countryMapMethod = c => ({ code: c, name: countryMap[c] })
-const countrySortMethod = (a, b) => a.name?.localeCompare(b.name);
+
+interface Country {
+    code: string
+    name: string
+}
+
+const countryMapMethod = (c: string): Country => ({code: c, name: countryMap[c]})
+const countrySortMethod = (a: Country, b: Country) => a.name?.localeCompare(b.name);
 const availableCountries = computed(() => {
     return apiCountries.value.length < 1 ?
         Object.keys(countryMap)
@@ -45,17 +55,15 @@ const availableCountries = computed(() => {
 
 const emits = defineEmits(['change'])
 
-const handleCountryFilterChange = (event) => {
-    emits('change', {country: event.target.value})
+const handleCountryFilterChange = (event: Event) => {
+    emits('change', {country: (event.target as HTMLSelectElement)?.value})
 }
 
 onMounted(async () => {
     const response = await fetch('countries');
 
     if (!response.ok) {
-        throw new Error(response.status);
-
-        return;
+        throw new Error(`${response.status}`);
     }
 
     apiCountries.value = await response.json();

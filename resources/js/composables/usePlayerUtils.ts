@@ -1,4 +1,4 @@
-export const countryMap = {
+export const countryMap: Record<string, string> = {
     "ad": "Andorra",
     "ae": "United Arab Emirates",
     "af": "Afghanistan",
@@ -252,7 +252,7 @@ export const countryMap = {
 };
 
 export function usePlayerUtils() {
-    const getFlagEmoji = (countryCode) => {
+    const getFlagEmoji = (countryCode: string) => {
         if (!countryCode || countryCode.length !== 2) {
             return '🏴';
         }
@@ -262,22 +262,22 @@ export function usePlayerUtils() {
                 ...countryCode
                     .toUpperCase()
                     .split('')
-                    .map(char => 127397 + char.charCodeAt())
+                    .map((char: string) => 127397 + char.charCodeAt(0))
             );
         } catch {
             return '🏴';
         }
     }
 
-    const getFlagImg = (countryCode, size = '24x18') => {
+    const getFlagImg = (countryCode: string, size = '24x18') => {
         return `https://flagcdn.com/${size}/${countryCode}.png`
     }
 
-    const generateProfileUrl = (id) => {
+    const generateProfileUrl = (id: string) => {
         return `https://www.geoguessr.com/user/${id}`;
     }
 
-    const getCountryName = (countryCode) => {
+    const getCountryName = (countryCode: string) => {
         return countryMap[countryCode];
     }
 

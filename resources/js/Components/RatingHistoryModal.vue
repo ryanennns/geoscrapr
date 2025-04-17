@@ -54,7 +54,7 @@
                     </div>
                     <ErrorMessage
                         heading="We don't have any data for this player!"
-                        subheading="Check back later or try another player."
+                        sub-heading="Check back later or try another player."
                         v-show="props.playerRatingHistory.length < 1 && !props.loading"
                     />
                 </div>
@@ -66,18 +66,27 @@
 <script setup lang="ts">
 import {nextTick, onUnmounted, ref, watch} from "vue";
 import {Chart, type TooltipItem} from "chart.js";
-import LoadingSpinner from "@/Components/LoadingSpinner.vue";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
-import {usePlayerUtils} from "@/composables/usePlayerUtils";
+import {usePlayerUtils} from "@/composables/usePlayerUtils.ts";
 import type {Player, Rating} from "@/Types/core.ts";
+import LoadingSpinner from "@/Components/LoadingSpinner.vue";
+
+interface Props {
+    showModal: boolean,
+    player: Player,
+    playerRatingHistory: Rating[],
+    loading: boolean,
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits(['close'])
 
 const {generateProfileUrl} = usePlayerUtils();
-
 const ratingChartCanvas = ref<HTMLCanvasElement>();
 const ratingChartInstance = ref<Chart | null>(null);
+
 const daysToShow = ref(7);
 
 const handleKeydown = (e: KeyboardEvent) => {
@@ -98,15 +107,6 @@ const emitClose = () => {
         }, 100);
     }
 }
-
-interface Props {
-    showModal: boolean,
-    player: Player,
-    playerRatingHistory: Rating[],
-    loading: boolean,
-}
-
-const props = defineProps<Props>()
 
 const formatDateString = (date: Date) => {
     return date.toISOString().split('T')[0];
