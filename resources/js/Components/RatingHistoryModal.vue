@@ -16,19 +16,22 @@
                                     class="mr-1"
                                 />
                             </span>
-                            {{ props.leaderboardRow.name }} -
-                            {{ props.leaderboardRow.rating }}
+                            <p class="">{{ props.leaderboardRow.name }}</p>
+                            <p class="font-light ml-1"> - {{ props.leaderboardRow.rating }}</p>
                         </span>
 
-                        <span v-if="props.leaderboardRow.players">
-                            <a :href=generateProfileUrl(props.leaderboardRow.players[1]?.user_id) target="_blank">
+                        <span v-if="props.leaderboardRow.players" class="flex">
+                            <a :href=generateProfileUrl(props.leaderboardRow.players[1]?.user_id) target="_blank"
+                               class="mr-1">
                                 <p class="text-gray-600 font-mono underline font-light">
-                                    {{ props.leaderboardRow.players[1]?.user_id }}
+                                    {{ props.leaderboardRow.players[1]?.name }}
                                 </p>
                             </a>
-                            <a :href=generateProfileUrl(props.leaderboardRow.players[0]?.user_id) target="_blank">
+                            &
+                            <a :href=generateProfileUrl(props.leaderboardRow.players[0]?.user_id) target="_blank"
+                               class="ml-1">
                                 <p class="text-gray-600 font-mono underline font-light">
-                                    {{ props.leaderboardRow.players[0]?.user_id }}
+                                    {{ props.leaderboardRow.players[0]?.name }}
                                 </p>
                             </a>
                         </span>
