@@ -1,3 +1,10 @@
+import {
+    isTeam,
+    type LeaderboardRow,
+    type Player,
+    type Team,
+} from "@/Types/core.ts";
+
 export const countryMap: Record<string, string> = {
     ad: "Andorra",
     ae: "United Arab Emirates",
@@ -281,11 +288,40 @@ export function usePlayerUtils() {
         return countryMap[countryCode];
     };
 
+    const rateableToLeaderboardRows = (
+        playerOrTeam: Player | Team,
+    ): LeaderboardRow => {
+        return isTeam(playerOrTeam)
+            ? {
+                  id: playerOrTeam.id,
+                  geoGuessrId: playerOrTeam.team_id,
+                  name: playerOrTeam.name,
+                  rating: playerOrTeam.rating,
+                  countryCodes: [
+                      playerOrTeam.player_a.country_code,
+                      playerOrTeam.player_b.country_code,
+                  ],
+                  players: [playerOrTeam.player_a, playerOrTeam.player_b],
+                  isPlaceholder: false,
+                  type: "team",
+              }
+            : {
+                  id: playerOrTeam.id,
+                  geoGuessrId: playerOrTeam.user_id,
+                  name: playerOrTeam.name,
+                  rating: playerOrTeam.rating,
+                  countryCodes: [playerOrTeam.country_code],
+                  isPlaceholder: false,
+                  type: "player",
+              };
+    };
+
     return {
         getFlagEmoji,
         generateProfileUrl,
         getCountryName,
         getFlagImg,
+        rateableToLeaderboardRows,
         countryMap,
     };
 }

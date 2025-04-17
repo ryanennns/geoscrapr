@@ -74,6 +74,9 @@
 import { ref } from "vue";
 import PlayerSearchResult from "./PlayerSearchResult.vue";
 import type { Player } from "@/Types/core.ts";
+import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
+
+const { rateableToLeaderboardRows } = usePlayerUtils();
 
 const searchInputElement = ref<HTMLInputElement>();
 const searchQuery = ref<string>("");
@@ -124,7 +127,9 @@ const fetchPlayers = () => {
 const emit = defineEmits(["playerClick"]);
 const handlePlayerClick = async (player: Player) => {
     searchInputElement.value?.blur();
-    emit("playerClick", {rateable: player});
+    emit("playerClick", {
+        rateable: rateableToLeaderboardRows(player),
+    });
 };
 </script>
 
