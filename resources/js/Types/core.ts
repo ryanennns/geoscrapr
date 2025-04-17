@@ -23,16 +23,18 @@ export type Rateable = Player | Team;
 
 export interface LeaderboardRow {
     id: string
+    geoGuessrId: string
     name: string
     rating: number
     countryCodes: string[]
-    teamPlayers?: Player[]
+    players?: Player[]
     isPlaceholder: boolean
     type: 'player' | 'team'
 }
 
 export const EMPTY_LEADERBOARD_ROW: LeaderboardRow = {
     id: '',
+    geoGuessrId: '',
     name: '',
     rating: 0,
     countryCodes: [],

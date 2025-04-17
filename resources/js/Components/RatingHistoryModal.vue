@@ -19,11 +19,26 @@
                             {{ props.leaderboardRow.name }} -
                             {{ props.leaderboardRow.rating }}
                         </span>
-                        <a :href=generateProfileUrl(props.leaderboardRow.id) target="_blank">
-                            <p class="text-gray-600 font-mono underline font-light">
-                                {{ props.leaderboardRow.id }}
-                            </p>
-                        </a>
+
+                        <span v-if="props.leaderboardRow.players">
+                            <a :href=generateProfileUrl(props.leaderboardRow.players[1]?.user_id) target="_blank">
+                                <p class="text-gray-600 font-mono underline font-light">
+                                    {{ props.leaderboardRow.players[1]?.user_id }}
+                                </p>
+                            </a>
+                            <a :href=generateProfileUrl(props.leaderboardRow.players[0]?.user_id) target="_blank">
+                                <p class="text-gray-600 font-mono underline font-light">
+                                    {{ props.leaderboardRow.players[0]?.user_id }}
+                                </p>
+                            </a>
+                        </span>
+                        <span v-else>
+                            <a :href=generateProfileUrl(props.leaderboardRow.geoGuessrId) target="_blank">
+                                <p class="text-gray-600 font-mono underline font-light">
+                                    {{ props.leaderboardRow.id }}
+                                </p>
+                            </a>
+                        </span>
                     </span>
                     <button
                         @click="emitClose"

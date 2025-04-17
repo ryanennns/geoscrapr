@@ -271,14 +271,16 @@ watch(() => props.playersOrTeams, (newPlayers) => {
 const playersOrTeamsToLeaderboardRows = (playerOrTeam: Player | Team): LeaderboardRow => {
     return isTeam(playerOrTeam) ? {
         id: playerOrTeam.id,
+        geoGuessrId: playerOrTeam.team_id,
         name: playerOrTeam.name,
         rating: playerOrTeam.rating,
         countryCodes: [playerOrTeam.player_a.country_code, playerOrTeam.player_b.country_code],
-        teamPlayers: [playerOrTeam.player_a, playerOrTeam.player_b],
+        players: [playerOrTeam.player_a, playerOrTeam.player_b],
         isPlaceholder: false,
         type: 'team'
     } : {
         id: playerOrTeam.id,
+        geoGuessrId: playerOrTeam.user_id,
         name: playerOrTeam.name,
         rating: playerOrTeam.rating,
         countryCodes: [playerOrTeam.country_code],
@@ -294,6 +296,7 @@ const leaderboardRows = computed<LeaderboardRow[]>(() => {
     for (let i = 0; i < placeholderCount; i++) {
         rows.push({
             id: `placeholder-${i}`,
+            geoGuessrId: `placeholder-${i}`,
             name: '',
             rating: 0,
             countryCodes: [],
