@@ -67,8 +67,7 @@
                 <div class="h-64 mt-4 flex-grow overflow-hidden">
                     <LoadingSpinner v-show="props.loading" text="Loading rating history"/>
                     <div v-show="props.ratingHistory.length > 0 && !props.loading" class="h-full">
-                        <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
-                        <div class="w-full h-52">
+                        <div class="w-full h-60">
                             <canvas ref="ratingChartCanvas"/>
                         </div>
                     </div>
@@ -301,6 +300,18 @@ const renderRatingChart = () => {
                     }
                 },
                 x: {
+                    title: {
+                        display: true,
+                        text: `Rating History (Last ${daysToShow.value} Days)`,
+                        font: {
+                            size: 12,
+                            weight: 'light'
+                        },
+                        padding: {
+                            top: 10
+                        },
+                        color: '#1e293b'
+                    },
                     ticks: {
                         maxTicksLimit: Math.min(10, labels.length),
                         maxRotation: 45,
