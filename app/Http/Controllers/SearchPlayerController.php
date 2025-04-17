@@ -15,9 +15,9 @@ class SearchPlayerController extends Controller
 
         return PlayerResource::collection(
             Player::query()
-                ->whereNotNull('rating')
-                ->where('name', 'like', "%$query")
+                ->where('name', 'like', "%$query%")
                 ->orWhere('user_id', 'like', "%$query%")
+                ->whereNotNull('rating')
                 ->orderBy('rating', 'desc')
                 ->limit(10)
                 ->get()
