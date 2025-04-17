@@ -96,10 +96,10 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                     <tr
-                        v-for="(player, index) in displayRows"
+                        v-for="(leaderboardRow, index) in displayRows"
                         :key="index"
-                        :class="player.isPlaceholder ? 'opacity-50' : 'hover:bg-indigo-50 transition-colors cursor-pointer'"
-                        @click="player.isPlaceholder ? null : handlePlayerClick(player)"
+                        :class="leaderboardRow.isPlaceholder ? 'opacity-50' : 'hover:bg-indigo-50 transition-colors cursor-pointer'"
+                        @click="leaderboardRow.isPlaceholder ? null : handlePlayerClick(leaderboardRow)"
                     >
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium">
@@ -107,35 +107,18 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ player.name || '-' }}</div>
+                            <div class="text-sm font-medium text-gray-900">{{ leaderboardRow.name || '-' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div v-if="player.country_code">
-                                    <Flag
-                                        :country-code="player.country_code"
-                                        :dimensions="FLAG_IMG_SIZE"
-                                    />
-                                </div>
-                                <div
-                                    v-else-if="player.player_a?.country_code && player.player_b?.country_code"
-                                    class="flex"
-                                >
-                                    <Flag
-                                        :country-code="player.player_a.country_code"
-                                        :dimensions="FLAG_IMG_SIZE"
-                                        class="mr-1"
-                                    />
-                                    <Flag
-                                        :country-code="player.player_b.country_code"
-                                        :dimensions="FLAG_IMG_SIZE"
-                                    />
+                                <div v-for="country in leaderboardRow.countryCodes" class="flex">
+                                    <Flag :country-code="country" :dimensions="FLAG_IMG_SIZE" class="mr-1"/>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-semibold text-indigo-700">
-                                {{ player.rating?.toLocaleString() ?? "-" }}
+                                {{ leaderboardRow.rating.toLocaleString() ?? "-" }}
                             </div>
                         </td>
                     </tr>
@@ -145,18 +128,25 @@
         </div>
     </div>
 </template>
-<script setup>
+<script setup lang="ts">
 import {computed, onMounted, ref, watch} from "vue";
 import CountryDropdown from "../Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "../Components/LeaderboardLoadingSkeleton.vue";
 import Flag from "../Components/Flag.vue";
+import {isTeam, type Player, type Team} from "@/Types/core.ts";
+
+type SortOrder = 'asc' | 'desc';
 
 const FLAG_IMG_SIZE = '32x24';
 
 const emit = defineEmits(['playerClick', 'countryFilterChange'])
-const props = defineProps({
-    players: Array,
-});
+
+interface Props {
+    playersOrTeams: Player[] | Team[],
+}
+
+const props = defineProps<Props>()
+
 
 const dataCache = ref({
     asc: {
@@ -179,24 +169,55 @@ const dataCache = ref({
     }
 });
 
-const leaderboardData = ref(props.players || []);
+interface LeaderboardRow {
+    id: string
+    name: string
+    rating: number
+    countryCodes: string[]
+    teamPlayers?: Player[]
+    isPlaceholder: boolean
+}
+
+const mapPropsToLeaderboardRows = (playerOrTeam: Player | Team): LeaderboardRow => {
+    if (isTeam(playerOrTeam)) {
+        return {
+            id: playerOrTeam.team_id,
+            name: playerOrTeam.name,
+            rating: playerOrTeam.rating,
+            countryCodes: [playerOrTeam.player_a.country_code, playerOrTeam.player_b.country_code],
+            teamPlayers: [playerOrTeam.player_a, playerOrTeam.player_b],
+            isPlaceholder: false,
+        }
+    }
+
+    return {
+        id: playerOrTeam.user_id,
+        name: playerOrTeam.name,
+        rating: playerOrTeam.rating,
+        countryCodes: [playerOrTeam.country_code],
+        isPlaceholder: false,
+    }
+}
+
+const leaderboardData = ref<LeaderboardRow[]>(props.playersOrTeams.map(mapPropsToLeaderboardRows));
+console.log(JSON.stringify(leaderboardData.value))
 const loading = ref(false);
 
 onMounted(() => {
-    if (props.players && props.players.length > 0) {
-        dataCache.value[selectedOrder.value].solo.all = props.players;
+    if (props.playersOrTeams && props.playersOrTeams.length > 0) {
+        dataCache.value[selectedOrder.value].solo.all = props.playersOrTeams;
     }
 });
 
 const selectedMode = ref("solo");
 const isSolo = computed(() => selectedMode.value === "solo");
-const handleModeChange = (event) => {
-    selectedMode.value = event.target.value;
+const handleModeChange = (event: Event) => {
+    selectedMode.value = (event.target as HTMLSelectElement).value;
     updateLeaderboard();
 };
 
 const selectedCountry = ref('');
-const handleCountryFilterChange = (event) => {
+const handleCountryFilterChange = (event: { country: string }) => {
     selectedCountry.value = event.country;
     updateLeaderboard();
 };
@@ -254,26 +275,26 @@ const updateLeaderboard = async () => {
     }
 };
 
-watch(() => props.players, (newPlayers) => {
+watch(() => props.playersOrTeams, (newPlayers) => {
     if (newPlayers && newPlayers.length > 0) {
         dataCache.value[selectedOrder.value].solo.all = newPlayers;
 
         if (selectedMode.value === "solo" && !selectedCountry.value) {
-            leaderboardData.value = newPlayers;
+            leaderboardData.value = newPlayers.map(mapPropsToLeaderboardRows);
         }
     }
 }, {deep: true});
 
-const displayRows = computed(() => {
-    const rows = [...leaderboardData.value];
+const displayRows = computed<LeaderboardRow[]>(() => {
+    const rows: LeaderboardRow[] = [...leaderboardData.value];
     const placeholderCount = Math.max(0, 10 - rows.length);
 
     for (let i = 0; i < placeholderCount; i++) {
         rows.push({
             id: `placeholder-${i}`,
-            name: "-",
-            country_code: null,
-            rating: null,
+            name: '',
+            countryCodes: [],
+            rating: 0,
             isPlaceholder: true,
         });
     }
@@ -281,17 +302,13 @@ const displayRows = computed(() => {
     return rows;
 });
 
-const handlePlayerClick = (player) => {
-    if (player.player_a || player.player_b) {
-        return;
-    }
-
-    emit("playerClick", {player})
+const handlePlayerClick = (playerOrTeam: LeaderboardRow) => {
+    emit("playerClick", {player: playerOrTeam})
 };
 
-const selectedOrder = ref("desc");
-const handleSortOrderChange = (event) => {
-    selectedOrder.value = event.target.value;
+const selectedOrder = ref<SortOrder>("desc");
+const handleSortOrderChange = (event: Event) => {
+    selectedOrder.value = ((event.target as HTMLSelectElement).value as SortOrder);
     updateLeaderboard();
 };
 

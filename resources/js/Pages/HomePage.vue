@@ -57,7 +57,7 @@
                 </div>
             </div>
 
-            <PlayerLeaderboard :players="props.leaderboard" @player-click="onPlayerClick" class="h-[93vh]"/>
+            <PlayerLeaderboard :playersOrTeams="props.leaderboard" @player-click="onPlayerClick" class="h-[93vh]"/>
             <transition name="fade">
                 <RatingHistoryModal
                     :show-modal=showModal

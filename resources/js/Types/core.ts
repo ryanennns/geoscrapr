@@ -8,6 +8,17 @@ export interface Player {
     updated_at: string
 }
 
+export interface Team {
+    id: string
+    team_id: string
+    name: string
+    rating: number
+    player_a: Player
+    player_b: Player
+    created_at: string
+    updated_at: string
+}
+
 export const EMPTY_PLAYER: Player = {
     id: '',
     user_id: '',
@@ -34,3 +45,5 @@ export interface Snapshot {
     };
     n: number;
 }
+
+export const isTeam = (maybeTeam: any): maybeTeam is Team => maybeTeam.player_a && maybeTeam.player_b
