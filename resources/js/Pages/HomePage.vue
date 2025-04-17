@@ -88,7 +88,6 @@
             <PlayerLeaderboard
                 :playersOrTeams="props.leaderboard"
                 @player-click="onPlayerClick"
-                class="h-[93vh]"
             />
             <transition name="fade">
                 <RatingHistoryModal
@@ -102,6 +101,7 @@
             </transition>
         </template>
     </div>
+    <Footer />
 </template>
 
 <script setup lang="ts">
@@ -109,6 +109,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { Chart, registerables } from "chart.js";
 import "@vuepic/vue-datepicker/dist/main.css";
 import PlayerSearch from "../Components/PlayerSearch.vue";
+import Footer from "@/Components/Footer.vue";
 import DateSelector from "../Components/DateSelector.vue";
 import PlayerLeaderboard from "./PlayerLeaderboard.vue";
 import RatingHistoryModal from "../Components/RatingHistoryModal.vue";

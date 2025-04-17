@@ -18,8 +18,10 @@
                             >
                                 <Flag
                                     :country-code="countryCode"
-                                    dimensions="24x18"
+                                    dimensions="120x90"
                                     class="mr-1"
+                                    width="20"
+                                    height="15"
                                 />
                             </span>
                             <p class="">{{ props.leaderboardRow.name }}</p>

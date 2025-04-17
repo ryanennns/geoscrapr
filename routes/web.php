@@ -10,6 +10,7 @@ use App\Http\Controllers\GetTeamsController;
 use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SearchPlayerController;
 use App\Http\Middleware\VerifyRequestReferer;
+use App\Models\EloSnapshot;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomePageController::class);
@@ -25,6 +26,10 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
 
         Route::get('snapshots', GetSnapshotForDate::class);
         Route::get('countries', GetAvailableCountriesController::class);
+
+        Route::get('last-updated', function () {
+            return ['date' => EloSnapshot::query()->select('created_at')->latest()->first()->created_at];
+        });
     })
     ->group(function () {
         Route::prefix('teams')->group(function () {

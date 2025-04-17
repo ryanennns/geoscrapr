@@ -140,8 +140,10 @@
                                     >
                                         <Flag
                                             :country-code="countryCode"
-                                            :dimensions="FLAG_IMG_SIZE"
+                                            dimensions="120x90"
                                             class="mr-1"
+                                            width="32"
+                                            height="24"
                                         />
                                     </div>
                                 </div>
@@ -193,8 +195,6 @@ interface SubCache {
 }
 
 type PlayerTeamCache = Record<SortOrder, Record<Gamemode, SubCache>>;
-
-const FLAG_IMG_SIZE = "32x24";
 
 const emit = defineEmits(["playerClick", "countryFilterChange"]);
 
