@@ -15,26 +15,29 @@
 </template>
 
 <script setup lang="ts">
-import {ref, watch} from 'vue'
-import Datepicker from '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
+import { ref, watch } from "vue";
+import Datepicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 interface Props {
-    modelValue: Date
-    availableDates: Date[]
+    modelValue: Date;
+    availableDates: Date[];
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(["update:modelValue"]);
 
-const internalDate = ref(props.modelValue)
+const internalDate = ref(props.modelValue);
 
-watch(() => props.modelValue, (val) => {
-    internalDate.value = val
-})
+watch(
+    () => props.modelValue,
+    (val) => {
+        internalDate.value = val;
+    },
+);
 
 const emitUpdate = (val: Date) => {
-    emit('update:modelValue', val)
-}
+    emit("update:modelValue", val);
+};
 </script>
