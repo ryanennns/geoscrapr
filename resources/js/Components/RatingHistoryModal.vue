@@ -305,7 +305,7 @@ const renderRatingChart = () => {
                         text: `Rating History (Last ${daysToShow.value} Days)`,
                         font: {
                             size: 12,
-                            weight: 'light'
+                            weight: 'lighter'
                         },
                         padding: {
                             top: 10

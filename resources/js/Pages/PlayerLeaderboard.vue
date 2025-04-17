@@ -122,7 +122,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-semibold text-indigo-700">
-                                {{ leaderboardRow.rating.toLocaleString() ?? "-" }}
+                                {{ leaderboardRow.rating?.toLocaleString() ?? "-" }}
                             </div>
                         </td>
                     </tr>
@@ -150,9 +150,6 @@ interface Props {
 const props = defineProps<Props>()
 
 interface SubCache {
-    all: Player[] | Team[]
-    byCountry: Record<string, Player[] | Team[]>
-
     [key: string]: Player[] | Team[] | Record<string, Player[] | Team[]>
 }
 
@@ -166,21 +163,17 @@ const dataCache = ref<PlayerTeamCache>({
     'asc': {
         'solo': {
             all: [],
-            byCountry: {}
         },
         'team': {
             all: [],
-            byCountry: {}
         }
     },
     'desc': {
         'solo': {
             all: [],
-            byCountry: {}
         },
         'team': {
             all: [],
-            byCountry: {}
         }
     }
 });
@@ -205,6 +198,11 @@ const handleCountryFilterChange = (event: { country: string }) => {
 const updateLeaderboard = async () => {
     const mode = selectedMode.value;
     const country = selectedCountry.value;
+
+    if (dataCache.value[selectedOrder.value][selectedMode.value][selectedCountry.value]?.length > 0) {
+        rateables.value = dataCache.value[selectedOrder.value][selectedMode.value][selectedCountry.value];
+        return;
+    }
 
     if (country === "" && mode === "solo" && dataCache.value[selectedOrder.value].solo.all.length > 0) {
         rateables.value = dataCache.value[selectedOrder.value].solo.all;
