@@ -2,7 +2,7 @@ export interface Player {
     id: string;
     user_id: string;
     name: string;
-    rating: number;
+    rating: number | null;
     country_code: string;
     created_at: string;
     updated_at: string;

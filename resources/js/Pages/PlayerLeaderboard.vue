@@ -153,8 +153,10 @@
                                     class="text-sm font-semibold text-indigo-700"
                                 >
                                     {{
-                                        leaderboardRow.rating?.toLocaleString() ??
-                                        "-"
+                                        leaderboardRow.isPlaceholder ||
+                                        leaderboardRow.rating === null
+                                            ? "-"
+                                            : leaderboardRow.rating?.toLocaleString()
                                     }}
                                 </div>
                             </td>
