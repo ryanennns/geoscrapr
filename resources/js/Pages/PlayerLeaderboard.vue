@@ -144,13 +144,13 @@ type SortOrder = (typeof sortOrders)[number]
 const isSortOrder = (a: any): a is SortOrder => sortOrders.includes(a);
 
 interface Props {
-    playersOrTeams: Player[] | Team[],
+    playersOrTeams: Rateable[],
 }
 
 const props = defineProps<Props>()
 
 interface SubCache {
-    [key: string]: Player[] | Team[] | Record<string, Player[] | Team[]>
+    [key: string]: Rateable[]
 }
 
 type PlayerTeamCache = Record<SortOrder, Record<Gamemode, SubCache>>
@@ -199,7 +199,7 @@ const updateLeaderboard = async () => {
     const mode = selectedMode.value;
     const country = selectedCountry.value;
 
-    if (dataCache.value[selectedOrder.value][selectedMode.value][selectedCountry.value]?.length > 0) {
+    if (dataCache.value[selectedOrder.value][selectedMode.value][selectedCountry.value]?.length as number > 0) {
         rateables.value = dataCache.value[selectedOrder.value][selectedMode.value][selectedCountry.value];
         return;
     }
@@ -219,7 +219,7 @@ const updateLeaderboard = async () => {
         (isSortOrder(mode) && dataCache.value[selectedOrder.value].solo[cacheKey] !== undefined) ||
         (isSortOrder(mode) && dataCache.value[selectedOrder.value].team[cacheKey] !== undefined)
     ) {
-        rateables.value = (dataCache.value[selectedOrder.value][mode][cacheKey] as Player[] | Team[]);
+        rateables.value = (dataCache.value[selectedOrder.value][mode][cacheKey] as Rateable[]);
         return;
     }
 
