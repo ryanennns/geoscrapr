@@ -149,7 +149,7 @@ const onPlayerClick = async (event: { rateable: LeaderboardRow }) => {
 
     setTimeout(() => (showModal.value = true), 25);
     if (ratingHistoryCache.value[rateable.id]?.length > 0) {
-        ratingHistoryCache.value[rateable.id]?.length;
+        playerRatingHistory.value = ratingHistoryCache.value[rateable.id];
 
         return;
     }
