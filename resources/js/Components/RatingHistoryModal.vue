@@ -10,16 +10,16 @@
                     <span>
                         <span class="text-xl font-bold flex items-center">
                             <Flag
-                                :country-code="player.country_code"
+                                :country-code="rateable.country_code"
                                 dimensions="24x18"
                                 class="mr-1"
                             />
-                            {{ props.player.name }} -
-                            {{ props.player.rating }}
+                            {{ props.rateable.name }} -
+                            {{ props.rateable.rating }}
                         </span>
-                        <a :href=generateProfileUrl(props.player.user_id) target="_blank">
+                        <a :href=generateProfileUrl(props.rateable.user_id) target="_blank">
                             <p class="text-gray-600 font-mono underline font-light">
-                                {{ props.player.user_id }}
+                                {{ props.rateable.user_id }}
                             </p>
                         </a>
                     </span>
@@ -46,7 +46,7 @@
 
                 <div class="h-64 mt-4 flex-grow overflow-hidden">
                     <LoadingSpinner v-show="props.loading" text="Loading rating history"/>
-                    <div v-show="props.playerRatingHistory.length > 0 && !props.loading" class="h-full">
+                    <div v-show="props.ratingHistory.length > 0 && !props.loading" class="h-full">
                         <h3 class="text-lg font-semibold mb-2">Rating History (Last {{ daysToShow }} Days)</h3>
                         <div class="w-full h-52">
                             <canvas ref="ratingChartCanvas"/>
@@ -55,7 +55,7 @@
                     <ErrorMessage
                         heading="We don't have any data for this player!"
                         sub-heading="Check back later or try another player."
-                        v-show="props.playerRatingHistory.length < 1 && !props.loading"
+                        v-show="props.ratingHistory.length < 1 && !props.loading"
                     />
                 </div>
             </div>
@@ -74,8 +74,8 @@ import LoadingSpinner from "@/Components/LoadingSpinner.vue";
 
 interface Props {
     showModal: boolean,
-    player: Player,
-    playerRatingHistory: Rating[],
+    rateable: Player,
+    ratingHistory: Rating[],
     loading: boolean,
 }
 
@@ -138,7 +138,7 @@ const calculateStepSize = (range: number) => {
 };
 
 const renderRatingChart = () => {
-    if (!ratingChartCanvas.value || props.playerRatingHistory.length === 0) return;
+    if (!ratingChartCanvas.value || props.ratingHistory.length === 0) return;
 
     if (ratingChartInstance.value) {
         ratingChartInstance.value.destroy();
@@ -160,13 +160,13 @@ const renderRatingChart = () => {
         const allDates = getDatesInRange(startDate, today);
 
         const ratingsByDate = Object.fromEntries(
-            props.playerRatingHistory.map(record => [
+            props.ratingHistory.map(record => [
                 formatDateString(new Date(record.created_at)),
                 record.rating
             ])
         );
 
-        const sortedRatingHistory = [...props.playerRatingHistory].sort(
+        const sortedRatingHistory = [...props.ratingHistory].sort(
             (a, b) => (new Date(b.created_at)).getTime() - (new Date(a.created_at)).getTime()
         );
 
@@ -188,7 +188,7 @@ const renderRatingChart = () => {
         // our list, aka the last element in our sorted list. Then, if that doesn't exist, that means we
         // have no rating changes to speak of and can fill in the whole graph with the player's current rating.
 
-        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.player?.rating;
+        let mostRecentRating = leftOfStartDate?.rating ?? oldestRating.rating ?? props.rateable?.rating;
 
         allDates.forEach(date => {
             const dateString = formatDateString(date);
@@ -334,9 +334,9 @@ const renderRatingChart = () => {
 };
 
 watch(
-    () => [props.playerRatingHistory, props.showModal, props.player],
+    () => [props.ratingHistory, props.showModal, props.rateable],
     async ([_, show]) => {
-        if (show && props.playerRatingHistory) {
+        if (show && props.ratingHistory) {
             await nextTick();
             renderRatingChart();
         }

@@ -61,8 +61,8 @@
             <transition name="fade">
                 <RatingHistoryModal
                     :show-modal=showModal
-                    :player=selectedPlayer
-                    :player-rating-history=playerRatingHistory
+                    :rateable=selectedPlayer
+                    :rating-history=playerRatingHistory
                     :loading=isLoadingHistory
                     @close=closeModal
                 />
@@ -103,7 +103,8 @@ const closeModal = () => showModal.value = false;
 const playerRatingHistory = ref<Rating[]>([]);
 const isLoadingHistory = ref<boolean>(false);
 
-const onPlayerClick = async (player: Player) => {
+const onPlayerClick = async (payload: { player: Player }) => {
+    const player = payload.player
     selectedPlayer.value = player;
     setTimeout(() => showModal.value = true, 25);
 
