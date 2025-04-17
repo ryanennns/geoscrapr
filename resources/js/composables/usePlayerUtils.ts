@@ -309,7 +309,7 @@ export function usePlayerUtils() {
                   id: playerOrTeam.id,
                   geoGuessrId: playerOrTeam.user_id,
                   name: playerOrTeam.name,
-                  rating: playerOrTeam.rating,
+                  rating: playerOrTeam.rating ?? 0,
                   countryCodes: [playerOrTeam.country_code],
                   isPlaceholder: false,
                   type: "player",

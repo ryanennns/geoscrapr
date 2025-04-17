@@ -25,7 +25,7 @@ export interface LeaderboardRow {
     id: string;
     geoGuessrId: string;
     name: string;
-    rating: number;
+    rating?: number;
     countryCodes: string[];
     players?: Player[];
     isPlaceholder: boolean;
