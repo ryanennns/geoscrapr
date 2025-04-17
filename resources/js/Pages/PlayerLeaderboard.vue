@@ -135,7 +135,9 @@ import LeaderboardLoadingSkeleton from "../Components/LeaderboardLoadingSkeleton
 import Flag from "../Components/Flag.vue";
 import {isTeam, type Player, type Team} from "@/Types/core.ts";
 
-type SortOrder = 'asc' | 'desc';
+const sortOrders = ['asc', 'desc'] as const;
+type SortOrder = (typeof sortOrders)[number]
+const isSortOrder = (a: any): a is SortOrder => sortOrders.includes(a);
 
 const FLAG_IMG_SIZE = '32x24';
 
@@ -147,24 +149,34 @@ interface Props {
 
 const props = defineProps<Props>()
 
+interface SubCache {
+    all: Player[] | Team[]
+    byCountry: Record<string, Player[] | Team[]>
 
-const dataCache = ref({
-    asc: {
-        solo: {
-            all: null,
+    [key: string]: Player[] | Team[] | Record<string, Player[] | Team[]>
+}
+
+type PlayerTeamCache = Record<SortOrder, Record<Gamemode, SubCache>>
+
+const dataCache = ref<PlayerTeamCache>({
+    'asc': {
+        'solo': {
+            all: [],
             byCountry: {}
         },
-        team: {
-            all: null,
+        'team': {
+            all: [],
+            byCountry: {}
         }
     },
-    desc: {
-        solo: {
-            all: null,
+    'desc': {
+        'solo': {
+            all: [],
             byCountry: {}
         },
-        team: {
-            all: null,
+        'team': {
+            all: [],
+            byCountry: {}
         }
     }
 });
@@ -200,19 +212,19 @@ const mapPropsToLeaderboardRows = (playerOrTeam: Player | Team): LeaderboardRow 
 }
 
 const leaderboardData = ref<LeaderboardRow[]>(props.playersOrTeams.map(mapPropsToLeaderboardRows));
-console.log(JSON.stringify(leaderboardData.value))
 const loading = ref(false);
 
 onMounted(() => {
     if (props.playersOrTeams && props.playersOrTeams.length > 0) {
-        dataCache.value[selectedOrder.value].solo.all = props.playersOrTeams;
+        dataCache.value[selectedOrder.value].solo.all = props.playersOrTeams as Player[];
     }
 });
 
-const selectedMode = ref("solo");
+type Gamemode = 'solo' | 'team'
+const selectedMode = ref<Gamemode>("solo");
 const isSolo = computed(() => selectedMode.value === "solo");
 const handleModeChange = (event: Event) => {
-    selectedMode.value = (event.target as HTMLSelectElement).value;
+    selectedMode.value = ((event.target as HTMLSelectElement).value) as Gamemode;
     updateLeaderboard();
 };
 
@@ -226,19 +238,20 @@ const updateLeaderboard = async () => {
     const mode = selectedMode.value;
     const country = selectedCountry.value;
 
-    if (country === "" && mode === "solo" && dataCache.value[selectedOrder.value].solo.all) {
-        leaderboardData.value = dataCache.value[selectedOrder.value].solo.all;
+    if (country === "" && mode === "solo" && dataCache.value[selectedOrder.value].solo.all.length > 0) {
+        leaderboardData.value = dataCache.value[selectedOrder.value].solo.all.map(mapPropsToLeaderboardRows);
         return;
     }
 
-    if (mode === "team" && dataCache.value[selectedOrder.value].team.all) {
-        leaderboardData.value = dataCache.value[selectedOrder.value].team.all;
+    if (mode === "team" && dataCache.value[selectedOrder.value].team.all.length > 0) {
+        leaderboardData.value = dataCache.value[selectedOrder.value].team.all.map(mapPropsToLeaderboardRows);
         return;
     }
 
     const cacheKey = country || 'all';
-    if (dataCache.value[selectedOrder.value][mode][cacheKey] !== undefined && dataCache.value[selectedOrder.value][mode][cacheKey] !== null) {
-        leaderboardData.value = dataCache.value[selectedOrder.value][mode][cacheKey];
+    if ((isSortOrder(mode) && dataCache.value[selectedOrder.value].solo[cacheKey] !== undefined) ||
+        (isSortOrder(mode) && dataCache.value[selectedOrder.value].team[cacheKey] !== undefined)) {
+        leaderboardData.value = (dataCache.value[selectedOrder.value][mode][cacheKey] as Player[] | Team[]).map(mapPropsToLeaderboardRows);
         return;
     }
 
@@ -266,7 +279,7 @@ const updateLeaderboard = async () => {
 
         dataCache.value[selectedOrder.value][mode][cacheKey] = json;
 
-        leaderboardData.value = json || [];
+        leaderboardData.value = json.map(mapPropsToLeaderboardRows) || [];
     } catch (error) {
         console.error("Error fetching leaderboard data:", error);
         leaderboardData.value = [];
@@ -276,8 +289,8 @@ const updateLeaderboard = async () => {
 };
 
 watch(() => props.playersOrTeams, (newPlayers) => {
-    if (newPlayers && newPlayers.length > 0) {
-        dataCache.value[selectedOrder.value].solo.all = newPlayers;
+    if (newPlayers && newPlayers.length > 0 && !isTeam(newPlayers[0])) {
+        dataCache.value[selectedOrder.value].solo.all = newPlayers as Player[];
 
         if (selectedMode.value === "solo" && !selectedCountry.value) {
             leaderboardData.value = newPlayers.map(mapPropsToLeaderboardRows);
@@ -303,7 +316,11 @@ const displayRows = computed<LeaderboardRow[]>(() => {
 });
 
 const handlePlayerClick = (playerOrTeam: LeaderboardRow) => {
-    emit("playerClick", {player: playerOrTeam})
+    emit("playerClick", {
+        player: props.playersOrTeams.find((pt) =>
+            isTeam(pt) ? pt.team_id === playerOrTeam.id : pt.user_id === playerOrTeam.id
+        )
+    })
 };
 
 const selectedOrder = ref<SortOrder>("desc");

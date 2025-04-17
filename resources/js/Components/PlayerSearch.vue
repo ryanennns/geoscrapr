@@ -99,7 +99,9 @@ const fetchPlayers = () => {
             searchCache.value[searchQuery.value] = json
             maybeClearCache();
 
-            searchResults.value = json;
+            console.log(JSON.stringify(json))
+
+            searchResults.value = json.data;
         } catch (err) {
             console.error('Player search failed:', err);
         }
