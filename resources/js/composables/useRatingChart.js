@@ -101,7 +101,7 @@ export function useRatingChart() {
                             ctx.font = "bold 12px sans-serif";
                             ctx.textAlign = "center";
                             ctx.fillText(
-                                value.toLocaleString(),
+                                formatNumber(Number(value)),
                                 x.getPixelForValue(i),
                                 y.getPixelForValue(value) - 8,
                             );
@@ -115,3 +115,9 @@ export function useRatingChart() {
 
     return { renderChart };
 }
+
+const formatNumber = (num) => {
+    return num >= 1000
+        ? (num / 1000).toFixed(1).replace(/\.0$/, "") + "k"
+        : num.toLocaleString();
+};
