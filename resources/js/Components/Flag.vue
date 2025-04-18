@@ -7,10 +7,14 @@
 </template>
 
 <script setup lang="ts">
-import { countryMap, usePlayerUtils } from "@/composables/usePlayerUtils.js";
+import {
+    CountryCode,
+    countryMap,
+    usePlayerUtils,
+} from "@/composables/usePlayerUtils.js";
 
 interface Props {
-    countryCode: string;
+    countryCode: CountryCode;
     dimensions: string;
 }
 

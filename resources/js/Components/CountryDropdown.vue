@@ -37,7 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { countryMap, usePlayerUtils } from "@/composables/usePlayerUtils.js";
+import {
+    CountryCode,
+    countryMap,
+    usePlayerUtils,
+} from "@/composables/usePlayerUtils.js";
 import { computed, onMounted, ref } from "vue";
 
 interface Props {
@@ -56,8 +60,8 @@ interface Country {
 }
 
 const countryMapMethod = (c: string): Country => ({
-    code: c,
-    name: countryMap[c],
+    code: c as CountryCode,
+    name: countryMap[c as CountryCode],
 });
 const countrySortMethod = (a: Country, b: Country) =>
     a.name?.localeCompare(b.name);
