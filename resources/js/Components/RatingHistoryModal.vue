@@ -438,10 +438,14 @@ watch(
 
 watch(
     () => props.showModal,
-    (show) =>
+    (show) => {
         show
             ? window.addEventListener("keydown", handleKeydown)
-            : window.removeEventListener("keydown", handleKeydown),
+            : window.removeEventListener("keydown", handleKeydown);
+        show
+            ? (document.documentElement.style.overflow = "hidden")
+            : (document.documentElement.style.overflow = "auto");
+    },
 );
 
 onUnmounted(() => {
