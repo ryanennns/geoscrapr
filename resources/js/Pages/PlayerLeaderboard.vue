@@ -1,21 +1,24 @@
 <template>
-    <div class="mt-10">
-        <div class="bg-white p-6 rounded-xl shadow-md">
-            <div class="flex justify-between items-start mb-4">
-                <h2 class="text-2xl font-bold text-gray-800">
+    <div class="mt-6 md:mt-10">
+        <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+            <div
+                class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3"
+            >
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800">
                     Rating Leaderboard
                 </h2>
-                <div class="flex space-x-4">
+                <div class="flex flex-wrap gap-2 sm:gap-4">
                     <div class="relative">
                         <CountryDropdown
                             @change="handleCountryFilterChange"
                             :disabled="!isSolo"
+                            class="w-full"
                         />
                     </div>
 
                     <div class="relative">
                         <select
-                            class="appearance-none bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 pr-8 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            class="appearance-none bg-blue-100 text-blue-800 text-sm font-medium pr-8 px-2 py-1 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                             @change="handleModeChange"
                         >
                             <option value="solo">Solo</option>
@@ -43,11 +46,11 @@
 
                     <div class="relative">
                         <select
-                            class="appearance-none bg-green-100 text-green-800 text-sm font-medium px-3 py-1 pr-8 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
+                            class="appearance-none bg-green-100 text-green-800 text-sm font-medium pr-8 px-2 py-1 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
                             @change="handleSortOrderChange"
                         >
-                            <option value="desc">🔽 Descending</option>
-                            <option value="asc">🔼 Ascending</option>
+                            <option value="desc">🔽 Desc</option>
+                            <option value="asc">🔼 Asc</option>
                         </select>
                         <div
                             class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-green-800"
@@ -70,7 +73,7 @@
                     </div>
                 </div>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto -mx-4 md:mx-0">
                 <LeaderboardLoadingSkeleton
                     v-show="loading"
                     :is-solo="isSolo"
@@ -83,25 +86,26 @@
                         <tr>
                             <th
                                 scope="col"
-                                class="w-1/12 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                class="w-1/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                                Rank
+                                #
                             </th>
                             <th
                                 scope="col"
-                                class="w-5/12 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                class="w-5/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
                                 {{ isSolo ? "Player" : "Team" }}
                             </th>
                             <th
                                 scope="col"
-                                class="w-3/12 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
-                                Country
+                                <span class="hidden sm:inline">Country</span>
+                                <span class="sm:hidden">Flag</span>
                             </th>
                             <th
                                 scope="col"
-                                class="w-3/12 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                             >
                                 Rating
                             </th>
@@ -122,17 +126,25 @@
                                     : handlePlayerClick(leaderboardRow)
                             "
                         >
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium">
+                            <td
+                                class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
+                            >
+                                <div class="text-xs sm:text-sm font-medium">
                                     {{ index + 1 }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">
+                            <td
+                                class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
+                            >
+                                <div
+                                    class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-full"
+                                >
                                     {{ leaderboardRow.name || "-" }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td
+                                class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
+                            >
                                 <div class="flex items-center">
                                     <div
                                         v-for="countryCode in leaderboardRow.countryCodes"
@@ -142,15 +154,18 @@
                                             :country-code="countryCode"
                                             dimensions="120x90"
                                             class="mr-1"
-                                            width="32"
-                                            height="24"
+                                            width="24"
+                                            height="18"
+                                            :class="{ 'sm:w-8 sm:h-6': true }"
                                         />
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td
+                                class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
+                            >
                                 <div
-                                    class="text-sm font-semibold text-indigo-700"
+                                    class="text-xs sm:text-sm font-semibold text-indigo-700"
                                 >
                                     {{
                                         leaderboardRow.isPlaceholder ||

@@ -1,105 +1,80 @@
 <template>
-    <div class="p-8 bg-gray-50 min-h-screen">
-        <div v-if="isSmallScreen" class="mt-20 text-center py-8">
-            <div class="flex flex-col items-center">
-                <svg
-                    class="h-16 w-16 text-gray-400 mb-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    <div class="p-4 md:p-8 bg-gray-50 min-h-screen">
+        <div class="mb-6 md:mb-8 text-center">
+            <h1 class="text-xl md:text-3xl font-bold text-indigo-800">
+                GeoGuessr Competitive Rating Distribution
+            </h1>
+            <p class="text-sm md:text-base text-gray-600">
+                Track player statistics and rating distributions
+            </p>
+        </div>
+
+        <div
+            class="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 mb-6 md:mb-10 max-w-3xl mx-auto"
+        >
+            <PlayerSearch @player-click="onPlayerClick" />
+
+            <DateSelector
+                v-model="selectedDate"
+                :availableDates="availableDatesObjects"
+                @update:model-value="updateCharts"
+                class="w-full md:w-auto"
+            />
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-start mb-3 md:mb-4">
+                    <h2 class="text-lg md:text-2xl font-bold text-gray-800">
+                        Solo Rating Distribution
+                    </h2>
+                    <Badge
+                        :text="`n = ${currentSoloSnapshot?.n.toLocaleString() || 0}`"
+                        class="bg-blue-100 text-blue-800 text-xs md:text-sm"
                     />
-                </svg>
-                <p class="text-lg font-semibold text-gray-700">
-                    This website is best experienced on desktop!
-                </p>
-                <p class="text-gray-500 mt-2">
-                    Please visit on a larger screen to explore the charts and
-                    stats.
-                </p>
+                </div>
+                <div class="w-full h-64 md:h-[62vh]">
+                    <canvas
+                        ref="soloChartCanvas"
+                        class="w-full h-full"
+                    ></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-start mb-3 md:mb-4">
+                    <h2 class="text-lg md:text-2xl font-bold text-gray-800">
+                        Team Rating Distribution
+                    </h2>
+                    <Badge
+                        :text="`n = ${currentTeamSnapshot?.n.toLocaleString() || 0}`"
+                        class="bg-green-100 text-green-800 text-xs md:text-sm"
+                    />
+                </div>
+                <div class="w-full h-64 md:h-[62vh]">
+                    <canvas
+                        ref="teamChartCanvas"
+                        class="w-full h-full"
+                    ></canvas>
+                </div>
             </div>
         </div>
-        <template v-else>
-            <div class="mb-8 text-center">
-                <h1 class="text-3xl font-bold text-indigo-800">
-                    GeoGuessr Competitive Rating Distribution
-                </h1>
-                <p class="text-gray-600">
-                    Track player statistics and rating distributions
-                </p>
-            </div>
 
-            <div
-                class="flex justify-center items-center gap-4 mb-10 max-w-3xl mx-auto"
-            >
-                <PlayerSearch @player-click="onPlayerClick" />
-
-                <DateSelector
-                    v-model="selectedDate"
-                    :availableDates="availableDatesObjects"
-                    @update:model-value="updateCharts"
-                />
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex justify-between items-start mb-4">
-                        <h2 class="text-2xl font-bold text-gray-800">
-                            Solo Rating Distribution
-                        </h2>
-                        <Badge
-                            :text="`n = ${currentSoloSnapshot?.n.toLocaleString() || 0}`"
-                            class="bg-blue-100 text-blue-800"
-                        />
-                    </div>
-                    <div class="w-full h-64 lg:h-[62vh]">
-                        <canvas
-                            ref="soloChartCanvas"
-                            class="w-full h-full"
-                        ></canvas>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex justify-between items-start mb-4">
-                        <h2 class="text-2xl font-bold text-gray-800">
-                            Team Rating Distribution
-                        </h2>
-                        <Badge
-                            :text="`n = ${currentTeamSnapshot?.n.toLocaleString() || 0}`"
-                            class="bg-green-100 text-green-800"
-                        />
-                    </div>
-                    <div class="w-full h-64 lg:h-[62vh]">
-                        <canvas
-                            ref="teamChartCanvas"
-                            class="w-full h-full"
-                        ></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <PlayerLeaderboard
-                :playersOrTeams="props.leaderboard"
-                @player-click="onPlayerClick"
+        <PlayerLeaderboard
+            :playersOrTeams="props.leaderboard"
+            @player-click="onPlayerClick"
+            class="mt-6"
+        />
+        <transition name="fade">
+            <RatingHistoryModal
+                v-show="selectedLeaderboardRow !== null"
+                :show-modal="showModal"
+                :leaderboard-row="selectedLeaderboardRow"
+                :rating-history="playerRatingHistory"
+                :loading="isLoadingHistory"
+                @close="closeModal"
             />
-            <transition name="fade">
-                <RatingHistoryModal
-                    v-show="selectedLeaderboardRow !== null"
-                    :show-modal="showModal"
-                    :leaderboard-row="selectedLeaderboardRow"
-                    :rating-history="playerRatingHistory"
-                    :loading="isLoadingHistory"
-                    @close="closeModal"
-                />
-            </transition>
-        </template>
+        </transition>
     </div>
     <Footer />
 </template>
@@ -132,8 +107,6 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const isSmallScreen = ref<boolean>(false);
-const wasSmallScreen = ref<boolean>(false);
 const resizeTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
 // modal
@@ -183,31 +156,22 @@ const onPlayerClick = async (event: { rateable: LeaderboardRow }) => {
     }
 };
 
-const checkSize = () => {
-    wasSmallScreen.value = isSmallScreen.value;
-    isSmallScreen.value =
-        window.innerWidth < 768 ||
-        window.innerHeight < 500 ||
-        window.innerWidth / window.innerHeight < 0.8;
-
+const handleResize = () => {
     if (resizeTimer.value) {
         clearTimeout(resizeTimer.value);
     }
 
     resizeTimer.value = setTimeout(() => {
-        if (wasSmallScreen.value && !isSmallScreen.value) {
-            setTimeout(initializeCharts, 100);
-        }
+        updateCharts();
     }, 250);
 };
 
 onMounted(() => {
-    checkSize();
-    window.addEventListener("resize", checkSize);
+    window.addEventListener("resize", handleResize);
 });
 
 onBeforeUnmount(() => {
-    window.removeEventListener("resize", checkSize);
+    window.removeEventListener("resize", handleResize);
     if (resizeTimer.value) {
         clearTimeout(resizeTimer.value);
     }
@@ -288,20 +252,18 @@ watch(selectedDate, async () => {
 const { renderChart } = useRatingChart();
 
 const updateCharts = () => {
-    if (!isSmallScreen.value) {
-        renderChart(
-            soloChartCanvas,
-            currentSoloSnapshot.value,
-            false,
-            soloChartInstance,
-        );
-        renderChart(
-            teamChartCanvas,
-            currentTeamSnapshot.value,
-            true,
-            teamChartInstance,
-        );
-    }
+    renderChart(
+        soloChartCanvas,
+        currentSoloSnapshot.value,
+        false,
+        soloChartInstance,
+    );
+    renderChart(
+        teamChartCanvas,
+        currentTeamSnapshot.value,
+        true,
+        teamChartInstance,
+    );
 };
 
 const initializeCharts = () => {
@@ -318,17 +280,20 @@ const initializeCharts = () => {
     updateCharts();
 };
 
-watch(isSmallScreen, (newValue, oldValue) => {
-    if (!newValue && oldValue) {
-        setTimeout(initializeCharts, 100);
-    }
-});
-
 onMounted(() => {
-    if (!isSmallScreen.value) {
-        initializeCharts();
-    }
+    initializeCharts();
 });
 
 watch([currentSoloSnapshot, currentTeamSnapshot, selectedDate], updateCharts);
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

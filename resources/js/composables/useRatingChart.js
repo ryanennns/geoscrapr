@@ -91,6 +91,10 @@ export function useRatingChart() {
                 {
                     id: "bar-value-labels",
                     afterDatasetsDraw(chart) {
+                        if (window.innerWidth <= 675) {
+                            return;
+                        }
+
                         const {
                             ctx,
                             scales: { x, y },
