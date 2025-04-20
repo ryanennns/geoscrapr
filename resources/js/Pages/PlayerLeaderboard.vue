@@ -352,6 +352,9 @@ const leaderboardRows = computed<LeaderboardRow[]>(() => {
     const rows: LeaderboardRow[] = [
         ...rateables.value.map(rateableToLeaderboardRows),
     ];
+
+    const maybeCountryCode = rows[0].countryCodes[0] ?? "";
+
     const placeholderCount = Math.max(0, 10 - rows.length);
 
     for (let i = 0; i < placeholderCount; i++) {
@@ -360,7 +363,7 @@ const leaderboardRows = computed<LeaderboardRow[]>(() => {
             geoGuessrId: `placeholder-${i}`,
             name: "",
             rating: 0,
-            countryCodes: [],
+            countryCodes: [maybeCountryCode],
             isPlaceholder: true,
             type: "player",
         });
