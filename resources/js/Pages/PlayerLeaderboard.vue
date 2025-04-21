@@ -15,62 +15,19 @@
                             class="w-full"
                         />
                     </div>
+                    <Toggle
+                        v-model="selectedMode"
+                        :options="modeOptions"
+                        color="blue"
+                        @update:modelValue="updateLeaderboard"
+                    />
 
-                    <div class="relative">
-                        <select
-                            class="appearance-none bg-blue-100 text-blue-800 text-sm font-medium pr-8 px-2 py-1 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            @change="handleModeChange"
-                        >
-                            <option value="solo">Solo</option>
-                            <option value="team">Team</option>
-                        </select>
-                        <div
-                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-800"
-                        >
-                            <svg
-                                class="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M19 9l-7 7-7-7"
-                                ></path>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="relative">
-                        <select
-                            class="appearance-none bg-green-100 text-green-800 text-sm font-medium pr-8 px-2 py-1 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500"
-                            @change="handleSortOrderChange"
-                        >
-                            <option value="desc">🔽 Desc</option>
-                            <option value="asc">🔼 Asc</option>
-                        </select>
-                        <div
-                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-green-800"
-                        >
-                            <svg
-                                class="h-4 w-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M19 9l-7 7-7-7"
-                                ></path>
-                            </svg>
-                        </div>
-                    </div>
+                    <Toggle
+                        v-model="selectedOrder"
+                        :options="sortOptions"
+                        color="green"
+                        @update:modelValue="updateLeaderboard"
+                    />
                 </div>
             </div>
             <div class="overflow-x-auto -mx-4 md:mx-0">
@@ -187,6 +144,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import CountryDropdown from "@/Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "@/Components/LeaderboardLoadingSkeleton.vue";
 import Flag from "@/Components/Flag.vue";
+import Toggle from "@/Components/Toggle.vue";
 import {
     isTeam,
     type Player,
@@ -240,10 +198,16 @@ const loading = ref(false);
 type Gamemode = "solo" | "team";
 const selectedMode = ref<Gamemode>("solo");
 const isSolo = computed(() => selectedMode.value === "solo");
-const handleModeChange = (event: Event) => {
-    selectedMode.value = (event.target as HTMLSelectElement).value as Gamemode;
-    updateLeaderboard();
-};
+
+const modeOptions = [
+    { label: "Solo", value: "solo" },
+    { label: "Team", value: "team" },
+];
+
+const sortOptions = [
+    { label: "🔽 Desc", value: "desc" },
+    { label: "🔼 Asc", value: "asc" },
+];
 
 const selectedCountry = ref("");
 const handleCountryFilterChange = (event: { country: string }) => {
@@ -353,7 +317,7 @@ const leaderboardRows = computed<LeaderboardRow[]>(() => {
         ...rateables.value.map(rateableToLeaderboardRows),
     ];
 
-    const maybeCountryCode = rows[0].countryCodes[0] ?? "";
+    const maybeCountryCode = rows[0]?.countryCodes[0] ?? "";
 
     const placeholderCount = Math.max(0, 10 - rows.length);
 
@@ -377,11 +341,6 @@ const handlePlayerClick = (playerOrTeam: LeaderboardRow) => {
 };
 
 const selectedOrder = ref<SortOrder>("desc");
-const handleSortOrderChange = (event: Event) => {
-    selectedOrder.value = (event.target as HTMLSelectElement)
-        .value as SortOrder;
-    updateLeaderboard();
-};
 
 onMounted(() => {
     if (props.playersOrTeams && props.playersOrTeams.length > 0) {
