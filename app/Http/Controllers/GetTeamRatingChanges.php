@@ -20,7 +20,7 @@ class GetTeamRatingChanges extends Controller
 
         return $team->ratingChanges()
             ->orderBy('created_at', 'desc')
-            ->limit($numberOfRatingChangesFromTheLastTwoWeeks)
+            ->limit($numberOfRatingChangesFromTheLastTwoWeeks + 1)
             ->get();
     }
 }

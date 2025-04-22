@@ -36,6 +36,6 @@ class GetTeamRatingChangesTest extends TestCase
 
         $json = $response->json();
 
-        $this->assertNotContains($oldestRatingChange->toArray(), $json);
+        $this->assertContains($oldestRatingChange->toArray(), $json);
     }
 }

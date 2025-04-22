@@ -12,7 +12,7 @@ class PlayerFactory extends Factory
             'user_id' => $this->faker->shuffleString('abcdefghijklmnopqrstuvwxyz'),
             'name' => $this->faker->userName(),
             'rating' => $this->faker->numberBetween(200, 2300),
-            'country_code' => $this->faker->countryCode(),
+            'country_code' => strtolower($this->faker->countryCode()),
         ];
     }
 }
