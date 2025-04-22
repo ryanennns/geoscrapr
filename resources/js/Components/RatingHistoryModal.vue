@@ -155,7 +155,7 @@ const { generateProfileUrl } = usePlayerUtils();
 const ratingChartCanvas = ref<HTMLCanvasElement>();
 const ratingChartInstance = ref<Chart | null>(null);
 
-const daysToShow = ref(7);
+const daysToShow = ref(14);
 
 const handleKeydown = (e: KeyboardEvent) => {
     if (e.key !== "Escape") {

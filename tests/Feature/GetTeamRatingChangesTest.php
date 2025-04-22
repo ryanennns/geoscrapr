@@ -14,8 +14,8 @@ class GetTeamRatingChangesTest extends TestCase
     {
         Carbon::setTestNow(now());
 
-        $a=Player::factory()->create();
-        $b=Player::factory()->create();
+        $a = Player::factory()->create();
+        $b = Player::factory()->create();
         $team = Team::factory()->create([
             'player_a' => $a->user_id,
             'player_b' => $b->user_id,
@@ -36,6 +36,9 @@ class GetTeamRatingChangesTest extends TestCase
 
         $json = $response->json();
 
-        $this->assertContains($oldestRatingChange->toArray(), $json);
+        $this->assertContains(
+            $oldestRatingChange->toArray()['id'],
+            collect($json['data'])->map(fn($rc) => $rc['id'])->toArray()
+        );
     }
 }

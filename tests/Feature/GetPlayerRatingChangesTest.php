@@ -30,6 +30,9 @@ class GetPlayerRatingChangesTest extends TestCase
 
         $json = $response->json();
 
-        $this->assertContains($oldestRatingChange->toArray(), $json);
+        $this->assertContains(
+            $oldestRatingChange->toArray()['id'],
+            collect($json['data'])->map(fn($rc) => $rc['id'])->toArray()
+        );
     }
 }

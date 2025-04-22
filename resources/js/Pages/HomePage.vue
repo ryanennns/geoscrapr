@@ -140,9 +140,9 @@ const onPlayerClick = async (event: { rateable: LeaderboardRow }) => {
 
         const historyData = await response.json();
 
-        ratingHistoryCache.value[rateable.id] = historyData;
+        ratingHistoryCache.value[rateable.id] = historyData.data;
 
-        playerRatingHistory.value = historyData.sort(
+        playerRatingHistory.value = historyData.data.sort(
             (a: RatingChange, b: RatingChange) =>
                 new Date(a.created_at).getTime() -
                 new Date(b.created_at).getTime(),

@@ -47,10 +47,7 @@ export const EMPTY_LEADERBOARD_ROW: LeaderboardRow = {
 export interface RatingChange {
     id: string;
     rating: number;
-    rateable_id: string;
-    rateable_type: string;
     created_at: string;
-    updated_at: string;
 }
 
 export interface Snapshot {
