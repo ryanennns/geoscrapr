@@ -34,7 +34,7 @@
                             <a
                                 :href="
                                     generateProfileUrl(
-                                        props.leaderboardRow.players[1]
+                                        props.leaderboardRow.players[0]
                                             ?.user_id,
                                     )
                                 "
@@ -44,14 +44,14 @@
                                 <p
                                     class="text-gray-600 font-mono underline font-light"
                                 >
-                                    {{ props.leaderboardRow.players[1]?.name }}
+                                    {{ props.leaderboardRow.players[0]?.name }}
                                 </p>
                             </a>
                             &
                             <a
                                 :href="
                                     generateProfileUrl(
-                                        props.leaderboardRow.players[0]
+                                        props.leaderboardRow.players[1]
                                             ?.user_id,
                                     )
                                 "
@@ -61,7 +61,7 @@
                                 <p
                                     class="text-gray-600 font-mono underline font-light"
                                 >
-                                    {{ props.leaderboardRow.players[0]?.name }}
+                                    {{ props.leaderboardRow.players[1]?.name }}
                                 </p>
                             </a>
                         </span>
