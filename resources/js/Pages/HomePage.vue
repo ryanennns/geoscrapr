@@ -2,10 +2,11 @@
     <div class="p-4 md:p-8 bg-gray-50 min-h-screen">
         <div class="mb-6 md:mb-8 text-center">
             <h1 class="text-xl md:text-3xl font-bold text-indigo-800">
-                GeoGuessr Competitive Rating Distribution
+                GeoGuessr Ranking Distributions
             </h1>
-            <p class="text-sm md:text-base text-gray-600">
-                Track player statistics and rating distributions
+            <p class="text-sm md:text-base text-gray-600 lg:visible">
+                Explore player statistics, historical rating distributions, and
+                more
             </p>
         </div>
 
@@ -214,7 +215,7 @@ const selectedDate = ref<Date>(
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
 const fetchSnapshot = async (date: string) => {
-    const response = await fetch(`/snapshots?date=${date}}`);
+    const response = await fetch(`/snapshots?date=${date}`);
 
     if (!response.ok) {
         throw new Error(`Failed to fetch snapshot for ${date}.`);
