@@ -4,20 +4,14 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Team>
- */
 class TeamFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            //
+            'team_id' => $this->faker->uuid(),
+            'name' => $this->faker->userName(),
+            'rating' => $this->faker->numberBetween(300, 2300),
         ];
     }
 }
