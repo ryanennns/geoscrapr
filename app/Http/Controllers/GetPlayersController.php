@@ -2,39 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Enums\SortOrder;
+use App\Http\Requests\GetPlayersRequest;
+use App\Http\Resources\PlayerResource;
 use App\Models\Player;
-use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 
 class GetPlayersController extends Controller
 {
-    public function __invoke(Request $request): array
+    public function __invoke(GetPlayersRequest $request): AnonymousResourceCollection
     {
-        $validate = $request->validate([
-            'country' => 'string',
-            'order'   => 'string'
-        ]);
+        $validated = $request->validated();
 
-        $country = Arr::get($validate, 'country');
-        $order = Arr::get($validate, 'order');
+        $country = Arr::get($validated, 'country');
+        $order = Arr::get($validated, 'order');
 
-        $q = Player::query();
+        $query = Player::query();
 
         if ($country !== null) {
-            $q->where('country_code', $country);
+            $query->where('country_code', $country);
         }
 
         if ($order !== null) {
-            $q->orderBy('rating', $order);
+            $query->orderBy('rating', $order);
 
             if ($order === 'asc') {
-                $q->whereNotNull('rating');
+                $query->whereNotNull('rating');
             }
         }
 
-        return $q
-            ->limit(10)
-            ->get()
-            ->toArray();
+        return PlayerResource::collection(
+            $query->limit(10)->get()
+        );
     }
 }
