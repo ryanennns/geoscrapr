@@ -31,15 +31,17 @@ class GetSnapshotForDate extends Controller
             ->firstOrFail();
 
         return [
-            'solo' => [
-                'date'    => Carbon::parse($solo->date)->format('Y-m-d'),
-                'buckets' => json_decode($solo->buckets, true),
-                'n'       => $solo->n,
-            ],
-            'team' => [
-                'date'    => Carbon::parse($team->date)->format('Y-m-d'),
-                'buckets' => json_decode($team->buckets, true),
-                'n'       => $team->n,
+            'data' => [
+                'solo' => [
+                    'date'    => Carbon::parse($solo->date)->format('Y-m-d'),
+                    'buckets' => json_decode($solo->buckets, true),
+                    'n'       => $solo->n,
+                ],
+                'team' => [
+                    'date'    => Carbon::parse($team->date)->format('Y-m-d'),
+                    'buckets' => json_decode($team->buckets, true),
+                    'n'       => $team->n,
+                ]
             ]
         ];
     }

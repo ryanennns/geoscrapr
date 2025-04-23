@@ -8,10 +8,12 @@ class GetAvailableCountriesController extends Controller
 {
     public function __invoke(): array
     {
-        return Player::query()
-            ->select('country_code')
-            ->distinct()
-            ->pluck('country_code')
-            ->toArray();
+        return [
+            'data' => Player::query()
+                ->select('country_code')
+                ->distinct()
+                ->pluck('country_code')
+                ->toArray()
+        ];
     }
 }

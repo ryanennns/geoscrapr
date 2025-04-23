@@ -17,8 +17,6 @@ export interface Team {
     rating: number;
     player_a: Player;
     player_b: Player;
-    created_at: string;
-    updated_at: string;
 }
 
 export type Rateable = Player | Team;

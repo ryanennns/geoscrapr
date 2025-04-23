@@ -84,6 +84,6 @@ onMounted(async () => {
         throw new Error(`${response.status}`);
     }
 
-    apiCountries.value = await response.json();
+    apiCountries.value = (await response.json())?.data ?? [];
 });
 </script>
