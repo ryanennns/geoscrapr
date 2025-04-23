@@ -21,7 +21,7 @@ class GetSnapshotForDateTest extends TestCase
         $response = $this->getJson('snapshots?date=' . $date->format('Y-m-d'));
 
         $response->assertOk();
-        $response->assertJson([
+        $response->assertJson(['data' => [
             'solo' => [
                 'date'    => $date->format('Y-m-d'),
                 'buckets' => json_decode($solo->buckets, true),
@@ -32,7 +32,7 @@ class GetSnapshotForDateTest extends TestCase
                 'buckets' => json_decode($team->buckets, true),
                 'n'       => $team->n,
             ]
-        ]);
+        ]]);
     }
 
     public function test_it_returns_unprocessable_if_no_date()

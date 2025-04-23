@@ -221,7 +221,7 @@ const fetchSnapshot = async (date: string) => {
         throw new Error(`Failed to fetch snapshot for ${date}.`);
     }
 
-    return await response.json();
+    return (await response.json())?.data;
 };
 
 const currentSoloSnapshot = computed<Snapshot | undefined>(() =>

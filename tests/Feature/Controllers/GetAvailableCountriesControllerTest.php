@@ -20,9 +20,11 @@ class GetAvailableCountriesControllerTest extends TestCase
 
         $response->assertOk();
         $response->assertJson([
-            'bg',
-            'ca',
-            'kz',
+            'data' => [
+                'bg',
+                'ca',
+                'kz',
+            ]
         ]);
     }
 }
