@@ -14,7 +14,12 @@ class GetTeamsController extends Controller
 {
     public function __invoke(Request $request): AnonymousResourceCollection
     {
-        $order = Arr::get($request->validate(['order' => Rule::enum(SortOrder::class)]), 'order');
+        $order = Arr::get(
+            $request->validate(
+                ['order' => Rule::enum(SortOrder::class)]
+            ),
+            'order'
+        );
 
         $query = Team::query();
 
