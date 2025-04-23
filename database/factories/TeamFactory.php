@@ -10,8 +10,8 @@ class TeamFactory extends Factory
     {
         return [
             'team_id' => $this->faker->uuid(),
-            'name' => $this->faker->userName(),
-            'rating' => $this->faker->numberBetween(300, 2300),
+            'name'    => $this->faker->userName(),
+            'rating'  => $this->faker->numberBetween(300, 2300),
         ];
     }
 }
