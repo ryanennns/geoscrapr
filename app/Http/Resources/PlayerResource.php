@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,8 +16,7 @@ class PlayerResource extends JsonResource
             'name'         => $this->name,
             'rating'       => $this->rating,
             'country_code' => $this->country_code,
-            'created_at'   => $this->created_at,
-            'updated_at'   => $this->updated_at,
+            'is_active'    => $this->created_at > Carbon::now()->subWeek(),
         ];
     }
 }

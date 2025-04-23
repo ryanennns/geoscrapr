@@ -15,7 +15,10 @@ class VerifyRequestReferer
     {
         $referer = $request->headers->get('referer');
 
-        if (!Str::contains($referer, Config::get('app.url')) && App::environment('production')) {
+        if (
+            !Str::contains($referer, Config::get('app.url')) &&
+            App::environment('production')
+        ) {
             return response()->json([
                 'message' => 'forbidden',
             ], Response::HTTP_FORBIDDEN);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Player;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 
@@ -12,11 +13,13 @@ class GetPlayersController extends Controller
     {
         $validate = $request->validate([
             'country' => 'string',
-            'order'   => 'string'
+            'order'   => 'string',
+            'active'  => 'boolean',
         ]);
 
         $country = Arr::get($validate, 'country');
         $order = Arr::get($validate, 'order');
+        $active = Arr::get($validate, 'active');
 
         $q = Player::query();
 
@@ -30,6 +33,10 @@ class GetPlayersController extends Controller
             if ($order === 'asc') {
                 $q->whereNotNull('rating');
             }
+        }
+
+        if ($active !== null) {
+            $q->where('updated_at', '>=', Carbon::now()->subWeek());
         }
 
         return $q

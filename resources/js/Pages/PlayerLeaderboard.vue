@@ -28,6 +28,13 @@
                         color="green"
                         @update:modelValue="updateLeaderboard"
                     />
+
+                    <Toggle
+                        v-model="includeInactivePlayers"
+                        :options="activeOptions"
+                        color="red"
+                        @update:modelValue="updateLeaderboard"
+                    />
                 </div>
             </div>
             <div class="overflow-x-auto -mx-4 md:mx-0">
@@ -144,7 +151,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import CountryDropdown from "@/Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "@/Components/LeaderboardLoadingSkeleton.vue";
 import Flag from "@/Components/Flag.vue";
-import Toggle from "@/Components/Toggle.vue";
+import Toggle, {type ToggleOption} from "@/Components/Toggle.vue";
 import {
     isTeam,
     type Player,
@@ -216,6 +223,8 @@ const handleCountryFilterChange = (event: { country: string }) => {
 };
 
 const updateLeaderboard = async () => {
+    console.log('awooga')
+
     const mode = selectedMode.value;
     const country = selectedCountry.value;
 
@@ -274,6 +283,10 @@ const updateLeaderboard = async () => {
 
         if (selectedOrder.value) {
             params.append("order", selectedOrder.value);
+        }
+
+        if (includeInactivePlayers.value) {
+            params.append("active", includeInactivePlayers.value)
         }
 
         const response = await fetch(`/${url}?${params.toString()}`);
@@ -348,4 +361,16 @@ onMounted(() => {
             props.playersOrTeams as Player[];
     }
 });
+
+const includeInactivePlayers = ref<string>('true');
+const activeOptions: ToggleOption[] = [
+    {
+        label: 'All Players',
+        value: 'true'
+    },
+    {
+        label: 'Active Only',
+        value: 'false'
+    }
+]
 </script>

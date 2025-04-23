@@ -6,8 +6,7 @@ export interface Player {
     name: string;
     rating: number | null;
     country_code: CountryCode;
-    created_at: string;
-    updated_at: string;
+    is_active: boolean;
 }
 
 export interface Team {

@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-interface ToggleOption {
+export interface ToggleOption {
     label: string;
     value: string;
 }
