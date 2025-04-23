@@ -1,0 +1,33 @@
+name: Run PHPUnit Tests
+
+on: [push, pull_request]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo, pdo_sqlite, dom
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Create .env
+        run: cp .env.example .env
+
+      - name: Create SQLite database
+        run: touch database/database.testing.sqlite
+
+      - name: Create application key
+        run: php artisan key:generate
+
+      - name: Run tests
+        run: ./vendor/bin/phpunit
