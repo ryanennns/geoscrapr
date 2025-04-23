@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 class GetTeamRatingChangesTest extends TestCase
 {
-    public function test_the_application_returns_a_successful_response(): void
+    public function test_it_returns_two_weeks_plus_one_rating_change(): void
     {
         Carbon::setTestNow(now());
 
