@@ -14,8 +14,8 @@ class TeamResource extends JsonResource
             'team_id'  => $this->team_id,
             'name'     => $this->name,
             'rating'   => $this->rating,
-            'player_a' => $this->player_a,
-            'player_b' => $this->player_b,
+            'player_a' => new PlayerResource($this->playerA),
+            'player_b' => new PlayerResource($this->playerB),
         ];
     }
 }

@@ -286,9 +286,9 @@ const updateLeaderboard = async () => {
 
         const json = await response.json();
 
-        dataCache.value[selectedOrder.value][mode][cacheKey] = json;
+        dataCache.value[selectedOrder.value][mode][cacheKey] = json.data;
 
-        rateables.value = json || [];
+        rateables.value = json.data || [];
     } catch (error) {
         console.error("Error fetching leaderboard data:", error);
         rateables.value = [];

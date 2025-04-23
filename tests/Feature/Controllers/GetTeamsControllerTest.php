@@ -2,6 +2,7 @@
 
 namespace Feature\Controllers;
 
+use App\Http\Resources\PlayerResource;
 use App\Models\Player;
 use App\Models\RatingChange;
 use App\Models\Team;
@@ -52,23 +53,23 @@ class GetTeamsControllerTest extends TestCase
         $response = $this->getJson('teams?order=desc');
 
         $response->assertSuccessful();
-        $response->assertJson([
+        $response->assertJsonFragment([
             'data' => [
                 [
                     'id'       => $team2->id,
                     'team_id'  => $team2->team_id,
                     'name'     => $team2->name,
                     'rating'   => $team2->rating,
-                    'player_a' => $team2->player_a,
-                    'player_b' => $team2->player_b,
+                    'player_a' => (new PlayerResource($team2->playerA))->toArray(request()),
+                    'player_b' => (new PlayerResource($team2->playerB))->toArray(request()),
                 ],
                 [
                     'id'       => $team1->id,
                     'team_id'  => $team1->team_id,
                     'name'     => $team1->name,
                     'rating'   => $team1->rating,
-                    'player_a' => $team1->player_a,
-                    'player_b' => $team1->player_b,
+                    'player_a' => (new PlayerResource($team1->playerA))->toArray(request()),
+                    'player_b' => (new PlayerResource($team1->playerB))->toArray(request()),
                 ]
             ]
         ]);
