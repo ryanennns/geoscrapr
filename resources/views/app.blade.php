@@ -10,7 +10,18 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @inertiaHead
 </head>
-<body class="antialiased">
+<body class="antialiased page-wrapper">
 @inertia
 </body>
 </html>
+
+<style>
+    ::-webkit-scrollbar {
+        display: none;
+    }
+    html, body {
+        -ms-overflow-style: none; /* IE/Edge */
+        scrollbar-width: none; /* Firefox */
+        overflow-y: scroll;
+    }
+</style>
