@@ -54,6 +54,7 @@
                     <ul class="space-y-2">
                         <li class="mb-1">
                             <a
+                                target="_blank"
                                 href="https://geoguessr.com"
                                 class="text-gray-300 hover:text-white text-sm"
                             >
@@ -62,6 +63,7 @@
                         </li>
                         <li class="mb-1">
                             <a
+                                target="_blank"
                                 href="https://github.com/ryanennns/geoscrapr"
                                 class="text-gray-300 hover:text-white text-sm"
                             >
@@ -70,6 +72,7 @@
                         </li>
                         <li class="mb-1">
                             <a
+                                target="_blank"
                                 href="https://en.wikipedia.org/wiki/Elo_rating_system"
                                 class="text-gray-300 hover:text-white text-sm"
                             >
@@ -78,6 +81,7 @@
                         </li>
                         <li class="mb-1">
                             <a
+                                target="_blank"
                                 href="https://www.plonkit.net/beginners-guide"
                                 class="text-gray-300 hover:text-white text-sm"
                             >
@@ -91,6 +95,7 @@
                     <div class="flex space-x-4">
                         <h3 class="text-lg font-semibold mb-4">Connect</h3>
                         <a
+                            target="_blank"
                             href="https://github.com/ryanennns"
                             class="text-gray-300 hover:text-white"
                         >
@@ -112,6 +117,7 @@
                         Questions? Feedback? Found a bug?
                         <br />
                         <a
+                            target="_blank"
                             href="mailto:ryanennns@gmail.com"
                             class="text-indigo-300 hover:text-indigo-200"
                         >
@@ -133,6 +139,7 @@
                         <ul class="flex space-x-6">
                             <li>
                                 <a
+                                    target="_blank"
                                     class="text-xs text-gray-400 hover:cursor-default"
                                 >
                                     I don't have any of these lol -->
@@ -140,6 +147,7 @@
                             </li>
                             <li>
                                 <a
+                                    target="_blank"
                                     href="#"
                                     class="text-xs text-gray-400 hover:text-gray-300"
                                 >
@@ -148,6 +156,7 @@
                             </li>
                             <li>
                                 <a
+                                    target="_blank"
                                     href="#"
                                     class="text-xs text-gray-400 hover:text-gray-300"
                                 >
@@ -156,6 +165,7 @@
                             </li>
                             <li>
                                 <a
+                                    target="_blank"
                                     href="#"
                                     class="text-xs text-gray-400 hover:text-gray-300"
                                 >
