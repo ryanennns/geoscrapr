@@ -18,7 +18,8 @@ class GetPlayersRequest extends FormRequest
     {
         return [
             'country' => Rule::enum(CountryCode::class),
-            'order'   => Rule::enum(SortOrder::class)
+            'order'   => Rule::enum(SortOrder::class),
+            'active'  => 'boolean|nullable',
         ];
     }
 }
