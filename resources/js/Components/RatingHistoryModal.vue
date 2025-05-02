@@ -77,7 +77,7 @@
                                 <p
                                     class="text-gray-600 font-mono underline font-light"
                                 >
-                                    {{ props.leaderboardRow.id }}
+                                    {{ props.leaderboardRow.geoGuessrId }}
                                 </p>
                             </a>
                         </span>
