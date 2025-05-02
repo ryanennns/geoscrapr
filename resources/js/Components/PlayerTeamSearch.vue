@@ -94,7 +94,8 @@ const playerSearchResults = ref<Player[]>([]);
 const teamSearchResults = ref<Team[]>([]);
 const showDropdown = ref<boolean>(true);
 
-const searchCache = ref<Record<string, Player[]>>({});
+const playerSearchCache = ref<Record<string, Player[]>>({});
+const teamSearchCache = ref<Record<string, Team[]>>({});
 
 let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
 const fetchPlayers = () => {
@@ -104,8 +105,12 @@ const fetchPlayers = () => {
         clearTimeout(debounceTimeout);
     }
 
-    if (searchCache.value[searchQuery.value]) {
-        playerSearchResults.value = searchCache.value[searchQuery.value];
+    if (
+        playerSearchCache.value[searchQuery.value]
+        && teamSearchCache.value[searchQuery.value]
+    ) {
+        playerSearchResults.value = playerSearchCache.value[searchQuery.value];
+        teamSearchResults.value = teamSearchCache.value[searchQuery.value];
 
         return;
     }
@@ -130,7 +135,8 @@ const fetchPlayers = () => {
             const players = json.data.players;
             const teams = json.data.teams
 
-            searchCache.value[searchQuery.value] = players;
+            playerSearchCache.value[searchQuery.value] = players;
+            teamSearchCache.value[searchQuery.value] = teams;
 
             playerSearchResults.value = players;
             teamSearchResults.value = teams;
