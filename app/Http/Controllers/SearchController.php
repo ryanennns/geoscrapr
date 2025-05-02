@@ -25,7 +25,7 @@ class SearchController extends Controller
 
         $teams = Team::query()
             ->where('name', 'like', "%$query%")
-            ->orWhere('id', 'like', "%$query%")
+            ->orWhere('team_id', 'like', "%$query%")
             ->orderBy('rating', 'desc')
             ->limit(5)
             ->get();
