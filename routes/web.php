@@ -39,3 +39,5 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
     });
 
 Route::post('/download-sqlite', DownloadSqliteController::class);
+
+Route::get('/search', \App\Http\Controllers\SearchController::class);
