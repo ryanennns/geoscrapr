@@ -13,7 +13,7 @@
         <div
             class="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 mb-6 md:mb-10 max-w-3xl mx-auto"
         >
-            <PlayerSearch @player-click="onPlayerClick" />
+            <PlayerTeamSearch @row-clicked="onPlayerTeamClick" />
 
             <DateSelector
                 v-model="selectedDate"
@@ -63,7 +63,7 @@
 
         <PlayerLeaderboard
             :playersOrTeams="props.leaderboard"
-            @player-click="onPlayerClick"
+            @player-click="onPlayerTeamClick"
             class="mt-6"
         />
         <transition name="fade">
@@ -84,7 +84,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { Chart, registerables } from "chart.js";
 import "@vuepic/vue-datepicker/dist/main.css";
-import PlayerSearch from "../Components/PlayerSearch.vue";
+import PlayerTeamSearch from "../Components/PlayerTeamSearch.vue";
 import Footer from "@/Components/Footer.vue";
 import DateSelector from "../Components/DateSelector.vue";
 import PlayerLeaderboard from "./PlayerLeaderboard.vue";
@@ -118,7 +118,8 @@ const playerRatingHistory = ref<RatingChange[]>([]);
 const isLoadingHistory = ref<boolean>(false);
 
 const ratingHistoryCache = ref<Record<string, RatingChange[]>>({});
-const onPlayerClick = async (event: { rateable: LeaderboardRow }) => {
+const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
+    console.log(event)
     const rateable = event.rateable;
     selectedLeaderboardRow.value = rateable;
 

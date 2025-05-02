@@ -33,7 +33,7 @@
                     @click="
                         () => {
                             searchQuery = '';
-                            searchResults = [];
+                            playerSearchResults = [];
                         }
                     "
                     class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
@@ -57,30 +57,41 @@
         </div>
 
         <ul
-            v-if="searchResults.length && showDropdown"
+            v-if="(playerSearchResults.length || teamSearchResults.length) && showDropdown"
             class="absolute top-full left-0 z-10 bg-gray-50 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
         >
+            <li class="pl-3 p-2 bg-gray-300" v-show="playerSearchResults.length > 0">Players</li>
             <PlayerSearchResult
-                v-for="player in searchResults"
+                v-for="player in playerSearchResults"
                 :key="player.id"
                 :player="player"
-                @player-click="handlePlayerClick"
+                @player-click="handlePlayerOrTeamClicked"
+            />
+
+            <li class="pl-3 p-2 bg-gray-300" v-show="teamSearchResults.length > 0">Teams</li>
+            <TeamSearchResult
+                v-for="team in teamSearchResults"
+                :key="team.id"
+                :team="team"
+                @team-click="handlePlayerOrTeamClicked"
             />
         </ul>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import {ref} from "vue";
 import PlayerSearchResult from "./PlayerSearchResult.vue";
-import type { Player } from "@/Types/core.ts";
-import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
+import type {Player, Rateable, Team} from "@/Types/core.ts";
+import {usePlayerUtils} from "@/composables/usePlayerUtils.js";
+import TeamSearchResult from "@/Components/TeamSearchResult.vue";
 
-const { rateableToLeaderboardRows } = usePlayerUtils();
+const {rateableToLeaderboardRows} = usePlayerUtils();
 
 const searchInputElement = ref<HTMLInputElement>();
 const searchQuery = ref<string>("");
-const searchResults = ref<Player[]>([]);
+const playerSearchResults = ref<Player[]>([]);
+const teamSearchResults = ref<Team[]>([]);
 const showDropdown = ref<boolean>(true);
 
 const searchCache = ref<Record<string, Player[]>>({});
@@ -94,20 +105,21 @@ const fetchPlayers = () => {
     }
 
     if (searchCache.value[searchQuery.value]) {
-        searchResults.value = searchCache.value[searchQuery.value];
+        playerSearchResults.value = searchCache.value[searchQuery.value];
 
         return;
     }
 
     debounceTimeout = setTimeout(async () => {
         if (searchQuery.value.length < 2) {
-            searchResults.value = [];
+            playerSearchResults.value = [];
+            teamSearchResults.value = [];
             return;
         }
 
         try {
             const response = await fetch(
-                `/players/search?q=${encodeURIComponent(searchQuery.value)}`,
+                `/search?q=${encodeURIComponent(searchQuery.value)}`,
             );
             if (!response.ok) {
                 throw new Error("Network response was not ok");
@@ -115,20 +127,24 @@ const fetchPlayers = () => {
 
             const json = await response.json();
 
-            searchCache.value[searchQuery.value] = json.data;
+            const players = json.data.players;
+            const teams = json.data.teams
 
-            searchResults.value = json.data;
+            searchCache.value[searchQuery.value] = players;
+
+            playerSearchResults.value = players;
+            teamSearchResults.value = teams;
         } catch (err) {
             console.error("Player search failed:", err);
         }
     }, 300);
 };
 
-const emit = defineEmits(["playerClick"]);
-const handlePlayerClick = async (player: Player) => {
+const emit = defineEmits(["rowClicked"]);
+const handlePlayerOrTeamClicked = async (rateable: Rateable) => {
     searchInputElement.value?.blur();
-    emit("playerClick", {
-        rateable: rateableToLeaderboardRows(player),
+    emit("rowClicked", {
+        rateable: rateableToLeaderboardRows(rateable),
     });
 };
 </script>
