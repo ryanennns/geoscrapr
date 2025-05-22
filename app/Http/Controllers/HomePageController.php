@@ -33,27 +33,29 @@ class HomePageController extends Controller
             ->orderBy('date')
             ->pluck('date');
 
-        $soloSnapshots = EloSnapshot::query()
+        $soloRangeSnapshots = EloSnapshot::query()
             ->where('gamemode', 'solo')
+            ->where('type', EloSnapshot::TYPE_ELO_RANGE)
             ->whereRaw(self::SOLO_RAW)
             ->orderByDesc('date')
             ->limit(self::MAX_SNAPSHOTS)
             ->get();
 
-        $teamSnapshots = EloSnapshot::query()
+        $teamRangeSnapshots = EloSnapshot::query()
             ->where('gamemode', 'team')
+            ->where('type', EloSnapshot::TYPE_ELO_RANGE)
             ->whereRaw(self::TEAM_RAW)
             ->orderByDesc('date')
             ->limit(self::MAX_SNAPSHOTS)
             ->get();
 
         return Inertia::render('HomePage', [
-            'solo_snapshots' => $soloSnapshots->map(fn($snapshot) => [
+            'solo_snapshots' => $soloRangeSnapshots->map(fn($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
-            'team_snapshots' => $teamSnapshots->map(fn($snapshot) => [
+            'team_snapshots' => $teamRangeSnapshots->map(fn($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
