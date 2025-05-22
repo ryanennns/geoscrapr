@@ -12,6 +12,10 @@ class EloSnapshot extends Model
     use HasUuids;
 
     const GAMEMODES = ['solo', 'team'];
+    const TYPE_ELO_RANGE = 'elo_range';
+    const TYPE_PERCENTILE = 'percentile';
+    const TYPES = [self::TYPE_ELO_RANGE, self::TYPE_PERCENTILE];
+
 
     protected $guarded = [];
 }
