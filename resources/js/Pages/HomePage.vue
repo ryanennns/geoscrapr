@@ -29,9 +29,15 @@
                     <h2 class="text-lg md:text-2xl font-bold text-gray-800">
                         Solo Rating Distribution
                     </h2>
+                    <Toggle
+                        v-model="selectedSoloGraphType"
+                        :options="graphTypes"
+                        color="blue"
+                        class="ml-auto"
+                    />
                     <Badge
                         :text="`n = ${currentSoloSnapshot?.n.toLocaleString() || 0}`"
-                        class="bg-blue-100 text-blue-800 text-xs md:text-sm"
+                        class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
                     />
                 </div>
                 <div class="w-full h-64 md:h-[62vh]">
@@ -47,9 +53,15 @@
                     <h2 class="text-lg md:text-2xl font-bold text-gray-800">
                         Team Rating Distribution
                     </h2>
+                    <Toggle
+                        v-model="selectedTeamGraphType"
+                        :options="graphTypes"
+                        color="green"
+                        class="ml-auto"
+                    />
                     <Badge
                         :text="`n = ${currentTeamSnapshot?.n.toLocaleString() || 0}`"
-                        class="bg-green-100 text-green-800 text-xs md:text-sm"
+                        class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
                     />
                 </div>
                 <div class="w-full h-64 md:h-[62vh]">
@@ -98,13 +110,23 @@ import {
     type Snapshot,
 } from "@/Types/core.ts";
 import { useRatingChart } from "@/composables/useRatingChart";
+import Toggle from "@/Components/Toggle.vue";
 
 interface Props {
     solo_snapshots: Snapshot[];
     team_snapshots: Snapshot[];
+    solo_percentile_snapshots: Snapshot[];
+    team_percentile_snapshots: Snapshot[];
     dates: string[];
     leaderboard: Player[];
 }
+
+const graphTypes = [
+    { label: "Elo Range", value: "elo_range" },
+    { label: "Percentile", value: "percentile" },
+];
+const selectedSoloGraphType = ref<string>("elo_range");
+const selectedTeamGraphType = ref<string>("elo_range");
 
 const props = defineProps<Props>();
 
@@ -119,7 +141,7 @@ const isLoadingHistory = ref<boolean>(false);
 
 const ratingHistoryCache = ref<Record<string, RatingChange[]>>({});
 const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
-    console.log(event)
+    console.log(event);
     const rateable = event.rateable;
     selectedLeaderboardRow.value = rateable;
 
@@ -169,6 +191,8 @@ const handleResize = () => {
 };
 
 onMounted(() => {
+    console.log(props);
+
     window.addEventListener("resize", handleResize);
 });
 

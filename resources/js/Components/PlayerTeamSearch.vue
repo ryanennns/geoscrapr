@@ -57,10 +57,18 @@
         </div>
 
         <ul
-            v-if="(playerSearchResults.length || teamSearchResults.length) && showDropdown"
+            v-if="
+                (playerSearchResults.length || teamSearchResults.length) &&
+                showDropdown
+            "
             class="absolute top-full left-0 z-10 bg-gray-50 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
         >
-            <li class="pl-3 p-2 bg-gray-300" v-show="playerSearchResults.length > 0">Players</li>
+            <li
+                class="pl-3 p-2 bg-gray-300"
+                v-show="playerSearchResults.length > 0"
+            >
+                Players
+            </li>
             <PlayerSearchResult
                 v-for="player in playerSearchResults"
                 :key="player.id"
@@ -68,7 +76,12 @@
                 @player-click="handlePlayerOrTeamClicked"
             />
 
-            <li class="pl-3 p-2 bg-gray-300" v-show="teamSearchResults.length > 0">Teams</li>
+            <li
+                class="pl-3 p-2 bg-gray-300"
+                v-show="teamSearchResults.length > 0"
+            >
+                Teams
+            </li>
             <TeamSearchResult
                 v-for="team in teamSearchResults"
                 :key="team.id"
@@ -80,13 +93,13 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import { ref } from "vue";
 import PlayerSearchResult from "./PlayerSearchResult.vue";
-import type {Player, Rateable, Team} from "@/Types/core.ts";
-import {usePlayerUtils} from "@/composables/usePlayerUtils.js";
+import type { Player, Rateable, Team } from "@/Types/core.ts";
+import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
 import TeamSearchResult from "@/Components/TeamSearchResult.vue";
 
-const {rateableToLeaderboardRows} = usePlayerUtils();
+const { rateableToLeaderboardRows } = usePlayerUtils();
 
 const searchInputElement = ref<HTMLInputElement>();
 const searchQuery = ref<string>("");
@@ -106,8 +119,8 @@ const fetchPlayers = () => {
     }
 
     if (
-        playerSearchCache.value[searchQuery.value]
-        && teamSearchCache.value[searchQuery.value]
+        playerSearchCache.value[searchQuery.value] &&
+        teamSearchCache.value[searchQuery.value]
     ) {
         playerSearchResults.value = playerSearchCache.value[searchQuery.value];
         teamSearchResults.value = teamSearchCache.value[searchQuery.value];
@@ -133,7 +146,7 @@ const fetchPlayers = () => {
             const json = await response.json();
 
             const players = json.data.players;
-            const teams = json.data.teams
+            const teams = json.data.teams;
 
             playerSearchCache.value[searchQuery.value] = players;
             teamSearchCache.value[searchQuery.value] = teams;

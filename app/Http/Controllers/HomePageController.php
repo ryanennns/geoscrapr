@@ -49,6 +49,20 @@ class HomePageController extends Controller
             ->limit(self::MAX_SNAPSHOTS)
             ->get();
 
+        $soloPercentileSnapshots = EloSnapshot::query()
+            ->where('gamemode', 'solo')
+            ->where('type', EloSnapshot::TYPE_PERCENTILE)
+            ->orderByDesc('date')
+            ->limit(self::MAX_SNAPSHOTS)
+            ->get();
+
+        $teamPercentileSnapshots = EloSnapshot::query()
+            ->where('gamemode', 'team')
+            ->where('type', EloSnapshot::TYPE_PERCENTILE)
+            ->orderByDesc('date')
+            ->limit(self::MAX_SNAPSHOTS)
+            ->get();
+
         return Inertia::render('HomePage', [
             'solo_snapshots' => $soloRangeSnapshots->map(fn($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
@@ -56,6 +70,16 @@ class HomePageController extends Controller
                 'n'       => $snapshot->n,
             ])->toArray(),
             'team_snapshots' => $teamRangeSnapshots->map(fn($snapshot) => [
+                'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
+                'buckets' => json_decode($snapshot->buckets, true),
+                'n'       => $snapshot->n,
+            ])->toArray(),
+            'solo_percentile_snapshots' => $soloPercentileSnapshots->map(fn($snapshot) => [
+                'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
+                'buckets' => json_decode($snapshot->buckets, true),
+                'n'       => $snapshot->n,
+            ])->toArray(),
+            'team_percentile_snapshots' => $teamPercentileSnapshots->map(fn($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,

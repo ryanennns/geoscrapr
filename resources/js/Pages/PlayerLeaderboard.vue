@@ -47,99 +47,99 @@
                     class="min-w-full divide-y divide-gray-200 table-fixed"
                 >
                     <thead class="bg-gray-50">
-                    <tr>
-                        <th
-                            scope="col"
-                            class="w-1/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            #
-                        </th>
-                        <th
-                            scope="col"
-                            class="w-5/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            {{ isSolo ? "Player" : "Team" }}
-                        </th>
-                        <th
-                            scope="col"
-                            class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            <span class="hidden sm:inline">Country</span>
-                            <span class="sm:hidden">Flag</span>
-                        </th>
-                        <th
-                            scope="col"
-                            class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            Rating
-                        </th>
-                    </tr>
+                        <tr>
+                            <th
+                                scope="col"
+                                class="w-1/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                #
+                            </th>
+                            <th
+                                scope="col"
+                                class="w-5/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                {{ isSolo ? "Player" : "Team" }}
+                            </th>
+                            <th
+                                scope="col"
+                                class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                <span class="hidden sm:inline">Country</span>
+                                <span class="sm:hidden">Flag</span>
+                            </th>
+                            <th
+                                scope="col"
+                                class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Rating
+                            </th>
+                        </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                    <tr
-                        v-for="(leaderboardRow, index) in leaderboardRows"
-                        :key="index"
-                        :class="
+                        <tr
+                            v-for="(leaderboardRow, index) in leaderboardRows"
+                            :key="index"
+                            :class="
                                 leaderboardRow.isPlaceholder
                                     ? 'opacity-50'
                                     : 'hover:bg-indigo-50 transition-colors cursor-pointer'
                             "
-                        @click="
+                            @click="
                                 leaderboardRow.isPlaceholder
                                     ? null
                                     : handlePlayerClick(leaderboardRow)
                             "
-                    >
-                        <td
-                            class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
                         >
-                            <div class="text-xs sm:text-sm font-medium">
-                                {{ index + 1 }}
-                            </div>
-                        </td>
-                        <td
-                            class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
-                        >
-                            <div
-                                class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-full"
+                            <td
+                                class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
                             >
-                                {{ leaderboardRow.name || "-" }}
-                            </div>
-                        </td>
-                        <td
-                            class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
-                        >
-                            <div class="flex items-center">
-                                <div
-                                    v-for="countryCode in leaderboardRow.countryCodes"
-                                    class="flex"
-                                >
-                                    <Flag
-                                        :country-code="countryCode"
-                                        dimensions="120x90"
-                                        class="mr-1"
-                                        width="24"
-                                        height="18"
-                                        :class="{ 'sm:w-8 sm:h-6': true }"
-                                    />
+                                <div class="text-xs sm:text-sm font-medium">
+                                    {{ index + 1 }}
                                 </div>
-                            </div>
-                        </td>
-                        <td
-                            class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
-                        >
-                            <div
-                                class="text-xs sm:text-sm font-semibold text-indigo-700"
+                            </td>
+                            <td
+                                class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
                             >
-                                {{
-                                    leaderboardRow.isPlaceholder ||
-                                    leaderboardRow.rating === null
-                                        ? "-"
-                                        : leaderboardRow.rating?.toLocaleString()
-                                }}
-                            </div>
-                        </td>
-                    </tr>
+                                <div
+                                    class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-full"
+                                >
+                                    {{ leaderboardRow.name || "-" }}
+                                </div>
+                            </td>
+                            <td
+                                class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
+                            >
+                                <div class="flex items-center">
+                                    <div
+                                        v-for="countryCode in leaderboardRow.countryCodes"
+                                        class="flex"
+                                    >
+                                        <Flag
+                                            :country-code="countryCode"
+                                            dimensions="120x90"
+                                            class="mr-1"
+                                            width="24"
+                                            height="18"
+                                            :class="{ 'sm:w-8 sm:h-6': true }"
+                                        />
+                                    </div>
+                                </div>
+                            </td>
+                            <td
+                                class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
+                            >
+                                <div
+                                    class="text-xs sm:text-sm font-semibold text-indigo-700"
+                                >
+                                    {{
+                                        leaderboardRow.isPlaceholder ||
+                                        leaderboardRow.rating === null
+                                            ? "-"
+                                            : leaderboardRow.rating?.toLocaleString()
+                                    }}
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -147,7 +147,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import CountryDropdown from "@/Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "@/Components/LeaderboardLoadingSkeleton.vue";
 import Flag from "@/Components/Flag.vue";
@@ -158,9 +158,9 @@ import {
     type LeaderboardRow,
     type Rateable,
 } from "@/Types/core.ts";
-import {usePlayerUtils} from "@/composables/usePlayerUtils.js";
+import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
 
-const {rateableToLeaderboardRows} = usePlayerUtils();
+const { rateableToLeaderboardRows } = usePlayerUtils();
 
 const sortOrders = ["asc", "desc"] as const;
 type SortOrder = (typeof sortOrders)[number];
@@ -172,19 +172,22 @@ interface Props {
 const props = defineProps<Props>();
 
 type IsActive = "active" | "all";
-const isActive = ref<IsActive>("all")
+const isActive = ref<IsActive>("all");
 
 interface SubCache {
     [key: string]: Rateable[];
 }
 
-type PlayerTeamCache = Record<IsActive, Record<SortOrder, Record<Gamemode, SubCache>>>;
+type PlayerTeamCache = Record<
+    IsActive,
+    Record<SortOrder, Record<Gamemode, SubCache>>
+>;
 
 const emit = defineEmits(["playerClick", "countryFilterChange"]);
 
 const createCacheRoot = () => ({
-    solo: {all: []},
-    team: {all: []},
+    solo: { all: [] },
+    team: { all: [] },
 });
 
 const dataCache = ref<PlayerTeamCache>({
@@ -198,7 +201,6 @@ const dataCache = ref<PlayerTeamCache>({
     },
 });
 
-
 const rateables = ref<Rateable[]>(props.playersOrTeams);
 const loading = ref(false);
 
@@ -207,19 +209,19 @@ const selectedMode = ref<Gamemode>("solo");
 const isSolo = computed(() => selectedMode.value === "solo");
 
 const modeOptions = [
-    {label: "Solo", value: "solo"},
-    {label: "Team", value: "team"},
+    { label: "Solo", value: "solo" },
+    { label: "Team", value: "team" },
 ];
 
 const sortOptions = [
-    {label: "🔽 Desc", value: "desc"},
-    {label: "🔼 Asc", value: "asc"},
+    { label: "🔽 Desc", value: "desc" },
+    { label: "🔼 Asc", value: "asc" },
 ];
 
 const activeOptions = [
-    {label: "All", value: "all"},
-    {label: "Active", value: "active"},
-]
+    { label: "All", value: "all" },
+    { label: "Active", value: "active" },
+];
 
 const selectedCountry = ref("");
 const handleCountryFilterChange = (event: { country: string }) => {
@@ -231,10 +233,12 @@ const updateLeaderboard = async () => {
     const active = isActive.value;
     const order = selectedOrder.value;
     const mode = selectedMode.value;
-    const country = selectedCountry.value || 'all';
+    const country = selectedCountry.value || "all";
 
     if (dataCache.value[active][order][mode][country]?.length > 0) {
-        rateables.value = dataCache.value[active][order][mode][country] as Rateable[];
+        rateables.value = dataCache.value[active][order][mode][
+            country
+        ] as Rateable[];
         return;
     }
 
@@ -245,10 +249,10 @@ const updateLeaderboard = async () => {
         const params = new URLSearchParams();
 
         if (active === "active") {
-            params.append("active", '1');
+            params.append("active", "1");
         }
 
-        if (country !== 'all') {
+        if (country !== "all") {
             params.append("country", country);
         }
 
@@ -259,7 +263,7 @@ const updateLeaderboard = async () => {
         const response = await fetch(`/${url}?${params.toString()}`, {
             headers: {
                 "Content-Type": "application/json",
-                'Accept': 'application/json',
+                Accept: "application/json",
             },
         });
 
@@ -294,7 +298,7 @@ watch(
             }
         }
     },
-    {deep: true},
+    { deep: true },
 );
 
 const leaderboardRows = computed<LeaderboardRow[]>(() => {
@@ -322,7 +326,7 @@ const leaderboardRows = computed<LeaderboardRow[]>(() => {
 });
 
 const handlePlayerClick = (playerOrTeam: LeaderboardRow) => {
-    emit("playerClick", {rateable: playerOrTeam});
+    emit("playerClick", { rateable: playerOrTeam });
 };
 
 const selectedOrder = ref<SortOrder>("desc");

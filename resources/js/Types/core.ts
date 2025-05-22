@@ -54,6 +54,7 @@ export interface Snapshot {
         [range: string]: number;
     };
     n: number;
+    type: string;
 }
 
 export const isTeam = (maybeTeam: any): maybeTeam is Team =>

@@ -5,7 +5,8 @@
     >
         <div class="flex justify-between items-center">
             <span class="font-medium text-gray-800">
-                {{ getFlagEmoji(props.team.player_a.country_code) }} {{ getFlagEmoji(props.team.player_b.country_code) }}
+                {{ getFlagEmoji(props.team.player_a.country_code) }}
+                {{ getFlagEmoji(props.team.player_b.country_code) }}
                 {{ props.team.name }}
             </span>
             <span
@@ -18,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import {usePlayerUtils} from "@/composables/usePlayerUtils.js";
-import type {Team} from "@/Types/core.ts";
+import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
+import type { Team } from "@/Types/core.ts";
 
 interface Props {
     team: Team;
@@ -27,7 +28,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const {getFlagEmoji} = usePlayerUtils();
+const { getFlagEmoji } = usePlayerUtils();
 
 const emit = defineEmits(["teamClick"]);
 

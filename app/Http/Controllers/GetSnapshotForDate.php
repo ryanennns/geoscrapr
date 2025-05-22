@@ -20,12 +20,14 @@ class GetSnapshotForDate extends Controller
 
         $solo = EloSnapshot::query()
             ->whereDate('date', $date)
+            ->where('type', EloSnapshot::TYPE_ELO_RANGE)
             ->where('gamemode', 'solo')
             ->orderByDesc('date')
             ->firstOrFail();
 
         $team = EloSnapshot::query()
             ->whereDate('date', $date)
+            ->where('type', EloSnapshot::TYPE_ELO_RANGE)
             ->where('gamemode', 'team')
             ->orderByDesc('date')
             ->firstOrFail();
