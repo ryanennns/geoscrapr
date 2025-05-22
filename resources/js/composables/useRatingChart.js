@@ -1,7 +1,7 @@
 import { Chart } from "chart.js";
 
 export function useRatingChart() {
-    const renderChart = (
+    const renderRangeChart = (
         canvasRef,
         snapshot,
         isTeamChart = false,
@@ -117,7 +117,11 @@ export function useRatingChart() {
         });
     };
 
-    return { renderChart };
+    const renderPercentileChart = () => {
+
+    }
+
+    return { renderRangeChart, renderPercentileChart };
 }
 
 const formatNumber = (num) => {

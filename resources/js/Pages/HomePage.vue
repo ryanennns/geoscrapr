@@ -13,7 +13,7 @@
         <div
             class="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 mb-6 md:mb-10 max-w-3xl mx-auto"
         >
-            <PlayerTeamSearch @row-clicked="onPlayerTeamClick" />
+            <PlayerTeamSearch @row-clicked="onPlayerTeamClick"/>
 
             <DateSelector
                 v-model="selectedDate"
@@ -30,13 +30,12 @@
                         Solo Rating Distribution
                     </h2>
                     <Toggle
-                        v-model="selectedSoloGraphType"
                         :options="graphTypes"
                         color="blue"
-                        class="ml-auto"
+                        class="ml-auto opacity-40"
                     />
                     <Badge
-                        :text="`n = ${currentSoloSnapshot?.n.toLocaleString() || 0}`"
+                        :text="`n = ${currentSoloRangeSnapshot?.n.toLocaleString() || 0}`"
                         class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
                     />
                 </div>
@@ -54,13 +53,12 @@
                         Team Rating Distribution
                     </h2>
                     <Toggle
-                        v-model="selectedTeamGraphType"
                         :options="graphTypes"
                         color="green"
-                        class="ml-auto"
+                        class="ml-auto opacity-40"
                     />
                     <Badge
-                        :text="`n = ${currentTeamSnapshot?.n.toLocaleString() || 0}`"
+                        :text="`n = ${currentTeamRangeSnapshot?.n.toLocaleString() || 0}`"
                         class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
                     />
                 </div>
@@ -89,12 +87,12 @@
             />
         </transition>
     </div>
-    <Footer />
+    <Footer/>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { Chart, registerables } from "chart.js";
+import {computed, onBeforeUnmount, onMounted, ref, watch} from "vue";
+import {Chart, registerables} from "chart.js";
 import "@vuepic/vue-datepicker/dist/main.css";
 import PlayerTeamSearch from "../Components/PlayerTeamSearch.vue";
 import Footer from "@/Components/Footer.vue";
@@ -109,7 +107,7 @@ import {
     type RatingChange,
     type Snapshot,
 } from "@/Types/core.ts";
-import { useRatingChart } from "@/composables/useRatingChart";
+import {useRatingChart} from "@/composables/useRatingChart";
 import Toggle from "@/Components/Toggle.vue";
 
 interface Props {
@@ -122,11 +120,15 @@ interface Props {
 }
 
 const graphTypes = [
-    { label: "Elo Range", value: "elo_range" },
-    { label: "Percentile", value: "percentile" },
+    {label: "Elo Range", value: "elo_range"},
+    {label: "Percentile", value: "percentile"},
 ];
 const selectedSoloGraphType = ref<string>("elo_range");
 const selectedTeamGraphType = ref<string>("elo_range");
+
+watch([selectedSoloGraphType, selectedTeamGraphType], () => {
+    updateCharts();
+});
 
 const props = defineProps<Props>();
 
@@ -249,12 +251,21 @@ const fetchSnapshot = async (date: string) => {
     return (await response.json())?.data;
 };
 
-const currentSoloSnapshot = computed<Snapshot | undefined>(() =>
+const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
     soloSnapshots.value.find((s) => s.date === formatDate(selectedDate.value)),
 );
-
-const currentTeamSnapshot = computed<Snapshot | undefined>(() =>
+const currentTeamRangeSnapshot = computed<Snapshot | undefined>(() =>
     teamSnapshots.value.find((s) => s.date === formatDate(selectedDate.value)),
+);
+const currentSoloPercentileSnapshot = computed<Snapshot | undefined>(() =>
+    props.solo_percentile_snapshots.find(
+        (s) => s.date === formatDate(selectedDate.value),
+    ),
+);
+const currentTeamPercentileSnapshot = computed<Snapshot | undefined>(() =>
+    props.team_percentile_snapshots.find(
+        (s) => s.date === formatDate(selectedDate.value),
+    ),
 );
 
 watch(selectedDate, async () => {
@@ -275,18 +286,18 @@ watch(selectedDate, async () => {
     teamSnapshots.value.push(snapshots.team);
 });
 
-const { renderChart } = useRatingChart();
+const {renderRangeChart, renderPercentileChart} = useRatingChart();
 
 const updateCharts = () => {
-    renderChart(
+    renderRangeChart(
         soloChartCanvas,
-        currentSoloSnapshot.value,
+        currentSoloRangeSnapshot.value,
         false,
         soloChartInstance,
     );
-    renderChart(
+    renderRangeChart(
         teamChartCanvas,
-        currentTeamSnapshot.value,
+        currentTeamRangeSnapshot.value,
         true,
         teamChartInstance,
     );
@@ -307,10 +318,14 @@ const initializeCharts = () => {
 };
 
 onMounted(() => {
+    console.log('snickers', props.solo_percentile_snapshots)
     initializeCharts();
 });
 
-watch([currentSoloSnapshot, currentTeamSnapshot, selectedDate], updateCharts);
+watch(
+    [currentSoloRangeSnapshot, currentTeamRangeSnapshot, selectedDate],
+    updateCharts,
+);
 </script>
 
 <style scoped>
@@ -318,6 +333,7 @@ watch([currentSoloSnapshot, currentTeamSnapshot, selectedDate], updateCharts);
 .fade-leave-active {
     transition: opacity 0.3s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
     opacity: 0;
