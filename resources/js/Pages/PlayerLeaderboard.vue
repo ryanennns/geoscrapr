@@ -12,7 +12,6 @@
                         <CountryDropdown
                             @change="handleCountryFilterChange"
                             :disabled="!isSolo"
-                            class="w-full"
                         />
                     </div>
                     <Toggle

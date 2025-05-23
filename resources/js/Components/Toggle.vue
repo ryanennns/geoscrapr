@@ -25,7 +25,7 @@ interface ToggleOption {
 interface Props {
     modelValue: string;
     options: ToggleOption[];
-    color?: "blue" | "green" | "indigo" | "purple" | "red" | "gray";
+    color?: "blue" | "green" | "indigo" | "purple" | "red" | "gray" | "orange";
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -65,6 +65,11 @@ const colorMap = {
         active: "bg-gray-500 text-white",
         inactive: "text-gray-800",
     },
+    orange: {
+        bg: "bg-orange-100",
+        active: "bg-orange-500 text-white",
+        inactive: "text-orange-800",
+    }
 };
 
 const backgroundColorClass = computed(() => colorMap[props.color].bg);
