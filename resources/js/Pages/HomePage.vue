@@ -13,12 +13,14 @@
         <div
             class="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 mb-6 md:mb-10 max-w-3xl mx-auto"
         >
-            <Toggle
-                :options="graphTypes"
-                color="orange"
-                class="ml-auto"
-                v-model="selectedGraphType"
-            />
+            <div>
+                <Toggle
+                    :options="graphTypes"
+                    color="orange"
+                    class="ml-auto"
+                    v-model="selectedGraphType"
+                />
+            </div>
 
             <PlayerTeamSearch @row-clicked="onPlayerTeamClick" />
 
