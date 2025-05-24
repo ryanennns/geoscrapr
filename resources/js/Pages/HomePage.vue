@@ -16,7 +16,8 @@
             <Toggle
                 :options="graphTypes"
                 color="orange"
-                class="ml-auto opacity-40"
+                class="ml-auto"
+                v-model="selectedGraphType"
             />
 
             <PlayerTeamSearch @row-clicked="onPlayerTeamClick" />
@@ -213,8 +214,6 @@ const availableDates = computed(() => {
     const soloDates = props.solo_snapshots.map((s) => s.date);
     const teamDates = props.team_snapshots.map((s) => s.date);
 
-    console.log(props.solo_snapshots);
-
     return [...new Set([...soloDates, ...teamDates])].sort().reverse();
 });
 
@@ -230,11 +229,9 @@ const availableDatesObjects = computed<Date[]>(() => {
 });
 
 const selectedDate = ref<Date>(
-    new Date(
-        selectedGraphType.value === "elo_range"
-            ? props.range_dates[props.range_dates.length - 1]
-            : props.percentile_dates[props.percentile_dates.length - 1],
-    ),
+    availableDates.value[0]
+        ? parseLocalDate(availableDates.value[0])
+        : new Date(),
 );
 
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
