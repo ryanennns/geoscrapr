@@ -15,7 +15,14 @@ class HomePageController extends Controller
 
     public function __invoke(): Response
     {
-        $dates = EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
+        $rangeDates = EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
+            ->where('type', EloSnapshot::TYPE_ELO_RANGE)
+            ->distinct()
+            ->orderBy('date')
+            ->pluck('date');
+
+        $percentileDates = EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
+            ->where('type', EloSnapshot::TYPE_PERCENTILE)
             ->distinct()
             ->orderBy('date')
             ->pluck('date');
@@ -49,12 +56,12 @@ class HomePageController extends Controller
             ->get();
 
         return Inertia::render('HomePage', [
-            'solo_snapshots' => $soloRangeSnapshots->map(fn($snapshot) => [
+            'solo_snapshots'            => $soloRangeSnapshots->map(fn($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
-            'team_snapshots' => $teamRangeSnapshots->map(fn($snapshot) => [
+            'team_snapshots'            => $teamRangeSnapshots->map(fn($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
@@ -69,8 +76,9 @@ class HomePageController extends Controller
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
-            'dates'          => $dates,
-            'leaderboard'    => Player::query()
+            'range_dates'               => $rangeDates,
+            'percentile_dates'          => $percentileDates,
+            'leaderboard'               => Player::query()
                 ->orderBy('rating', 'desc')
                 ->limit(10)
                 ->get(),
