@@ -217,11 +217,6 @@ const availableDates = computed(() => {
     return [...new Set([...soloDates, ...teamDates])].sort().reverse();
 });
 
-function parseLocalDate(dateStr: string) {
-    const [year, month, day] = dateStr.split("-").map(Number);
-    return new Date(year, month - 1, day);
-}
-
 const availableDatesObjects = computed<Date[]>(() => {
     return selectedGraphType.value === "elo_range"
         ? props.range_dates.map(parseLocalDate)
@@ -233,6 +228,13 @@ const selectedDate = ref<Date>(
         ? parseLocalDate(availableDates.value[0])
         : new Date(),
 );
+
+function parseLocalDate(dateStr: string) {
+    const [year, month, day] = dateStr.split("-").map(Number);
+
+    return new Date(year, month - 1, day);
+
+}
 
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
