@@ -143,7 +143,6 @@ const isLoadingHistory = ref<boolean>(false);
 
 const ratingHistoryCache = ref<Record<string, RatingChange[]>>({});
 const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
-    console.log(event);
     const rateable = event.rateable;
     selectedLeaderboardRow.value = rateable;
 
@@ -193,8 +192,6 @@ const handleResize = () => {
 };
 
 onMounted(() => {
-    console.log(props);
-
     window.addEventListener("resize", handleResize);
 });
 
@@ -220,6 +217,8 @@ const teamSnapshots = ref(props.team_snapshots);
 const availableDates = computed(() => {
     const soloDates = props.solo_snapshots.map((s) => s.date);
     const teamDates = props.team_snapshots.map((s) => s.date);
+
+    console.log(props.solo_snapshots);
 
     return [...new Set([...soloDates, ...teamDates])].sort().reverse();
 });
@@ -318,7 +317,6 @@ const initializeCharts = () => {
 };
 
 onMounted(() => {
-    console.log('snickers', props.solo_percentile_snapshots)
     initializeCharts();
 });
 
