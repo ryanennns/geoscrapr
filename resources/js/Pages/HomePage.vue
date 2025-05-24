@@ -213,6 +213,8 @@ const availableDates = computed(() => {
     const soloDates = props.solo_snapshots.map((s) => s.date);
     const teamDates = props.team_snapshots.map((s) => s.date);
 
+    console.log(props.solo_snapshots);
+
     return [...new Set([...soloDates, ...teamDates])].sort().reverse();
 });
 

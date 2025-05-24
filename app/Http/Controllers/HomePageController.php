@@ -11,19 +11,6 @@ use Inertia\Response;
 
 class HomePageController extends Controller
 {
-    const SOLO_RAW = 'date IN (
-        SELECT MAX(date)
-        FROM elo_snapshots
-        WHERE gamemode = "solo"
-        GROUP BY DATE(date)
-    )';
-    const TEAM_RAW = 'date IN (
-        SELECT MAX(date)
-        FROM elo_snapshots
-        WHERE gamemode = "team"
-        GROUP BY DATE(date)
-    )';
-
     const MAX_SNAPSHOTS = 14;
 
     public function __invoke(): Response
@@ -43,7 +30,6 @@ class HomePageController extends Controller
         $soloRangeSnapshots = EloSnapshot::query()
             ->where('gamemode', 'solo')
             ->where('type', EloSnapshot::TYPE_ELO_RANGE)
-            ->whereRaw(self::SOLO_RAW)
             ->orderByDesc('date')
             ->limit(self::MAX_SNAPSHOTS)
             ->get();
@@ -51,7 +37,6 @@ class HomePageController extends Controller
         $teamRangeSnapshots = EloSnapshot::query()
             ->where('gamemode', 'team')
             ->where('type', EloSnapshot::TYPE_ELO_RANGE)
-            ->whereRaw(self::TEAM_RAW)
             ->orderByDesc('date')
             ->limit(self::MAX_SNAPSHOTS)
             ->get();
