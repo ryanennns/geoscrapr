@@ -141,7 +141,6 @@ const isLoadingHistory = ref<boolean>(false);
 const ratingHistoryCache = ref<Record<string, RatingChange[]>>({});
 const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
     const rateable = event.rateable;
-    console.log(rateable);
     selectedLeaderboardRow.value = rateable;
 
     setTimeout(() => (showModal.value = true), 25);
@@ -215,8 +214,6 @@ const teamSnapshots = ref(props.team_snapshots);
 const availableDates = computed(() => {
     const soloDates = props.solo_snapshots.map((s) => s.date);
     const teamDates = props.team_snapshots.map((s) => s.date);
-
-    console.log(props.solo_snapshots);
 
     return [...new Set([...soloDates, ...teamDates])].sort().reverse();
 });
