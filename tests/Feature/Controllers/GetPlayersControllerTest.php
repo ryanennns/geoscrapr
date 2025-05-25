@@ -20,13 +20,14 @@ class GetPlayersControllerTest extends TestCase
 
         $response->assertJsonFragment(['data' => [
             [
-                'id'           => $player->id,
-                'user_id'      => $player->user_id,
-                'name'         => $player->name,
-                'rating'       => $player->rating,
-                'country_code' => $player->country_code,
-                'created_at'   => $player->created_at,
-                'updated_at'   => $player->updated_at,
+                'id'             => $player->id,
+                'user_id'        => $player->user_id,
+                'name'           => $player->name,
+                'rating'         => $player->rating,
+                'moving_rating'  => null,
+                'no_move_rating' => null,
+                'nmpz_rating'    => null,
+                'country_code'   => $player->country_code,
             ]
         ]]);
     }
