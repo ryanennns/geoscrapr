@@ -76,7 +76,7 @@ class GetLatestPlayerRatings extends Command
                         [self::GAMETYPE_COLUMN_MAP[$gameMode] => $player->rating]
                     );
 
-                    $p = Player::query()->updateOrCreate(['user_id' => $player->userId], $properties);
+                    Player::query()->updateOrCreate(['user_id' => $player->userId], $properties);
                 });
 
                 $this->info('Players: ' . Player::query()->count() . ' $i = ' . $i . ' gameMode = ' . $gameMode ?? 'all');

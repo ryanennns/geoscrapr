@@ -49,7 +49,7 @@ class GenerateEloSnapshot extends Command
 
             Log::info("Generated singleplayer ELO snapshot for $playerN players");
         } catch (\Throwable $exception) {
-            dd($exception->getMessage());
+            Log::error($exception->getMessage(), $exception->getTrace());
         }
 
         $teamsBuckets = array_fill(0, $bucketCount, 0);
@@ -80,7 +80,7 @@ class GenerateEloSnapshot extends Command
 
             Log::info("Generated teams ELO snapshot for $teamN players");
         } catch (\Throwable $exception) {
-            Log::error($exception->getMessage());
+            Log::error($exception->getMessage(), $exception->getTrace());
         }
     }
 }
