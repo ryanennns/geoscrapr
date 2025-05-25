@@ -28,7 +28,6 @@
                 v-model="selectedDate"
                 :availableDates="availableDatesObjects"
                 @update:model-value="updateCharts"
-                class="w-full md:w-auto"
             />
         </div>
 
