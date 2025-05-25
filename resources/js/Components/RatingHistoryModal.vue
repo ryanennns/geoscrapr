@@ -11,7 +11,7 @@
             >
                 <div class="flex justify-between items-start mb-4">
                     <span>
-                        <span class="text-xl font-bold flex items-center">
+                        <span class="text-xl font-bold flex items-center mb-2">
                             <span
                                 v-for="countryCode in props.leaderboardRow
                                     .countryCodes"
@@ -28,6 +28,23 @@
                             <p class="font-light ml-1">
                                 - {{ props.leaderboardRow.rating }}
                             </p>
+                            <div class="flex flex-wrap gap-2 items-center ml-4">
+                                <RatingBadge
+                                    v-show="props.leaderboardRow.moving_rating"
+                                    label="Moving: "
+                                    :text="`${props.leaderboardRow.moving_rating}`"
+                                />
+                                <RatingBadge
+                                    v-show="props.leaderboardRow.no_move_rating"
+                                    label="No Move: "
+                                    :text="`${props.leaderboardRow.no_move_rating}`"
+                                />
+                                <RatingBadge
+                                    v-show="props.leaderboardRow.nmpz_rating"
+                                    label="NMPZ: "
+                                    :text="`${props.leaderboardRow.nmpz_rating}`"
+                                />
+                            </div>
                         </span>
 
                         <span v-if="props.leaderboardRow.players" class="flex">
@@ -139,6 +156,7 @@ import ErrorMessage from "@/Components/ErrorMessage.vue";
 import { usePlayerUtils } from "@/composables/usePlayerUtils.ts";
 import type { LeaderboardRow, RatingChange } from "@/Types/core.ts";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
+import RatingBadge from "@/Components/RatingBadge.vue";
 
 interface Props {
     showModal: boolean;

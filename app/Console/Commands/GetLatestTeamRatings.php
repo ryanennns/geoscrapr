@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class GetTeamsElo extends Command
+class GetLatestTeamRatings extends Command
 {
     private const LIMIT = 100;
     private const ENDPOINT = 'api/v4/ranked-team-duels/ratings';
