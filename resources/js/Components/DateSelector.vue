@@ -1,5 +1,5 @@
 <template>
-    <div class="w-40">
+    <div class="w-72">
         <div class="relative">
             <Datepicker
                 v-model="internalDate"
