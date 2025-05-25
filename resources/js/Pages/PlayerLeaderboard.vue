@@ -34,6 +34,11 @@
                         color="indigo"
                         @update:modelValue="updateLeaderboard"
                     />
+                    <Toggle
+                        :options="gameModeOptions"
+                        color="red"
+                        class="opacity-40"
+                    />
                 </div>
             </div>
             <div class="overflow-x-auto -mx-4 md:mx-0">
@@ -145,6 +150,7 @@
         </div>
     </div>
 </template>
+
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import CountryDropdown from "@/Components/CountryDropdown.vue";
@@ -220,6 +226,14 @@ const sortOptions = [
 const activeOptions = [
     { label: "All", value: "all" },
     { label: "Active", value: "active" },
+];
+
+const selectedGameMode = ref("all");
+const gameModeOptions = [
+    { label: "All", value: "all" },
+    { label: "Moving", value: "moving" },
+    { label: "No Move", value: "no_move" },
+    { label: "NMPZ", value: "nmpz" },
 ];
 
 const selectedCountry = ref("");
