@@ -5,9 +5,10 @@ export interface Player {
     user_id: string;
     name: string;
     rating: number | null;
+    moving_rating: number | null;
+    no_move_rating: number | null;
+    nmpz_rating: number | null;
     country_code: CountryCode;
-    created_at: string;
-    updated_at: string;
 }
 
 export interface Team {
@@ -26,6 +27,9 @@ export interface LeaderboardRow {
     geoGuessrId: string;
     name: string;
     rating: number | null;
+    moving_rating: number | null;
+    no_move_rating: number | null;
+    nmpz_rating: number | null;
     countryCodes: CountryCode[];
     players?: Player[];
     isPlaceholder: boolean;
@@ -37,6 +41,9 @@ export const EMPTY_LEADERBOARD_ROW: LeaderboardRow = {
     geoGuessrId: "",
     name: "",
     rating: 0,
+    moving_rating: null,
+    no_move_rating: null,
+    nmpz_rating: null,
     countryCodes: [],
     isPlaceholder: true,
     type: "player",

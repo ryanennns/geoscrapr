@@ -11,7 +11,7 @@
             >
                 <div class="flex justify-between items-start mb-4">
                     <span>
-                        <span class="text-xl font-bold flex items-center">
+                        <span class="text-xl font-bold flex items-center mb-2">
                             <span
                                 v-for="countryCode in props.leaderboardRow
                                     .countryCodes"
@@ -28,6 +28,63 @@
                             <p class="font-light ml-1">
                                 - {{ props.leaderboardRow.rating }}
                             </p>
+                            <div class="flex flex-wrap gap-2 items-center ml-4">
+                                <div
+                                    v-show="props.leaderboardRow.moving_rating"
+                                    class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-1.5 flex items-center min-h-[40px]"
+                                >
+                                    <div
+                                        class="w-2 h-2 bg-blue-500 rounded-full mr-2"
+                                    ></div>
+                                    <span
+                                        class="text-sm font-medium text-blue-700"
+                                        >Moving:</span
+                                    >
+                                    <span
+                                        class="text-sm font-bold text-blue-800 ml-1"
+                                    >
+                                        {{ props.leaderboardRow.moving_rating }}
+                                    </span>
+                                </div>
+
+                                <div
+                                    v-show="props.leaderboardRow.no_move_rating"
+                                    class="bg-orange-50 border border-orange-200 rounded-lg px-3 py-1.5 flex items-center"
+                                >
+                                    <div
+                                        class="w-2 h-2 bg-orange-500 rounded-full mr-2"
+                                    ></div>
+                                    <span
+                                        class="text-sm font-medium text-orange-700"
+                                        >No Move:</span
+                                    >
+                                    <span
+                                        class="text-sm font-bold text-orange-800 ml-1"
+                                    >
+                                        {{
+                                            props.leaderboardRow.no_move_rating
+                                        }}
+                                    </span>
+                                </div>
+
+                                <div
+                                    v-show="props.leaderboardRow.nmpz_rating"
+                                    class="bg-purple-50 border border-purple-200 rounded-lg px-3 py-1.5 flex items-center"
+                                >
+                                    <div
+                                        class="w-2 h-2 bg-purple-500 rounded-full mr-2"
+                                    ></div>
+                                    <span
+                                        class="text-sm font-medium text-purple-700"
+                                        >NMPZ:</span
+                                    >
+                                    <span
+                                        class="text-sm font-bold text-purple-800 ml-1"
+                                    >
+                                        {{ props.leaderboardRow.nmpz_rating }}
+                                    </span>
+                                </div>
+                            </div>
                         </span>
 
                         <span v-if="props.leaderboardRow.players" class="flex">

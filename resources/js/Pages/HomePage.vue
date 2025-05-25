@@ -141,6 +141,7 @@ const isLoadingHistory = ref<boolean>(false);
 const ratingHistoryCache = ref<Record<string, RatingChange[]>>({});
 const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
     const rateable = event.rateable;
+    console.log(rateable);
     selectedLeaderboardRow.value = rateable;
 
     setTimeout(() => (showModal.value = true), 25);
