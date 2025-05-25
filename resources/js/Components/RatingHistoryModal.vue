@@ -28,7 +28,9 @@
                             <p class="font-light ml-1">
                                 - {{ props.leaderboardRow.rating }}
                             </p>
-                            <div class="flex flex-wrap gap-2 items-center ml-4">
+                            <div
+                                class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
+                            >
                                 <RatingBadge
                                     v-show="props.leaderboardRow.moving_rating"
                                     label="Moving: "
