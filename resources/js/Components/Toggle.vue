@@ -69,7 +69,7 @@ const colorMap = {
         bg: "bg-orange-100",
         active: "bg-orange-500 text-white",
         inactive: "text-orange-800",
-    }
+    },
 };
 
 const backgroundColorClass = computed(() => colorMap[props.color].bg);
