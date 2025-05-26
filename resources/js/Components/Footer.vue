@@ -191,23 +191,24 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import {useApiClient} from "@/Composables/useApiClient.ts";
 
 const date = ref<string>("");
 const successful = ref<boolean>(false);
-onMounted(async () => {
-    const lastUpdated = await fetch("/last-updated");
 
-    if (!lastUpdated.ok) {
+const {getLastUpdated} = useApiClient();
+
+onMounted(async () => {
+    const lastUpdated = await getLastUpdated();
+
+    if (lastUpdated.error) {
         successful.value = false;
 
         return;
     }
 
     successful.value = true;
-
-    const json = await lastUpdated.json();
-
-    date.value = formatDate(new Date(json.date));
+    date.value = formatDate(new Date(lastUpdated.data.date));
 });
 
 const formatDate = (date: Date): string => {

@@ -5,6 +5,13 @@ export interface RateableHistoryApiResponse {
     error?: {};
 }
 
+export interface GetLastUpdatedApiResponse {
+    data: {
+        date: string;
+    };
+    error?: {};
+}
+
 export function useApiClient() {
     const getRateableHistory = async (
         rateableType: RateableType,
@@ -28,7 +35,27 @@ export function useApiClient() {
         };
     };
 
+    const getLastUpdated = async (): Promise<GetLastUpdatedApiResponse> => {
+        const response = await fetch("/last-updated");
+
+        if (!response.ok) {
+            return {
+                data: [],
+                error: response.status,
+            };
+        }
+
+        const json = await response.json();
+
+        return {
+            data: {
+                date: json.date,
+            }
+        }
+    }
+
     return {
         getRateableHistory,
+        getLastUpdated,
     };
 }

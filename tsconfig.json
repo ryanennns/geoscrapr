@@ -12,7 +12,9 @@
         "target": "ES2022",
         "baseUrl": ".",
         "paths": {
-            "@/*": ["resources/js/*"]
+            "@/*": ["resources/js/*"],
+            "@composables/*": ["resources/js/Composables"],
+            "@pages/*": ["resources/js/Pages"],
         },
         "allowJs": true,
         "checkJs": false,
