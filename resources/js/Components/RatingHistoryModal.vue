@@ -25,7 +25,7 @@
                                 />
                             </span>
                             <p class="">{{
-                                    props.leaderboardRow.name.length > 12 ?
+                                    props.leaderboardRow.name.length > allowedNameLength ?
                                         props.leaderboardRow.name.trim().slice(0, 10) + '...' :
                                         props.leaderboardRow.name.trim()
                                 }}</p>
@@ -155,7 +155,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onUnmounted, ref, watch } from "vue";
+import {computed, nextTick, onUnmounted, ref, watch} from "vue";
 import { Chart, type TooltipItem } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
@@ -172,6 +172,25 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const allowedNameLength = computed<number>(() => {
+    let numberOfNullRatings = 0;
+
+    if (!props.leaderboardRow.moving_rating) {
+        numberOfNullRatings += 1;
+    }
+
+    if (!props.leaderboardRow.no_move_rating) {
+        numberOfNullRatings += 1;
+    }
+
+    if (!props.leaderboardRow.nmpz_rating) {
+        numberOfNullRatings += 1;
+    }
+
+    console.log(props.leaderboardRow.moving_rating)
+
+    return 13 + numberOfNullRatings * 4
+})
 
 const emit = defineEmits(["close"]);
 
@@ -264,12 +283,6 @@ const renderRatingChart = () => {
                 new Date(a.created_at).getTime(),
         );
 
-        // in my head, we need the first rating *before* our accepted range. i.e. if we want the last
-        // seven days of rating history, we want the first record that occurs outside that range (the first
-        // record that is older than seven days) to fill any blank spaces between seven days ago and the first
-        // record that appears in our data set. To do this, we sort this data from newest to oldest, then find
-        // the first element that has as created_at timestamp before our start date variable...
-
         const leftOfStartDate = sortedRatingHistory.find(
             (r) => new Date(r.created_at) < startDate,
         );
@@ -278,12 +291,6 @@ const renderRatingChart = () => {
 
         const labels: string[] = [];
         const data: number[] = [];
-
-        // ...then, we have a "hierarchy" of preferable data to fill in for the first potentially empty
-        // days of data. The most preferable is the real rating the user had coming into the time frame
-        // represented by this graph. If that doesn't exit though, we'll settle for the first element in
-        // our list, aka the last element in our sorted list. Then, if that doesn't exist, that means we
-        // have no rating changes to speak of and can fill in the whole graph with the player's current rating.
 
         let mostRecentRating =
             leftOfStartDate?.rating ??
@@ -294,9 +301,6 @@ const renderRatingChart = () => {
             const dateString = formatDateString(date);
             labels.push(date.toLocaleDateString());
 
-            // then we can traverse our data set, checking if we have a rating for the current date. If so,
-            // we'd rather append that -- so we update "mostRecentRating" with the correct value. Otherwise,
-            // we continue to backfill this with the most recent rating.
             if (ratingsByDate[dateString]) {
                 mostRecentRating = ratingsByDate[dateString];
             }
@@ -304,9 +308,6 @@ const renderRatingChart = () => {
             data.push(mostRecentRating);
         });
 
-        // I haven't geeked over a programming challenge like this in a long time.
-        // Very satisfying when it worked! Shouts out to Radu C for being a valuable?
-        // set for testing and also for being a GeoGuessr legend.
         return { labels, data };
     };
 
