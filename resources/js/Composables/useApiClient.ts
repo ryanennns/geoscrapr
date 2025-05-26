@@ -1,16 +1,18 @@
-import type { RateableType, RatingChange } from "@/Types/core.ts";
+import type {RateableType, RatingChange, Snapshot} from "@/Types/core.ts";
 
-export interface RateableHistoryApiResponse {
-    data: RatingChange[];
-    error?: {};
+export interface ApiResponse<T> {
+    data?: T;
+    error?: {}
 }
 
-export interface GetLastUpdatedApiResponse {
-    data?: {
-        date: string;
-    };
-    error?: {};
-}
+export type RateableHistoryApiResponse = ApiResponse<RatingChange[]>
+
+export type GetLastUpdatedApiResponse = ApiResponse<{date: string}>
+
+export type GetSnapshotByDateApiResponse = ApiResponse<{
+    solo: Omit<Snapshot, 'type'>,
+    team: Omit<Snapshot, 'type'>,
+}>
 
 export function useApiClient() {
     const getRateableHistory = async (
@@ -53,8 +55,24 @@ export function useApiClient() {
         };
     };
 
+    const getSnapshotForDate = async (date: string): Promise<GetSnapshotByDateApiResponse> => {
+        const response = await fetch(`/snapshots?date=${date}`);
+
+        if (!response.ok) {
+            return {
+                error: response.status
+            }
+        }
+
+        const data = await response.json();
+        return {
+            data: data.data
+        }
+    }
+
     return {
         getRateableHistory,
         getLastUpdated,
+        getSnapshotByDate: getSnapshotForDate
     };
 }

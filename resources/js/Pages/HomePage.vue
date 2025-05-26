@@ -109,7 +109,8 @@ import { useRatingChart } from "@/Composables/useRatingChart";
 import Toggle from "@/Components/Toggle.vue";
 import { useApiClient } from "@/Composables/useApiClient.ts";
 
-const { getRateableHistory } = useApiClient();
+Chart.defaults.animation = false;
+Chart.register(...registerables);
 
 interface Props {
     solo_snapshots: Snapshot[];
@@ -120,20 +121,18 @@ interface Props {
     percentile_dates: string[];
     leaderboard: Player[];
 }
+const props = defineProps<Props>();
+
+const { getRateableHistory, getSnapshotByDate } = useApiClient();
 
 const graphTypes = [
     { label: "Range", value: "elo_range" },
     { label: "Percentile", value: "percentile" },
 ];
 const selectedGraphType = ref<string>("elo_range");
-
 watch([selectedGraphType], () => {
     initializeCharts();
 });
-
-const props = defineProps<Props>();
-
-const resizeTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
 const selectedLeaderboardRow = ref<LeaderboardRow>(EMPTY_LEADERBOARD_ROW);
 const showModal = ref<boolean>(false);
@@ -155,7 +154,6 @@ const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
 
     await getAndSetRateableHistory(rateable);
 };
-
 const getAndSetRateableHistory = async (rateable: LeaderboardRow) => {
     isLoadingHistory.value = true;
     const history = await getRateableHistory(rateable.type, rateable.id);
@@ -169,6 +167,7 @@ const getAndSetRateableHistory = async (rateable: LeaderboardRow) => {
     isLoadingHistory.value = false;
 };
 
+const resizeTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const handleResize = () => {
     if (resizeTimer.value) {
         clearTimeout(resizeTimer.value);
@@ -178,20 +177,15 @@ const handleResize = () => {
         updateCharts();
     }, 250);
 };
-
 onMounted(() => {
     window.addEventListener("resize", handleResize);
 });
-
 onBeforeUnmount(() => {
     window.removeEventListener("resize", handleResize);
     if (resizeTimer.value) {
         clearTimeout(resizeTimer.value);
     }
 });
-
-Chart.defaults.animation = false;
-Chart.register(...registerables);
 
 const soloChartCanvas = ref<HTMLCanvasElement>();
 const teamChartCanvas = ref<HTMLCanvasElement>();
@@ -229,16 +223,6 @@ function parseLocalDate(dateStr: string) {
 
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-const fetchSnapshot = async (date: string) => {
-    const response = await fetch(`/snapshots?date=${date}`);
-
-    if (!response.ok) {
-        throw new Error(`Failed to fetch snapshot for ${date}.`);
-    }
-
-    return (await response.json())?.data;
-};
-
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
     soloSnapshots.value.find((s) => s.date === formatDate(selectedDate.value)),
 );
@@ -268,10 +252,14 @@ watch(selectedDate, async () => {
         return;
     }
 
-    const snapshots = await fetchSnapshot(formatDate(selectedDate.value));
+    const snapshots = await getSnapshotByDate(formatDate(selectedDate.value));
 
-    soloSnapshots.value.push(snapshots.solo);
-    teamSnapshots.value.push(snapshots.team);
+    if (snapshots.error) {
+        return;
+    }
+
+    soloSnapshots.value.push(snapshots.data.solo);
+    teamSnapshots.value.push(snapshots.data.team);
 });
 
 const { renderRangeChart, renderPercentileChart } = useRatingChart();
