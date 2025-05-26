@@ -10,7 +10,7 @@ use Inertia\Response;
 
 class HomePageController extends Controller
 {
-    const MAX_SNAPSHOTS = 14;
+    const MAX_SNAPSHOTS = 1;
 
     public function __invoke(): Response
     {
