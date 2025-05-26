@@ -277,13 +277,13 @@ watch(selectedDate, async () => {
 const { renderRangeChart, renderPercentileChart } = useRatingChart();
 
 const updateCharts = () => {
+
     if (selectedGraphType.value === "elo_range") {
         if (!props.range_dates.includes(formatDate(selectedDate.value))) {
             selectedDate.value = new Date(
                 props.range_dates[props.range_dates.length - 1],
             );
         }
-
         renderRangeChart(
             soloChartCanvas,
             currentSoloRangeSnapshot.value,

@@ -38,6 +38,7 @@
                         :options="gameModeOptions"
                         color="red"
                         class="opacity-40"
+                        v-model="selectedGameMode"
                     />
                 </div>
             </div>

@@ -207,6 +207,12 @@ onMounted(async () => {
         return;
     }
 
+    if (lastUpdated?.data?.date === undefined) {
+        successful.value = false;
+
+        return;
+    }
+
     successful.value = true;
     date.value = formatDate(new Date(lastUpdated.data.date));
 });

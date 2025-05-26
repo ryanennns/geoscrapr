@@ -6,7 +6,7 @@ export interface RateableHistoryApiResponse {
 }
 
 export interface GetLastUpdatedApiResponse {
-    data: {
+    data?: {
         date: string;
     };
     error?: {};
@@ -40,7 +40,6 @@ export function useApiClient() {
 
         if (!response.ok) {
             return {
-                data: [],
                 error: response.status,
             };
         }
