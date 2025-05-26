@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\EloSnapshot;
 use App\Models\Player;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -57,22 +56,22 @@ class HomePageController extends Controller
 
         return Inertia::render('HomePage', [
             'solo_snapshots'            => $soloRangeSnapshots->map(fn($snapshot) => [
-                'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
+                'date'    => $snapshot->date,
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
             'team_snapshots'            => $teamRangeSnapshots->map(fn($snapshot) => [
-                'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
+                'date'    => $snapshot->date,
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
             'solo_percentile_snapshots' => $soloPercentileSnapshots->map(fn($snapshot) => [
-                'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
+                'date'    => $snapshot->date,
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
             'team_percentile_snapshots' => $teamPercentileSnapshots->map(fn($snapshot) => [
-                'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
+                'date'    => $snapshot->date,
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),

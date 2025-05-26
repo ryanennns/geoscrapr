@@ -55,9 +55,11 @@ export function useApiClient() {
     };
 
     const getSnapshotForDate = async (
-        date: string,
+        date: Date,
     ): Promise<GetSnapshotByDateApiResponse> => {
-        const response = await fetch(`/snapshots?date=${date}`);
+        const response = await fetch(
+            `/snapshots?date=${date.toISOString().split("T")[0]}`,
+        );
 
         if (!response.ok) {
             return {
