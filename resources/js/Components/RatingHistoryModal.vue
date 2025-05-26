@@ -159,7 +159,7 @@ import { nextTick, onUnmounted, ref, watch } from "vue";
 import { Chart, type TooltipItem } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
-import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
+import { usePlayerUtils } from "@/composables/usePlayerUtils.ts";
 import type { LeaderboardRow, RatingChange } from "@/Types/core.ts";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
 import RatingBadge from "@/Components/RatingBadge.vue";
