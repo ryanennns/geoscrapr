@@ -58,7 +58,7 @@ export interface RatingChange {
 }
 
 export interface Snapshot {
-    date: Date;
+    date: string;
     buckets: {
         [range: string]: number;
     };
