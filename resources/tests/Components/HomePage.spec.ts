@@ -27,7 +27,7 @@ vi.mock("@composables/useApiClient", () => ({
 }));
 
 const makeSnapshot = (date: string): Snapshot => ({
-    date,
+    date: new Date(date),
     buckets: {},
     n: 1234,
     type: "elo_range",
@@ -40,8 +40,8 @@ const mountComponent = (overrides = {}) => {
             team_snapshots: [makeSnapshot("2024-01-01")],
             solo_percentile_snapshots: [makeSnapshot("2024-01-01")],
             team_percentile_snapshots: [makeSnapshot("2024-01-01")],
-            range_dates: ["2024-01-01"],
-            percentile_dates: ["2024-01-01"],
+            range_dates: [new Date("2024-01-01")],
+            percentile_dates: [new Date("2024-01-01")],
             leaderboard: [],
             ...overrides,
         },

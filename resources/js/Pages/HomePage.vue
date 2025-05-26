@@ -219,36 +219,34 @@ const availableDatesObjects = computed<Date[]>(() => {
 
 const selectedDate = ref<Date>(availableDates.value[0] ?? new Date());
 
-const iso = (d: string) => new Date(d).toISOString();
-
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
     soloSnapshots.value.find(
-        (s) => iso(s.date) === selectedDate.value.toISOString(),
+        (s) => s.date.toISOString() === selectedDate.value.toISOString(),
     ),
 );
 const currentTeamRangeSnapshot = computed<Snapshot | undefined>(() =>
     teamSnapshots.value.find(
-        (s) => iso(s.date) === selectedDate.value.toISOString(),
+        (s) => s.date.toISOString() === selectedDate.value.toISOString(),
     ),
 );
 const currentSoloPercentileSnapshot = computed<Snapshot | undefined>(() =>
     props.solo_percentile_snapshots.find(
-        (s) => iso(s.date) === selectedDate.value.toISOString(),
+        (s) => s.date.toISOString() === selectedDate.value.toISOString(),
     ),
 );
 const currentTeamPercentileSnapshot = computed<Snapshot | undefined>(() =>
     props.team_percentile_snapshots.find(
-        (s) => iso(s.date) === selectedDate.value.toISOString(),
+        (s) => s.date.toISOString() === selectedDate.value.toISOString(),
     ),
 );
 
 watch(selectedDate, async () => {
     if (
         soloSnapshots.value.find(
-            (s) => iso(s.date) === selectedDate.value.toISOString(),
+            (s) => s.date.toISOString() === selectedDate.value.toISOString(),
         ) &&
         teamSnapshots.value.find(
-            (s) => iso(s.date) === selectedDate.value.toISOString(),
+            (s) => s.date.toISOString() === selectedDate.value.toISOString(),
         )
     ) {
         return;
@@ -270,7 +268,7 @@ const updateCharts = () => {
     if (selectedGraphType.value === "elo_range") {
         if (
             !props.range_dates
-                .map(iso)
+                .map((d) => d.toISOString())
                 .includes(selectedDate.value.toISOString())
         ) {
             selectedDate.value = new Date(
@@ -296,7 +294,7 @@ const updateCharts = () => {
     if (selectedGraphType.value === "percentile") {
         if (
             !props.percentile_dates
-                .map(iso)
+                .map((d) => d.toISOString())
                 .includes(selectedDate.value.toISOString())
         ) {
             selectedDate.value = new Date(
