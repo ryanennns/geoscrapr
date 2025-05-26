@@ -26,7 +26,7 @@
                             </span>
                             <p class="">{{
                                     props.leaderboardRow.name.length > allowedNameLength ?
-                                        props.leaderboardRow.name.trim().slice(0, allowedLength - 3) + '...' :
+                                        props.leaderboardRow.name.trim().slice(0, allowedNameLength - 3) + '...' :
                                         props.leaderboardRow.name.trim()
                                 }}</p>
                             <p class="font-light ml-1">
