@@ -23,7 +23,6 @@ export function useApiClient() {
 
         if (!response.ok) {
             return {
-                data: [],
                 error: {
                     statusCode: response.status,
                 },
@@ -73,6 +72,6 @@ export function useApiClient() {
     return {
         getRateableHistory,
         getLastUpdated,
-        getSnapshotByDate: getSnapshotForDate
+        getSnapshotForDate,
     };
 }

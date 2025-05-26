@@ -123,7 +123,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const { getRateableHistory, getSnapshotByDate } = useApiClient();
+const { getRateableHistory, getSnapshotForDate } = useApiClient();
 
 const graphTypes = [
     { label: "Range", value: "elo_range" },
@@ -252,14 +252,14 @@ watch(selectedDate, async () => {
         return;
     }
 
-    const snapshots = await getSnapshotByDate(formatDate(selectedDate.value));
+    const snapshots = await getSnapshotForDate(formatDate(selectedDate.value));
 
     if (snapshots.error) {
         return;
     }
 
-    soloSnapshots.value.push(snapshots.data.solo);
-    teamSnapshots.value.push(snapshots.data.team);
+    soloSnapshots.value.push(snapshots?.data?.solo);
+    teamSnapshots.value.push(snapshots?.data?.team);
 });
 
 const { renderRangeChart, renderPercentileChart } = useRatingChart();
