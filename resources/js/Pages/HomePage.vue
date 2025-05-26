@@ -262,7 +262,6 @@ watch(selectedDate, async () => {
 
     const snapshots = await getSnapshotForDate(formatDate(selectedDate.value));
 
-
     if (snapshots.error !== undefined) {
         return;
     }
