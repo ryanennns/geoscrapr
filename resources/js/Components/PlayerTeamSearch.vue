@@ -96,7 +96,7 @@
 import { ref } from "vue";
 import PlayerSearchResult from "./PlayerSearchResult.vue";
 import type { Player, Rateable, Team } from "@/Types/core.ts";
-import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import TeamSearchResult from "@/Components/TeamSearchResult.vue";
 
 const { rateableToLeaderboardRows } = usePlayerUtils();

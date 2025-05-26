@@ -41,7 +41,7 @@ import {
     CountryCode,
     countryMap,
     usePlayerUtils,
-} from "@/composables/usePlayerUtils.js";
+} from "@/Composables/usePlayerUtils.js";
 import { computed, onMounted, ref } from "vue";
 
 interface Props {

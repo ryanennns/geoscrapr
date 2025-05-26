@@ -38,6 +38,7 @@
                         :options="gameModeOptions"
                         color="red"
                         class="opacity-40"
+                        v-model="selectedGameMode"
                     />
                 </div>
             </div>
@@ -163,7 +164,7 @@ import {
     type LeaderboardRow,
     type Rateable,
 } from "@/Types/core.ts";
-import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 
 const { rateableToLeaderboardRows } = usePlayerUtils();
 

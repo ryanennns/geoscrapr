@@ -3,7 +3,9 @@
     "include": [
         "resources/js/**/*.ts",
         "resources/js/**/*.d.ts",
-        "resources/js/**/*.vue"
+        "resources/js/**/*.vue",
+        "resources/tests/**/*.ts",
+        "vite.config.ts"
     ],
     "exclude": ["node_modules"],
     "compilerOptions": {
@@ -12,7 +14,9 @@
         "target": "ES2022",
         "baseUrl": ".",
         "paths": {
-            "@/*": ["resources/js/*"]
+            "@/*": ["resources/js/*"],
+            "@composables/*": ["resources/js/Composables"],
+            "@pages/*": ["resources/js/Pages"]
         },
         "allowJs": true,
         "checkJs": false,

@@ -105,8 +105,12 @@ import {
     type RatingChange,
     type Snapshot,
 } from "@/Types/core.ts";
-import { useRatingChart } from "@/composables/useRatingChart";
+import { useRatingChart } from "@/Composables/useRatingChart";
 import Toggle from "@/Components/Toggle.vue";
+import { useApiClient } from "@/Composables/useApiClient.ts";
+
+Chart.defaults.animation = false;
+Chart.register(...registerables);
 
 interface Props {
     solo_snapshots: Snapshot[];
@@ -117,20 +121,18 @@ interface Props {
     percentile_dates: string[];
     leaderboard: Player[];
 }
+const props = defineProps<Props>();
+
+const { getRateableHistory, getSnapshotForDate } = useApiClient();
 
 const graphTypes = [
     { label: "Range", value: "elo_range" },
     { label: "Percentile", value: "percentile" },
 ];
 const selectedGraphType = ref<string>("elo_range");
-
 watch([selectedGraphType], () => {
     initializeCharts();
 });
-
-const props = defineProps<Props>();
-
-const resizeTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
 const selectedLeaderboardRow = ref<LeaderboardRow>(EMPTY_LEADERBOARD_ROW);
 const showModal = ref<boolean>(false);
@@ -150,34 +152,30 @@ const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
         return;
     }
 
-    try {
-        isLoadingHistory.value = true;
-        const response = await fetch(
-            `/${rateable.type}s/history/${rateable.id}`,
-        );
-        if (!response.ok) {
-            throw new Error("Failed to fetch player details");
-        }
+    await getAndSetRateableHistory(rateable);
+};
+const getAndSetRateableHistory = async (rateable: LeaderboardRow) => {
+    isLoadingHistory.value = true;
+    const history = await getRateableHistory(rateable.type, rateable.id);
 
-        const historyData = await response.json();
+    const ratingChanges = history.data ?? [];
 
-        ratingHistoryCache.value[rateable.id] = historyData.data;
+    if (ratingChanges.length === 0) {
+        isLoadingHistory.value = false;
 
-        playerRatingHistory.value = historyData.data.sort(
-            (a: RatingChange, b: RatingChange) =>
-                new Date(a.created_at).getTime() -
-                new Date(b.created_at).getTime(),
-        );
-    } catch (err) {
-        console.error("Error loading player details:", err);
-    } finally {
-        setTimeout(
-            () => (isLoadingHistory.value = false),
-            150 + Math.random() * 150,
-        );
+        return;
     }
+
+    ratingHistoryCache.value[rateable.id] = ratingChanges;
+
+    playerRatingHistory.value = ratingChanges.sort(
+        (a: RatingChange, b: RatingChange) =>
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    );
+    isLoadingHistory.value = false;
 };
 
+const resizeTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const handleResize = () => {
     if (resizeTimer.value) {
         clearTimeout(resizeTimer.value);
@@ -187,20 +185,15 @@ const handleResize = () => {
         updateCharts();
     }, 250);
 };
-
 onMounted(() => {
     window.addEventListener("resize", handleResize);
 });
-
 onBeforeUnmount(() => {
     window.removeEventListener("resize", handleResize);
     if (resizeTimer.value) {
         clearTimeout(resizeTimer.value);
     }
 });
-
-Chart.defaults.animation = false;
-Chart.register(...registerables);
 
 const soloChartCanvas = ref<HTMLCanvasElement>();
 const teamChartCanvas = ref<HTMLCanvasElement>();
@@ -238,16 +231,6 @@ function parseLocalDate(dateStr: string) {
 
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
-const fetchSnapshot = async (date: string) => {
-    const response = await fetch(`/snapshots?date=${date}`);
-
-    if (!response.ok) {
-        throw new Error(`Failed to fetch snapshot for ${date}.`);
-    }
-
-    return (await response.json())?.data;
-};
-
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
     soloSnapshots.value.find((s) => s.date === formatDate(selectedDate.value)),
 );
@@ -277,10 +260,14 @@ watch(selectedDate, async () => {
         return;
     }
 
-    const snapshots = await fetchSnapshot(formatDate(selectedDate.value));
+    const snapshots = await getSnapshotForDate(formatDate(selectedDate.value));
 
-    soloSnapshots.value.push(snapshots.solo);
-    teamSnapshots.value.push(snapshots.team);
+    if (snapshots.error !== undefined) {
+        return;
+    }
+
+    soloSnapshots.value.push(snapshots?.data?.solo as Snapshot);
+    teamSnapshots.value.push(snapshots?.data?.team as Snapshot);
 });
 
 const { renderRangeChart, renderPercentileChart } = useRatingChart();
@@ -292,7 +279,6 @@ const updateCharts = () => {
                 props.range_dates[props.range_dates.length - 1],
             );
         }
-
         renderRangeChart(
             soloChartCanvas,
             currentSoloRangeSnapshot.value,
