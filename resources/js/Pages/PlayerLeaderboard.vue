@@ -163,7 +163,7 @@ import {
     type LeaderboardRow,
     type Rateable,
 } from "@/Types/core.ts";
-import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 
 const { rateableToLeaderboardRows } = usePlayerUtils();
 

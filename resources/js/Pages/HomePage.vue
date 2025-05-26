@@ -105,8 +105,11 @@ import {
     type RatingChange,
     type Snapshot,
 } from "@/Types/core.ts";
-import { useRatingChart } from "@/composables/useRatingChart";
+import { useRatingChart } from "@/Composables/useRatingChart";
 import Toggle from "@/Components/Toggle.vue";
+import { useApiClient } from "@/Composables/useApiClient.ts";
+
+const { getRateableHistory } = useApiClient();
 
 interface Props {
     solo_snapshots: Snapshot[];
@@ -150,32 +153,20 @@ const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
         return;
     }
 
-    try {
-        isLoadingHistory.value = true;
-        const response = await fetch(
-            `/${rateable.type}s/history/${rateable.id}`,
-        );
-        if (!response.ok) {
-            throw new Error("Failed to fetch player details");
-        }
+    await getAndSetRateableHistory(rateable);
+};
 
-        const historyData = await response.json();
+const getAndSetRateableHistory = async (rateable: LeaderboardRow) => {
+    isLoadingHistory.value = true;
+    const history = await getRateableHistory(rateable.type, rateable.id);
 
-        ratingHistoryCache.value[rateable.id] = historyData.data;
+    ratingHistoryCache.value[rateable.id] = history.data;
 
-        playerRatingHistory.value = historyData.data.sort(
-            (a: RatingChange, b: RatingChange) =>
-                new Date(a.created_at).getTime() -
-                new Date(b.created_at).getTime(),
-        );
-    } catch (err) {
-        console.error("Error loading player details:", err);
-    } finally {
-        setTimeout(
-            () => (isLoadingHistory.value = false),
-            150 + Math.random() * 150,
-        );
-    }
+    playerRatingHistory.value = history.data.sort(
+        (a: RatingChange, b: RatingChange) =>
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    );
+    isLoadingHistory.value = false;
 };
 
 const handleResize = () => {

@@ -1,4 +1,4 @@
-import type { CountryCode } from "@/composables/usePlayerUtils.ts";
+import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 
 export interface Player {
     id: string;
@@ -22,6 +22,8 @@ export interface Team {
 
 export type Rateable = Player | Team;
 
+export type RateableType = "player" | "team";
+
 export interface LeaderboardRow {
     id: string;
     geoGuessrId: string;
@@ -33,7 +35,7 @@ export interface LeaderboardRow {
     countryCodes: CountryCode[];
     players?: Player[];
     isPlaceholder: boolean;
-    type: "player" | "team";
+    type: RateableType;
 }
 
 export const EMPTY_LEADERBOARD_ROW: LeaderboardRow = {

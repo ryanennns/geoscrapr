@@ -11,7 +11,7 @@ import {
     CountryCode,
     countryMap,
     usePlayerUtils,
-} from "@/composables/usePlayerUtils.js";
+} from "@/Composables/usePlayerUtils.js";
 
 interface Props {
     countryCode: CountryCode;

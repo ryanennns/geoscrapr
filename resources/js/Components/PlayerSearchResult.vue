@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { usePlayerUtils } from "@/composables/usePlayerUtils.js";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import type { Player } from "@/Types/core.ts";
 
 interface Props {
