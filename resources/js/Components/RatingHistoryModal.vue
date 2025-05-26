@@ -24,7 +24,11 @@
                                     height="15"
                                 />
                             </span>
-                            <p class="">{{ props.leaderboardRow.name }}</p>
+                            <p class="">{{
+                                    props.leaderboardRow.name.length > 12 ?
+                                        props.leaderboardRow.name.trim().slice(0, 10) + '...' :
+                                        props.leaderboardRow.name.trim()
+                                }}</p>
                             <p class="font-light ml-1">
                                 - {{ props.leaderboardRow.rating }}
                             </p>
@@ -155,7 +159,7 @@ import { nextTick, onUnmounted, ref, watch } from "vue";
 import { Chart, type TooltipItem } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
-import { usePlayerUtils } from "@/composables/usePlayerUtils.ts";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
 import type { LeaderboardRow, RatingChange } from "@/Types/core.ts";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
 import RatingBadge from "@/Components/RatingBadge.vue";
