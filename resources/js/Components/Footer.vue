@@ -191,12 +191,12 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import {useApiClient} from "@/Composables/useApiClient.ts";
+import { useApiClient } from "@/Composables/useApiClient.ts";
 
 const date = ref<string>("");
 const successful = ref<boolean>(false);
 
-const {getLastUpdated} = useApiClient();
+const { getLastUpdated } = useApiClient();
 
 onMounted(async () => {
     const lastUpdated = await getLastUpdated();

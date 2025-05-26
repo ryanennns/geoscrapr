@@ -49,9 +49,9 @@ export function useApiClient() {
         return {
             data: {
                 date: json.date,
-            }
-        }
-    }
+            },
+        };
+    };
 
     return {
         getRateableHistory,

@@ -16,7 +16,7 @@
         "paths": {
             "@/*": ["resources/js/*"],
             "@composables/*": ["resources/js/Composables"],
-            "@pages/*": ["resources/js/Pages"],
+            "@pages/*": ["resources/js/Pages"]
         },
         "allowJs": true,
         "checkJs": false,

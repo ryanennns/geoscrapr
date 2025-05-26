@@ -24,11 +24,17 @@
                                     height="15"
                                 />
                             </span>
-                            <p class="">{{
-                                    props.leaderboardRow.name.length > allowedNameLength ?
-                                        props.leaderboardRow.name.trim().slice(0, allowedNameLength - 3) + '...' :
-                                        props.leaderboardRow.name.trim()
-                                }}</p>
+                            <p class="">
+                                {{
+                                    props.leaderboardRow.name.length >
+                                    allowedNameLength
+                                        ? props.leaderboardRow.name
+                                              .trim()
+                                              .slice(0, allowedNameLength - 3) +
+                                          "..."
+                                        : props.leaderboardRow.name.trim()
+                                }}
+                            </p>
                             <p class="font-light ml-1">
                                 - {{ props.leaderboardRow.rating }}
                             </p>
@@ -155,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, nextTick, onUnmounted, ref, watch} from "vue";
+import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 import { Chart, type TooltipItem } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
@@ -187,10 +193,10 @@ const allowedNameLength = computed<number>(() => {
         numberOfNullRatings += 1;
     }
 
-    console.log(props.leaderboardRow.moving_rating)
+    console.log(props.leaderboardRow.moving_rating);
 
-    return 13 + numberOfNullRatings * 4
-})
+    return 13 + numberOfNullRatings * 4;
+});
 
 const emit = defineEmits(["close"]);
 

@@ -277,7 +277,6 @@ watch(selectedDate, async () => {
 const { renderRangeChart, renderPercentileChart } = useRatingChart();
 
 const updateCharts = () => {
-
     if (selectedGraphType.value === "elo_range") {
         if (!props.range_dates.includes(formatDate(selectedDate.value))) {
             selectedDate.value = new Date(
