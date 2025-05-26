@@ -38,11 +38,13 @@ class GetSnapshotForDate extends Controller
                     'date'    => Carbon::parse($solo->date)->format('Y-m-d'),
                     'buckets' => json_decode($solo->buckets, true),
                     'n'       => $solo->n,
+                    'type'    => $solo->type,
                 ],
                 'team' => [
                     'date'    => Carbon::parse($team->date)->format('Y-m-d'),
                     'buckets' => json_decode($team->buckets, true),
                     'n'       => $team->n,
+                    'type'    => $team->type,
                 ]
             ]
         ];

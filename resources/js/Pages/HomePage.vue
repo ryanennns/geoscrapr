@@ -158,9 +158,17 @@ const getAndSetRateableHistory = async (rateable: LeaderboardRow) => {
     isLoadingHistory.value = true;
     const history = await getRateableHistory(rateable.type, rateable.id);
 
-    ratingHistoryCache.value[rateable.id] = history.data;
+    const ratingChanges = history.data ?? [];
 
-    playerRatingHistory.value = history.data.sort(
+    if (ratingChanges.length === 0) {
+        isLoadingHistory.value = false;
+
+        return;
+    }
+
+    ratingHistoryCache.value[rateable.id] = ratingChanges;
+
+    playerRatingHistory.value = ratingChanges.sort(
         (a: RatingChange, b: RatingChange) =>
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     );
@@ -254,12 +262,13 @@ watch(selectedDate, async () => {
 
     const snapshots = await getSnapshotForDate(formatDate(selectedDate.value));
 
-    if (snapshots.error) {
+
+    if (snapshots.error !== undefined) {
         return;
     }
 
-    soloSnapshots.value.push(snapshots?.data?.solo);
-    teamSnapshots.value.push(snapshots?.data?.team);
+    soloSnapshots.value.push(snapshots?.data?.solo as Snapshot);
+    teamSnapshots.value.push(snapshots?.data?.team as Snapshot);
 });
 
 const { renderRangeChart, renderPercentileChart } = useRatingChart();

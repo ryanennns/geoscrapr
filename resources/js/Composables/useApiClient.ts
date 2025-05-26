@@ -10,8 +10,8 @@ export type RateableHistoryApiResponse = ApiResponse<RatingChange[]>
 export type GetLastUpdatedApiResponse = ApiResponse<{date: string}>
 
 export type GetSnapshotByDateApiResponse = ApiResponse<{
-    solo: Omit<Snapshot, 'type'>,
-    team: Omit<Snapshot, 'type'>,
+    solo: Snapshot,
+    team: Snapshot,
 }>
 
 export function useApiClient() {
