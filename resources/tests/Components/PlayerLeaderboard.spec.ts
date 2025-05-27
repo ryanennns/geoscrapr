@@ -6,13 +6,19 @@ import { v4 } from "uuid";
 import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 import { nextTick } from "vue";
 
+const mockGetAvailableCountries = vi.fn();
+const mockGetRateables = vi.fn();
 vi.mock("@composables/useApiClient", () => ({
-    useApiClient: () => ({
-        getAvailableCountries: vi
-            .fn()
-            .mockResolvedValue({ data: ["au", "nz", "ca"] }),
-        getRateables: vi.fn().mockResolvedValue({ data: [createPlayer()] }),
-    }),
+    useApiClient: () => {
+        return {
+            getAvailableCountries: mockGetAvailableCountries.mockResolvedValue({
+                data: ["au", "nz", "ca"],
+            }),
+            getRateables: mockGetRateables.mockResolvedValue({
+                data: [createPlayer()],
+            }),
+        };
+    },
 }));
 
 const mountComponent = () => {
@@ -28,7 +34,10 @@ const mountComponent = () => {
 describe("PlayerLeaderboard.vue", () => {
     let wrapper: ReturnType<typeof mountComponent>;
 
-    beforeEach(() => {
+    beforeEach(async () => {
+        vi.clearAllMocks();
+        await flushPromises();
+
         wrapper = mountComponent();
     });
 
@@ -37,10 +46,9 @@ describe("PlayerLeaderboard.vue", () => {
     });
 
     it("displays player names", async () => {
-        await flushPromises();
         const row = wrapper.get('[data-testid="row-1"]');
         const secondTd = row.findAll("td")[1];
-        expect(secondTd.text()).toBe("some-username");
+        expect(secondTd.text()).toBe("some-player");
     });
 
     it("disables country dropdown when not in solo mode", async () => {
@@ -53,10 +61,35 @@ describe("PlayerLeaderboard.vue", () => {
         );
     });
 
-    it.todo(
-        "changes handles mode filter and updates leaderboard",
-        async () => {},
-    );
+    it("handles solo/team filter changes and updates leaderboard", async () => {
+        const mockRateables = Array.from({ length: 10 }).map(() =>
+            createRateable("team"),
+        );
+        mockGetRateables.mockResolvedValue({
+            data: mockRateables,
+        });
+
+        expect(wrapper.text()).toContain("some-player");
+        expect(wrapper.text()).not.toContain("some-teamname");
+
+        const toggle = wrapper.findAllComponents({ name: "Toggle" })[0];
+        expect(toggle).toBeDefined();
+
+        await toggle.vm.$emit("update:modelValue", "team");
+        await nextTick();
+
+        expect(mockGetRateables).toHaveBeenCalledTimes(1);
+        expect(mockGetRateables).toHaveBeenCalledWith({
+            playersOrTeams: "teams",
+            active: "all",
+            country: "all",
+            order: "desc",
+        });
+
+        expect(wrapper.vm.dataCache.all.desc.team.all).toEqual(mockRateables);
+        expect(wrapper.text()).toContain("some-teamname");
+        expect(wrapper.text()).not.toContain("some-player");
+    });
 
     it.todo("changes order and updates leaderboard", async () => {});
 
@@ -67,13 +100,11 @@ describe("PlayerLeaderboard.vue", () => {
     it("handles country filter change", async () => {
         const dropdown = wrapper.findComponent({ name: "CountryDropdown" });
         await dropdown.vm.$emit("change", { country: "ca" });
-        await flushPromises();
         const comp = wrapper.vm as any;
         expect(comp.selectedCountry).toBe("ca");
     });
 
     it("emits playerClick when row is clicked", async () => {
-        await flushPromises();
         const row = wrapper.get('[data-testid="row-1"]');
         await row.trigger("click");
         expect(wrapper.emitted("playerClick")).toBeTruthy();
@@ -95,7 +126,7 @@ const createPlayer = (overrides: Partial<Player> = {}): Player => {
     return {
         id: v4(),
         user_id: v4(),
-        name: "some-username",
+        name: "some-player",
         rating: 1000,
         moving_rating: 990,
         no_move_rating: 985,
