@@ -86,7 +86,7 @@ describe("PlayerLeaderboard.vue", () => {
             order: "desc",
         });
 
-        expect(wrapper.vm.dataCache.all.desc.team.all).toEqual(mockRateables);
+        expect((wrapper.vm as any).dataCache.all.desc.team.all).toEqual(mockRateables);
         expect(wrapper.text()).toContain("some-teamname");
         expect(wrapper.text()).not.toContain("some-player");
     });
