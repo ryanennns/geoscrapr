@@ -1,4 +1,10 @@
-import type {Rateable, RateableType, RatingChange, Snapshot} from "@/Types/core.ts";
+import type {
+    Rateable,
+    RateableType,
+    RatingChange,
+    Snapshot,
+} from "@/Types/core.ts";
+import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 
 export interface ApiResponse<T> {
     data?: T;
@@ -13,6 +19,8 @@ export type GetSnapshotByDateApiResponse = ApiResponse<{
     solo: Snapshot;
     team: Snapshot;
 }>;
+
+export type GetAvailableCountriesApiResponse = ApiResponse<CountryCode[]>;
 
 export type GetRateablesApiResponse = ApiResponse<Rateable[]>;
 
@@ -74,7 +82,7 @@ export function useApiClient() {
     };
 
     interface GetRateablesInput {
-        playersOrTeams: "players" | "teams",
+        playersOrTeams: "players" | "teams";
         active?: string;
         country?: string;
         order?: string;
@@ -99,30 +107,49 @@ export function useApiClient() {
             params.append("order", order);
         }
 
-        const response = await fetch(`/${playersOrTeams}?${params.toString()}`, {
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
+        const response = await fetch(
+            `/${playersOrTeams}?${params.toString()}`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
             },
-        });
+        );
 
         if (!response.ok) {
             return {
-                error: response.status
-            }
+                error: response.status,
+            };
         }
 
         const json = await response.json();
 
         return {
-            data: json.data || []
+            data: json.data || [],
         };
-    }
+    };
+
+    const getAvailableCountries =
+        async (): Promise<GetAvailableCountriesApiResponse> => {
+            const response = await fetch("countries");
+
+            if (!response.ok) {
+                return {
+                    error: response.status,
+                };
+            }
+
+            return {
+                data: (await response.json())?.data ?? [],
+            };
+        };
 
     return {
         getRateableHistory,
         getLastUpdated,
         getSnapshotForDate,
-        getRateables
+        getRateables,
+        getAvailableCountries,
     };
 }

@@ -165,7 +165,7 @@ import {
     type Rateable,
 } from "@/Types/core.ts";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
-import {useApiClient} from "@/Composables/useApiClient.ts";
+import { useApiClient } from "@/Composables/useApiClient.ts";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();
@@ -264,14 +264,15 @@ const updateLeaderboard = async () => {
             playersOrTeams: mode === "solo" ? "players" : "teams",
             active,
             country,
-            order
-        })
+            order,
+        });
 
         if (rateablesResponse.error && rateablesResponse.data === undefined) {
             return;
         }
 
-        dataCache.value[active][order][mode][country] = rateablesResponse.data ?? [];
+        dataCache.value[active][order][mode][country] =
+            rateablesResponse.data ?? [];
         rateables.value = rateablesResponse.data ?? [];
     } catch (error) {
         console.error("Error fetching leaderboard data:", error);
