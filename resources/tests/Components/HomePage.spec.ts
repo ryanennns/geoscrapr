@@ -23,6 +23,9 @@ vi.mock("@composables/useApiClient", () => ({
         getLastUpdated: vi
             .fn()
             .mockResolvedValue({ data: { date: new Date() } }),
+        getAvailableCountries: vi
+            .fn()
+            .mockResolvedValue({ data: ["au", "nz", "ca"] }),
     }),
 }));
 
