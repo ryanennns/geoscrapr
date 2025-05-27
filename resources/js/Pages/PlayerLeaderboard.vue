@@ -175,7 +175,7 @@ type SortOrder = (typeof sortOrders)[number];
 
 interface Props {
     playersOrTeams: Rateable[];
-}
+} //
 
 const props = defineProps<Props>();
 
