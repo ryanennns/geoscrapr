@@ -1,4 +1,4 @@
-import type { RateableType, RatingChange, Snapshot } from "@/Types/core.ts";
+import type {Rateable, RateableType, RatingChange, Snapshot} from "@/Types/core.ts";
 
 export interface ApiResponse<T> {
     data?: T;
@@ -13,6 +13,8 @@ export type GetSnapshotByDateApiResponse = ApiResponse<{
     solo: Snapshot;
     team: Snapshot;
 }>;
+
+export type GetRateablesApiResponse = ApiResponse<Rateable[]>;
 
 export function useApiClient() {
     const getRateableHistory = async (
@@ -71,9 +73,56 @@ export function useApiClient() {
         };
     };
 
+    interface GetRateablesInput {
+        playersOrTeams: "players" | "teams",
+        active?: string;
+        country?: string;
+        order?: string;
+    }
+    const getRateables = async ({
+        playersOrTeams,
+        active,
+        country,
+        order,
+    }: GetRateablesInput): Promise<GetRateablesApiResponse> => {
+        const params = new URLSearchParams();
+
+        if (active && active === "active") {
+            params.append("active", "1");
+        }
+
+        if (country && country !== "all") {
+            params.append("country", country);
+        }
+
+        if (order) {
+            params.append("order", order);
+        }
+
+        const response = await fetch(`/${playersOrTeams}?${params.toString()}`, {
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            return {
+                error: response.status
+            }
+        }
+
+        const json = await response.json();
+
+        return {
+            data: json.data || []
+        };
+    }
+
     return {
         getRateableHistory,
         getLastUpdated,
         getSnapshotForDate,
+        getRateables
     };
 }

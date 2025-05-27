@@ -165,7 +165,9 @@ import {
     type Rateable,
 } from "@/Types/core.ts";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
+import {useApiClient} from "@/Composables/useApiClient.ts";
 
+const { getRateables } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();
 
 const sortOrders = ["asc", "desc"] as const;
@@ -258,40 +260,19 @@ const updateLeaderboard = async () => {
 
     try {
         loading.value = true;
-        const url = mode === "solo" ? "players" : "teams";
+        const rateablesResponse = await getRateables({
+            playersOrTeams: mode === "solo" ? "players" : "teams",
+            active,
+            country,
+            order
+        })
 
-        const params = new URLSearchParams();
-
-        if (active === "active") {
-            params.append("active", "1");
+        if (rateablesResponse.error && rateablesResponse.data === undefined) {
+            return;
         }
 
-        if (country !== "all") {
-            params.append("country", country);
-        }
-
-        if (order) {
-            params.append("order", selectedOrder.value);
-        }
-
-        const response = await fetch(`/${url}?${params.toString()}`, {
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(
-                `Failed to fetch ${mode} data for ${country || "all countries"}`,
-            );
-        }
-
-        const json = await response.json();
-
-        dataCache.value[active][order][mode][country] = json.data;
-
-        rateables.value = json.data || [];
+        dataCache.value[active][order][mode][country] = rateablesResponse.data ?? [];
+        rateables.value = rateablesResponse.data ?? [];
     } catch (error) {
         console.error("Error fetching leaderboard data:", error);
         rateables.value = [];
