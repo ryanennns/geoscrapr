@@ -34,6 +34,7 @@
                         color="indigo"
                         @update:modelValue="updateLeaderboard"
                     />
+
                     <Toggle
                         :options="gameModeOptions"
                         color="red"
@@ -94,6 +95,7 @@
                                     ? null
                                     : handlePlayerClick(leaderboardRow)
                             "
+                            :data-testid="`row-${index}`"
                         >
                             <td
                                 class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
@@ -175,12 +177,11 @@ type SortOrder = (typeof sortOrders)[number];
 
 interface Props {
     playersOrTeams: Rateable[];
-} //
+}
 
 const props = defineProps<Props>();
 
 type IsActive = "active" | "all";
-const isActive = ref<IsActive>("all");
 
 interface SubCache {
     [key: string]: Rateable[];
@@ -210,22 +211,23 @@ const dataCache = ref<PlayerTeamCache>({
 });
 
 const rateables = ref<Rateable[]>(props.playersOrTeams);
-const loading = ref(false);
+
+const isSolo = computed(() => selectedMode.value === "solo");
 
 type Gamemode = "solo" | "team";
 const selectedMode = ref<Gamemode>("solo");
-const isSolo = computed(() => selectedMode.value === "solo");
-
 const modeOptions = [
     { label: "Solo", value: "solo" },
     { label: "Team", value: "team" },
 ];
 
+const selectedOrder = ref<SortOrder>("desc");
 const sortOptions = [
     { label: "🔽 Desc", value: "desc" },
     { label: "🔼 Asc", value: "asc" },
 ];
 
+const isActive = ref<IsActive>("all");
 const activeOptions = [
     { label: "All", value: "all" },
     { label: "Active", value: "active" },
@@ -245,6 +247,7 @@ const handleCountryFilterChange = (event: { country: string }) => {
     updateLeaderboard();
 };
 
+const loading = ref(false);
 const updateLeaderboard = async () => {
     const active = isActive.value;
     const order = selectedOrder.value;
@@ -258,28 +261,24 @@ const updateLeaderboard = async () => {
         return;
     }
 
-    try {
-        loading.value = true;
-        const rateablesResponse = await getRateables({
-            playersOrTeams: mode === "solo" ? "players" : "teams",
-            active,
-            country,
-            order,
-        });
+    loading.value = true;
+    const rateablesResponse = await getRateables({
+        playersOrTeams: mode === "solo" ? "players" : "teams",
+        active,
+        country,
+        order,
+    });
 
-        if (rateablesResponse.error && rateablesResponse.data === undefined) {
-            return;
-        }
-
-        dataCache.value[active][order][mode][country] =
-            rateablesResponse.data ?? [];
-        rateables.value = rateablesResponse.data ?? [];
-    } catch (error) {
-        console.error("Error fetching leaderboard data:", error);
+    if (rateablesResponse.error && rateablesResponse.data === undefined) {
+        console.error("Error fetching leaderboard data");
         rateables.value = [];
-    } finally {
-        setTimeout(() => (loading.value = false), 300);
+        return;
     }
+
+    dataCache.value[active][order][mode][country] =
+        rateablesResponse.data ?? [];
+    rateables.value = rateablesResponse.data ?? [];
+    setTimeout(() => (loading.value = false), 300);
 };
 
 watch(
@@ -327,8 +326,6 @@ const leaderboardRows = computed<LeaderboardRow[]>(() => {
 const handlePlayerClick = (playerOrTeam: LeaderboardRow) => {
     emit("playerClick", { rateable: playerOrTeam });
 };
-
-const selectedOrder = ref<SortOrder>("desc");
 
 onMounted(() => {
     if (props.playersOrTeams && props.playersOrTeams.length > 0) {

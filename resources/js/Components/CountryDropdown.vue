@@ -6,6 +6,7 @@
         :class="{
             'opacity-50 cursor-not-allowed': props.disabled,
         }"
+        data-testid="country-dropdown"
     >
         <option value="">🌎 All Countries</option>
         <option
