@@ -70,12 +70,12 @@ describe("PlayerLeaderboard.vue", () => {
         });
 
         expect(wrapper.text()).toContain("some-player");
-        expect(wrapper.text()).not.toContain("some-teamname");
+        expect(wrapper.text()).not.toContain("some-team");
 
-        const toggle = wrapper.findAllComponents({ name: "Toggle" })[0];
+        const toggle = wrapper.findComponent('[data-testid="mode-toggle"]');
         expect(toggle).toBeDefined();
 
-        await toggle.vm.$emit("update:modelValue", "team");
+        await (toggle as any).vm.$emit("update:modelValue", "team");
         await nextTick();
 
         expect(mockGetRateables).toHaveBeenCalledTimes(1);
@@ -86,12 +86,42 @@ describe("PlayerLeaderboard.vue", () => {
             order: "desc",
         });
 
-        expect((wrapper.vm as any).dataCache.all.desc.team.all).toEqual(mockRateables);
-        expect(wrapper.text()).toContain("some-teamname");
+        expect((wrapper.vm as any).dataCache.all.desc.team.all).toEqual(
+            mockRateables,
+        );
+        expect(wrapper.text()).toContain("some-team");
         expect(wrapper.text()).not.toContain("some-player");
     });
 
-    it.todo("changes order and updates leaderboard", async () => {});
+    it("changes order and updates leaderboard", async () => {
+        const name = "low-ranked-dude";
+        const mockRateables = Array.from({ length: 10 }).map((_, index) =>
+            createPlayer({ name, rating: index * 100 }),
+        );
+        mockGetRateables.mockResolvedValue({
+            data: mockRateables,
+        });
+
+        expect(wrapper.text()).toContain("some-player");
+
+        const toggle = wrapper.findComponent('[data-testid="order-toggle"]');
+        expect(toggle).toBeDefined();
+        await (toggle as any).vm.$emit("update:modelValue", "asc");
+        await nextTick();
+
+        expect(mockGetRateables).toHaveBeenCalledTimes(1);
+        expect(mockGetRateables).toHaveBeenCalledWith({
+            playersOrTeams: "players",
+            active: "all",
+            country: "all",
+            order: "asc",
+        });
+
+        expect((wrapper.vm as any).dataCache.all.asc.solo.all).toEqual(
+            mockRateables,
+        );
+        expect(wrapper.text()).not.toContain("some-player");
+    });
 
     it.todo("changes active filter and updates", async () => {});
 
@@ -144,7 +174,7 @@ const createRateable = (type: RateableType = "player"): Rateable => {
     return {
         id: v4(),
         team_id: v4(),
-        name: "some-teamname",
+        name: "some-team",
         rating: 1000,
         player_a: createPlayer(),
         player_b: createPlayer(),

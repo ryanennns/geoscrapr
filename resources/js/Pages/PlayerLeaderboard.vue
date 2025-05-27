@@ -15,6 +15,7 @@
                         />
                     </div>
                     <Toggle
+                        data-testid="mode-toggle"
                         v-model="selectedMode"
                         :options="modeOptions"
                         color="blue"
@@ -22,6 +23,7 @@
                     />
 
                     <Toggle
+                        data-testid="order-toggle"
                         v-model="selectedOrder"
                         :options="sortOptions"
                         color="green"
@@ -29,6 +31,7 @@
                     />
 
                     <Toggle
+                        data-testid="active-toggle"
                         v-model="isActive"
                         :options="activeOptions"
                         color="indigo"
@@ -36,6 +39,7 @@
                     />
 
                     <Toggle
+                        data-testid="game-mode-toggle"
                         :options="gameModeOptions"
                         color="red"
                         class="opacity-40"
@@ -278,6 +282,7 @@ const updateLeaderboard = async () => {
     dataCache.value[active][order][mode][country] =
         rateablesResponse.data ?? [];
     rateables.value = rateablesResponse.data ?? [];
+    console.log(rateables.value);
     setTimeout(() => (loading.value = false), 300);
 };
 
