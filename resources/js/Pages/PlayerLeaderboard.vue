@@ -51,6 +51,7 @@
                 <LeaderboardLoadingSkeleton
                     v-show="loading"
                     :is-solo="isSolo"
+                    :rating-header="ratingHeader"
                 />
                 <table
                     v-show="!loading"
