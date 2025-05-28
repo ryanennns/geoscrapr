@@ -6,6 +6,7 @@
         :class="{
             'opacity-50 cursor-not-allowed': props.disabled,
         }"
+        data-testid="country-dropdown"
     >
         <option value="">🌎 All Countries</option>
         <option
@@ -43,6 +44,7 @@ import {
     usePlayerUtils,
 } from "@/Composables/usePlayerUtils.js";
 import { computed, onMounted, ref } from "vue";
+import { useApiClient } from "@/Composables/useApiClient.ts";
 
 interface Props {
     disabled: boolean;
@@ -51,8 +53,9 @@ interface Props {
 const props = defineProps<Props>();
 
 const { getFlagEmoji } = usePlayerUtils();
+const { getAvailableCountries } = useApiClient();
 
-const apiCountries = ref([]);
+const apiCountries = ref<CountryCode[]>([]);
 
 interface Country {
     code: string;
@@ -78,12 +81,12 @@ const handleCountryFilterChange = (event: Event) => {
 };
 
 onMounted(async () => {
-    const response = await fetch("countries");
+    const availableCountries = await getAvailableCountries();
 
-    if (!response.ok) {
-        throw new Error(`${response.status}`);
+    if (availableCountries.error) {
+        return;
     }
 
-    apiCountries.value = (await response.json())?.data ?? [];
+    apiCountries.value = availableCountries?.data ?? [];
 });
 </script>
