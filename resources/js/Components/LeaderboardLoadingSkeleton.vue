@@ -28,7 +28,7 @@
                     scope="col"
                     class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                    Rating
+                    {{ ratingHeader }}
                 </th>
             </tr>
         </thead>
@@ -68,6 +68,7 @@
 <script setup lang="ts">
 interface Props {
     isSolo: boolean;
+    ratingHeader: string;
 }
 
 const props = defineProps<Props>();

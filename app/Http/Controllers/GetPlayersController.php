@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Enums\SortOrder;
 use App\Http\Requests\GetPlayersRequest;
 use App\Http\Resources\PlayerResource;
 use App\Models\Player;
@@ -19,6 +18,7 @@ class GetPlayersController extends Controller
         $country = Arr::get($validated, 'country');
         $order = Arr::get($validated, 'order');
         $active = Arr::get($validated, 'active');
+        $gameType = Arr::get($validated, 'game_type');
 
         $query = Player::query();
 
@@ -26,16 +26,19 @@ class GetPlayersController extends Controller
             $query->where('country_code', $country);
         }
 
-        if ($order !== null) {
-            $query->orderBy('rating', $order);
-
-            if ($order === 'asc') {
-                $query->whereNotNull('rating');
-            }
-        }
-
         if ($active) {
             $query->where('updated_at', '>=', Carbon::now()->subWeek());
+        }
+
+        if ($gameType !== null) {
+            $column = $gameType . '_rating';
+            $query->whereNotNull($column);
+            $query->orderBy($column, $order ?? 'desc');
+        }
+
+        if ($gameType === null) {
+            $query->whereNotNull('rating');
+            $query->orderBy('rating', $order ?? 'desc');
         }
 
         return PlayerResource::collection(

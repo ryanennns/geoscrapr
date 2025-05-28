@@ -52,8 +52,8 @@ describe("PlayerLeaderboard.vue", () => {
     });
 
     it("disables country dropdown when not in solo mode", async () => {
-        const toggle = wrapper.findAllComponents({ name: "Toggle" })[0];
-        await toggle.vm.$emit("update:modelValue", "team");
+        const toggle = wrapper.findComponent('[data-testid="mode-toggle"]');
+        await (toggle as any).vm.$emit("update:modelValue", "team");
         await nextTick();
         const countryDropdown = wrapper.get('[data-testid="country-dropdown"]');
         expect((countryDropdown.element as HTMLSelectElement).disabled).toBe(
@@ -84,9 +84,10 @@ describe("PlayerLeaderboard.vue", () => {
             active: "all",
             country: "all",
             order: "desc",
+            gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.all.desc.team.all).toEqual(
+        expect((wrapper.vm as any).dataCache.all.all.desc.team.all).toEqual(
             mockRateables,
         );
         expect(wrapper.text()).toContain("some-team");
@@ -115,15 +116,16 @@ describe("PlayerLeaderboard.vue", () => {
             active: "all",
             country: "all",
             order: "asc",
+            gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.all.asc.solo.all).toEqual(
+        expect((wrapper.vm as any).dataCache.all.all.asc.solo.all).toEqual(
             mockRateables,
         );
         expect(wrapper.text()).not.toContain("some-player");
     });
 
-    it("changes active filter and updates", async () => {
+    it("changes active filter and updates leaderboard", async () => {
         const mockRateables = Array.from({ length: 10 }).map(() =>
             createPlayer(),
         );
@@ -144,14 +146,34 @@ describe("PlayerLeaderboard.vue", () => {
             active: "active",
             country: "all",
             order: "desc",
+            gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.active.desc.solo.all).toEqual(
+        expect((wrapper.vm as any).dataCache.all.active.desc.solo.all).toEqual(
             mockRateables,
         );
     });
 
-    it.todo("changes game mode filter and updates leaderboard", async () => {});
+    it("changes game type filter and updates leaderboard", async () => {
+        expect(wrapper.text()).toContain("some-player");
+
+        const toggle = wrapper.findComponent(
+            '[data-testid="game-type-toggle"]',
+        );
+
+        expect(toggle).toBeDefined();
+        await (toggle as any).vm.$emit("update:modelValue", "moving");
+        await nextTick();
+
+        expect(mockGetRateables).toHaveBeenCalledTimes(1);
+        expect(mockGetRateables).toHaveBeenCalledWith({
+            playersOrTeams: "players",
+            active: "all",
+            country: "all",
+            order: "desc",
+            gameType: "moving",
+        });
+    });
 
     it("pulls from cache when existing data is available", async () => {
         const mockRateables = Array.from({ length: 10 }).map(() =>
@@ -167,7 +189,7 @@ describe("PlayerLeaderboard.vue", () => {
         await (toggle as any).vm.$emit("update:modelValue", "team");
         await nextTick();
 
-        expect((wrapper.vm as any).dataCache.all.desc.team.all).toEqual(
+        expect((wrapper.vm as any).dataCache.all.all.desc.team.all).toEqual(
             mockRateables,
         );
 

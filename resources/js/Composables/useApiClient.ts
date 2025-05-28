@@ -1,4 +1,5 @@
 import type {
+    GameType,
     Rateable,
     RateableType,
     RatingChange,
@@ -86,12 +87,14 @@ export function useApiClient() {
         active?: string;
         country?: string;
         order?: string;
+        gameType?: GameType;
     }
     const getRateables = async ({
         playersOrTeams,
         active,
         country,
         order,
+        gameType,
     }: GetRateablesInput): Promise<GetRateablesApiResponse> => {
         const params = new URLSearchParams();
 
@@ -105,6 +108,10 @@ export function useApiClient() {
 
         if (order) {
             params.append("order", order);
+        }
+
+        if (gameType && gameType !== "all") {
+            params.append("game_type", gameType);
         }
 
         const response = await fetch(
