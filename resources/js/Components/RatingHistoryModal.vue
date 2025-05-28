@@ -193,8 +193,6 @@ const allowedNameLength = computed<number>(() => {
         numberOfNullRatings += 1;
     }
 
-    console.log(props.leaderboardRow.moving_rating);
-
     return 13 + numberOfNullRatings * 4;
 });
 
