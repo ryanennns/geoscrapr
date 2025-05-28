@@ -153,6 +153,30 @@ describe("PlayerLeaderboard.vue", () => {
 
     it.todo("changes game mode filter and updates leaderboard", async () => {});
 
+    it("pulls from cache when existing data is available", async () => {
+        const mockRateables = Array.from({ length: 10 }).map(() =>
+            createRateable("team"),
+        );
+        mockGetRateables.mockResolvedValue({
+            data: mockRateables,
+        });
+
+        const toggle = wrapper.findComponent('[data-testid="mode-toggle"]');
+        expect(toggle).toBeDefined();
+
+        await (toggle as any).vm.$emit("update:modelValue", "team");
+        await nextTick();
+
+        expect((wrapper.vm as any).dataCache.all.desc.team.all).toEqual(
+            mockRateables,
+        );
+
+        await (toggle as any).vm.$emit("update:modelValue", "solo");
+        await nextTick();
+
+        expect(mockGetRateables).toHaveBeenCalledTimes(1);
+    });
+
     it("handles country filter change", async () => {
         const dropdown = wrapper.findComponent({ name: "CountryDropdown" });
         await dropdown.vm.$emit("change", { country: "ca" });
