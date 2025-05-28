@@ -305,14 +305,6 @@ const updateLeaderboard = async () => {
     const country = selectedCountry.value || "all";
     const gameType = selectedGameType.value;
 
-    console.log(dataCache.value, {
-        gameType,
-        active,
-        order,
-        mode,
-        country,
-    });
-
     if (dataCache.value[gameType][active][order][mode][country]?.length > 0) {
         rateables.value = dataCache.value[gameType][active][order][mode][
             country

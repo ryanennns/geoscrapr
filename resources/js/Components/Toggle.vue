@@ -1,7 +1,7 @@
 <template>
     <div
         class="flex items-center rounded-full"
-        :class="`${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${backgroundColorClass}`"
+        :class="`${disabled ? 'opacity-50' : ''} ${backgroundColorClass}`"
     >
         <button
             :disabled="disabled ?? true"
