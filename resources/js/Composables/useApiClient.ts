@@ -110,7 +110,7 @@ export function useApiClient() {
             params.append("order", order);
         }
 
-        if (gameType) {
+        if (gameType && gameType !== "all") {
             params.append("game_type", gameType);
         }
 

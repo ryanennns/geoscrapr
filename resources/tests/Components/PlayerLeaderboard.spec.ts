@@ -157,7 +157,9 @@ describe("PlayerLeaderboard.vue", () => {
     it("changes game type filter and updates leaderboard", async () => {
         expect(wrapper.text()).toContain("some-player");
 
-        const toggle = wrapper.findComponent('[data-testid="game-mode-toggle"]');
+        const toggle = wrapper.findComponent(
+            '[data-testid="game-mode-toggle"]',
+        );
 
         expect(toggle).toBeDefined();
         await (toggle as any).vm.$emit("update:modelValue", "moving");
@@ -170,7 +172,7 @@ describe("PlayerLeaderboard.vue", () => {
             country: "all",
             order: "desc",
             gameType: "moving",
-        })
+        });
     });
 
     it("pulls from cache when existing data is available", async () => {
