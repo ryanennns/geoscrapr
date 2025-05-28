@@ -1,5 +1,7 @@
 import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 
+export type GameType = "all" | "moving" | "no_move" | "nmpz";
+
 export interface Player {
     id: string;
     user_id: string;

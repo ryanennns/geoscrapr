@@ -20,6 +20,11 @@ class GetPlayersRequest extends FormRequest
             'country' => Rule::enum(CountryCode::class),
             'order'   => Rule::enum(SortOrder::class),
             'active'  => 'boolean|nullable',
+            'game_type' => [
+                'string',
+                'nullable',
+                Rule::in(['moving', 'no_move', 'nmpz']),
+            ],
         ];
     }
 }
