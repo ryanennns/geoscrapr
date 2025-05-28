@@ -190,7 +190,6 @@ const leaderboardRowToRating = (row: LeaderboardRow) => {
 };
 
 const ratingHeader = computed<string>(() => {
-    console.log("Selected game type:", selectedGameType.value);
     switch (selectedGameType.value) {
         case "moving":
             return "Moving Rating";
