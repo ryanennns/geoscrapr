@@ -15,6 +15,14 @@
                         />
                     </div>
                     <Toggle
+                        data-testid="game-mode-toggle"
+                        :options="gameModeOptions"
+                        color="red"
+                        v-model="selectedGameType"
+                        @update:modelValue="updateLeaderboard"
+                    />
+
+                    <Toggle
                         data-testid="mode-toggle"
                         v-model="selectedMode"
                         :options="modeOptions"
@@ -35,14 +43,6 @@
                         v-model="isActive"
                         :options="activeOptions"
                         color="indigo"
-                        @update:modelValue="updateLeaderboard"
-                    />
-
-                    <Toggle
-                        data-testid="game-mode-toggle"
-                        :options="gameModeOptions"
-                        color="red"
-                        v-model="selectedGameType"
                         @update:modelValue="updateLeaderboard"
                     />
                 </div>
