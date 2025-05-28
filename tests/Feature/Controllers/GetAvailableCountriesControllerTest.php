@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Controllers;
+namespace Tests\Feature\Controllers;
 
 use App\Models\Player;
 use Illuminate\Foundation\Testing\RefreshDatabase;
