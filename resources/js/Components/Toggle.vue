@@ -1,11 +1,17 @@
 <template>
-    <div class="flex items-center rounded-full" :class="backgroundColorClass">
+    <div
+        class="flex items-center rounded-full"
+        :class="`${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${backgroundColorClass}`"
+    >
         <button
+            :disabled="disabled ?? true"
             v-for="option in options"
             :key="option.value"
             class="px-3 py-1 text-sm font-medium rounded-full focus:outline-none transition-colors"
             :class="
-                modelValue === option.value ? activeClasses : inactiveClasses
+                modelValue === option.value && !disabled
+                    ? activeClasses
+                    : inactiveClasses
             "
             @click="$emit('update:modelValue', option.value)"
         >
@@ -26,6 +32,7 @@ interface Props {
     modelValue: string;
     options: ToggleOption[];
     color?: "blue" | "green" | "indigo" | "purple" | "red" | "gray" | "orange";
+    disabled?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

@@ -19,6 +19,7 @@
                         :options="gameTypeOptions"
                         color="red"
                         v-model="selectedGameType"
+                        :disabled="!isSolo"
                         @update:modelValue="updateLeaderboard"
                     />
 

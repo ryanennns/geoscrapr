@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Enums\SortOrder;
 use App\Http\Requests\GetPlayersRequest;
 use App\Http\Resources\PlayerResource;
 use App\Models\Player;
@@ -38,6 +37,7 @@ class GetPlayersController extends Controller
         }
 
         if ($gameType === null) {
+            $query->whereNotNull('rating');
             $query->orderBy('rating', $order ?? 'desc');
         }
 
