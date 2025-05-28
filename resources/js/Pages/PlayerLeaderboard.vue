@@ -282,7 +282,6 @@ const updateLeaderboard = async () => {
     dataCache.value[active][order][mode][country] =
         rateablesResponse.data ?? [];
     rateables.value = rateablesResponse.data ?? [];
-    console.log(rateables.value);
     setTimeout(() => (loading.value = false), 300);
 };
 

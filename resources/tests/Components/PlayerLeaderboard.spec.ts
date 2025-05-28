@@ -123,7 +123,33 @@ describe("PlayerLeaderboard.vue", () => {
         expect(wrapper.text()).not.toContain("some-player");
     });
 
-    it.todo("changes active filter and updates", async () => {});
+    it("changes active filter and updates", async () => {
+        const mockRateables = Array.from({ length: 10 }).map(() =>
+            createPlayer(),
+        );
+        mockGetRateables.mockResolvedValue({
+            data: mockRateables,
+        });
+
+        expect(wrapper.text()).toContain("some-player");
+
+        const toggle = wrapper.findComponent('[data-testid="active-toggle"]');
+        expect(toggle).toBeDefined();
+        await (toggle as any).vm.$emit("update:modelValue", "active");
+        await nextTick();
+
+        expect(mockGetRateables).toHaveBeenCalledTimes(1);
+        expect(mockGetRateables).toHaveBeenCalledWith({
+            playersOrTeams: "players",
+            active: "active",
+            country: "all",
+            order: "desc",
+        });
+
+        expect((wrapper.vm as any).dataCache.active.desc.solo.all).toEqual(
+            mockRateables,
+        );
+    });
 
     it.todo("changes game mode filter and updates leaderboard", async () => {});
 
