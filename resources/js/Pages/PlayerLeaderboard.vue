@@ -15,8 +15,8 @@
                         />
                     </div>
                     <Toggle
-                        data-testid="game-mode-toggle"
-                        :options="gameModeOptions"
+                        data-testid="game-type-toggle"
+                        :options="gameTypeOptions"
                         color="red"
                         v-model="selectedGameType"
                         @update:modelValue="updateLeaderboard"
@@ -277,7 +277,7 @@ const activeOptions = [
 ];
 
 const selectedGameType = ref<GameType>("all");
-const gameModeOptions = [
+const gameTypeOptions = [
     { label: "All", value: "all" },
     { label: "Moving", value: "moving" },
     { label: "No Move", value: "no_move" },
@@ -303,6 +303,14 @@ const updateLeaderboard = async () => {
     const mode = selectedMode.value;
     const country = selectedCountry.value || "all";
     const gameType = selectedGameType.value;
+
+    console.log(dataCache.value, {
+        gameType,
+        active,
+        order,
+        mode,
+        country,
+    });
 
     if (dataCache.value[gameType][active][order][mode][country]?.length > 0) {
         rateables.value = dataCache.value[gameType][active][order][mode][

@@ -52,8 +52,8 @@ describe("PlayerLeaderboard.vue", () => {
     });
 
     it("disables country dropdown when not in solo mode", async () => {
-        const toggle = wrapper.findAllComponents({ name: "Toggle" })[0];
-        await toggle.vm.$emit("update:modelValue", "team");
+        const toggle = wrapper.findComponent('[data-testid="mode-toggle"]');
+        await (toggle as any).vm.$emit("update:modelValue", "team");
         await nextTick();
         const countryDropdown = wrapper.get('[data-testid="country-dropdown"]');
         expect((countryDropdown.element as HTMLSelectElement).disabled).toBe(
@@ -158,7 +158,7 @@ describe("PlayerLeaderboard.vue", () => {
         expect(wrapper.text()).toContain("some-player");
 
         const toggle = wrapper.findComponent(
-            '[data-testid="game-mode-toggle"]',
+            '[data-testid="game-type-toggle"]',
         );
 
         expect(toggle).toBeDefined();
