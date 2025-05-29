@@ -121,6 +121,7 @@ interface Props {
     percentile_dates: string[];
     leaderboard: Player[];
 }
+
 const props = defineProps<Props>();
 
 const { getRateableHistory, getSnapshotForDate } = useApiClient();
@@ -205,62 +206,56 @@ const soloSnapshots = ref(props.solo_snapshots);
 const teamSnapshots = ref(props.team_snapshots);
 
 const availableDates = computed(() => {
-    const soloDates = props.solo_snapshots.map((s) => s.date);
-    const teamDates = props.team_snapshots.map((s) => s.date);
+    const soloDates = props.solo_snapshots.map((s) => new Date(s.date));
+    const teamDates = props.team_snapshots.map((s) => new Date(s.date));
 
     return [...new Set([...soloDates, ...teamDates])].sort().reverse();
 });
 
 const availableDatesObjects = computed<Date[]>(() => {
     return selectedGraphType.value === "elo_range"
-        ? props.range_dates.map(parseLocalDate)
-        : props.percentile_dates.map(parseLocalDate);
+        ? props.range_dates.map(d => new Date(d))
+        : props.percentile_dates.map(d => new Date(d));
 });
 
-const selectedDate = ref<Date>(
-    availableDates.value[0]
-        ? parseLocalDate(availableDates.value[0])
-        : new Date(),
-);
+const iso = (date: string) => new Date(date).toISOString();
 
-function parseLocalDate(dateStr: string) {
-    const [year, month, day] = dateStr.split("-").map(Number);
-
-    return new Date(year, month - 1, day);
-}
-
-const formatDate = (date: Date) => date.toISOString().split("T")[0];
+const selectedDate = ref<Date>(availableDates.value[0] ?? new Date());
 
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
-    soloSnapshots.value.find((s) => s.date === formatDate(selectedDate.value)),
+    soloSnapshots.value.find(
+        (s) => iso(s.date) === selectedDate.value.toISOString(),
+    ),
 );
 const currentTeamRangeSnapshot = computed<Snapshot | undefined>(() =>
-    teamSnapshots.value.find((s) => s.date === formatDate(selectedDate.value)),
+    teamSnapshots.value.find(
+        (s) => iso(s.date) === selectedDate.value.toISOString(),
+    ),
 );
 const currentSoloPercentileSnapshot = computed<Snapshot | undefined>(() =>
     props.solo_percentile_snapshots.find(
-        (s) => s.date === formatDate(selectedDate.value),
+        (s) => iso(s.date) === selectedDate.value.toISOString(),
     ),
 );
 const currentTeamPercentileSnapshot = computed<Snapshot | undefined>(() =>
     props.team_percentile_snapshots.find(
-        (s) => s.date === formatDate(selectedDate.value),
+        (s) => iso(s.date) === selectedDate.value.toISOString(),
     ),
 );
 
 watch(selectedDate, async () => {
     if (
         soloSnapshots.value.find(
-            (s) => s.date === formatDate(selectedDate.value),
+            (s) => iso(s.date) === selectedDate.value.toISOString(),
         ) &&
         teamSnapshots.value.find(
-            (s) => s.date === formatDate(selectedDate.value),
+            (s) => iso(s.date) === selectedDate.value.toISOString(),
         )
     ) {
         return;
     }
 
-    const snapshots = await getSnapshotForDate(formatDate(selectedDate.value));
+    const snapshots = await getSnapshotForDate(selectedDate.value);
 
     if (snapshots.error !== undefined) {
         return;
@@ -274,11 +269,16 @@ const { renderRangeChart, renderPercentileChart } = useRatingChart();
 
 const updateCharts = () => {
     if (selectedGraphType.value === "elo_range") {
-        if (!props.range_dates.includes(formatDate(selectedDate.value))) {
+        if (
+            !props.range_dates
+                .map(iso)
+                .includes(selectedDate.value.toISOString())
+        ) {
             selectedDate.value = new Date(
                 props.range_dates[props.range_dates.length - 1],
             );
         }
+
         renderRangeChart(
             soloChartCanvas,
             currentSoloRangeSnapshot.value,
@@ -295,7 +295,11 @@ const updateCharts = () => {
     }
 
     if (selectedGraphType.value === "percentile") {
-        if (!props.percentile_dates.includes(formatDate(selectedDate.value))) {
+        if (
+            !props.percentile_dates
+                .map(iso)
+                .includes(selectedDate.value.toISOString())
+        ) {
             selectedDate.value = new Date(
                 props.percentile_dates[props.percentile_dates.length - 1],
             );
