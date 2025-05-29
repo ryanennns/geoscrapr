@@ -26,7 +26,7 @@
 
             <DateSelector
                 v-model="selectedDate"
-                :availableDates="availableDatesObjects"
+                :availableDates="availableDates"
                 @update:model-value="updateCharts"
             />
         </div>
@@ -204,30 +204,14 @@ const teamChartInstance = ref<Chart | null>(null);
 const soloSnapshots = ref(props.solo_snapshots);
 const teamSnapshots = ref(props.team_snapshots);
 
-const availableDates = computed(() => {
-    const soloDates = props.solo_snapshots.map((s) => s.date);
-    const teamDates = props.team_snapshots.map((s) => s.date);
+const availableDates = computed<Date[]>(() => {
+    const soloDates = props.range_dates.map((s) => new Date(s));
+    const teamDates = props.percentile_dates.map((s) => new Date(s));
 
     return [...new Set([...soloDates, ...teamDates])].sort().reverse();
 });
 
-const availableDatesObjects = computed<Date[]>(() => {
-    return selectedGraphType.value === "elo_range"
-        ? props.range_dates.map(parseLocalDate)
-        : props.percentile_dates.map(parseLocalDate);
-});
-
-const selectedDate = ref<Date>(
-    availableDates.value[0]
-        ? parseLocalDate(availableDates.value[0])
-        : new Date(),
-);
-
-function parseLocalDate(dateStr: string) {
-    const [year, month, day] = dateStr.split("-").map(Number);
-
-    return new Date(year, month - 1, day);
-}
+const selectedDate = ref<Date>(availableDates.value[0]);
 
 const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
@@ -332,6 +316,8 @@ const initializeCharts = () => {
 };
 
 onMounted(() => {
+    console.log(selectedDate.value)
+
     initializeCharts();
 });
 
