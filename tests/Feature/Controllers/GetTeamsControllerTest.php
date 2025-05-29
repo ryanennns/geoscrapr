@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\Controllers;
+namespace Tests\Feature\Controllers;
 
 use App\Http\Resources\PlayerResource;
 use App\Models\Player;
