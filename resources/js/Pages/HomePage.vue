@@ -207,10 +207,13 @@ const availableDates = computed<Date[]>(() => {
     const soloDates = props.range_dates.map((s) => new Date(s));
     const teamDates = props.percentile_dates.map((s) => new Date(s));
 
-    return [...new Set([...soloDates, ...teamDates])].sort().reverse();
+    return [...new Set([...soloDates, ...teamDates])].sort(
+        (a, b) => b.getTime() - a.getTime(),
+    );
 });
 
 const selectedDate = ref<Date>(availableDates.value[0]);
+console.log(availableDates.value);
 const dateObjectToYmdString = (date: Date) => date.toISOString().split("T")[0];
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
     soloSnapshots.value.find(
