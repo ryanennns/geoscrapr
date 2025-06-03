@@ -8,7 +8,7 @@
                 @update:model-value="emitUpdate"
                 placeholder="Pick a date"
                 auto-apply
-                clearable
+                :clearable="false"
             />
         </div>
     </div>
