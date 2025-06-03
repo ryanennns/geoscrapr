@@ -19,13 +19,15 @@ class HomePageController extends Controller
             ->where('type', EloSnapshot::TYPE_ELO_RANGE)
             ->distinct()
             ->orderBy('date')
-            ->pluck('date');
+            ->pluck('date')
+            ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
 
         $percentileDates = EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
             ->where('type', EloSnapshot::TYPE_PERCENTILE)
             ->distinct()
             ->orderBy('date')
-            ->pluck('date');
+            ->pluck('date')
+            ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
 
         $soloRangeSnapshots = EloSnapshot::query()
             ->where('gamemode', 'solo')

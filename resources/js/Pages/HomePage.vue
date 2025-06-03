@@ -26,7 +26,7 @@
 
             <DateSelector
                 v-model="selectedDate"
-                :availableDates="availableDatesObjects"
+                :availableDates="availableDates"
                 @update:model-value="updateCharts"
             />
         </div>
@@ -76,7 +76,6 @@
         />
         <transition name="fade">
             <RatingHistoryModal
-                v-show="selectedLeaderboardRow !== null"
                 :show-modal="showModal"
                 :leaderboard-row="selectedLeaderboardRow"
                 :rating-history="playerRatingHistory"
@@ -204,63 +203,50 @@ const teamChartInstance = ref<Chart | null>(null);
 const soloSnapshots = ref(props.solo_snapshots);
 const teamSnapshots = ref(props.team_snapshots);
 
-const availableDates = computed(() => {
-    const soloDates = props.solo_snapshots.map((s) => s.date);
-    const teamDates = props.team_snapshots.map((s) => s.date);
+const availableDates = computed<Date[]>(() => {
+    const soloDates = props.range_dates.map((s) => new Date(s));
+    const teamDates = props.percentile_dates.map((s) => new Date(s));
 
     return [...new Set([...soloDates, ...teamDates])].sort().reverse();
 });
 
-const availableDatesObjects = computed<Date[]>(() => {
-    return selectedGraphType.value === "elo_range"
-        ? props.range_dates.map(parseLocalDate)
-        : props.percentile_dates.map(parseLocalDate);
-});
-
-const selectedDate = ref<Date>(
-    availableDates.value[0]
-        ? parseLocalDate(availableDates.value[0])
-        : new Date(),
-);
-
-function parseLocalDate(dateStr: string) {
-    const [year, month, day] = dateStr.split("-").map(Number);
-
-    return new Date(year, month - 1, day);
-}
-
-const formatDate = (date: Date) => date.toISOString().split("T")[0];
-
+const selectedDate = ref<Date>(availableDates.value[0]);
+const dateObjectToYmdString = (date: Date) => date.toISOString().split("T")[0];
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
-    soloSnapshots.value.find((s) => s.date === formatDate(selectedDate.value)),
+    soloSnapshots.value.find(
+        (s) => s.date === dateObjectToYmdString(selectedDate.value),
+    ),
 );
 const currentTeamRangeSnapshot = computed<Snapshot | undefined>(() =>
-    teamSnapshots.value.find((s) => s.date === formatDate(selectedDate.value)),
+    teamSnapshots.value.find(
+        (s) => s.date === dateObjectToYmdString(selectedDate.value),
+    ),
 );
 const currentSoloPercentileSnapshot = computed<Snapshot | undefined>(() =>
     props.solo_percentile_snapshots.find(
-        (s) => s.date === formatDate(selectedDate.value),
+        (s) => s.date === dateObjectToYmdString(selectedDate.value),
     ),
 );
 const currentTeamPercentileSnapshot = computed<Snapshot | undefined>(() =>
     props.team_percentile_snapshots.find(
-        (s) => s.date === formatDate(selectedDate.value),
+        (s) => s.date === dateObjectToYmdString(selectedDate.value),
     ),
 );
-
 watch(selectedDate, async () => {
     if (
         soloSnapshots.value.find(
-            (s) => s.date === formatDate(selectedDate.value),
+            (s) => s.date === dateObjectToYmdString(selectedDate.value),
         ) &&
         teamSnapshots.value.find(
-            (s) => s.date === formatDate(selectedDate.value),
+            (s) => s.date === dateObjectToYmdString(selectedDate.value),
         )
     ) {
         return;
     }
 
-    const snapshots = await getSnapshotForDate(formatDate(selectedDate.value));
+    const snapshots = await getSnapshotForDate(
+        dateObjectToYmdString(selectedDate.value),
+    );
 
     if (snapshots.error !== undefined) {
         return;
@@ -274,7 +260,11 @@ const { renderRangeChart, renderPercentileChart } = useRatingChart();
 
 const updateCharts = () => {
     if (selectedGraphType.value === "elo_range") {
-        if (!props.range_dates.includes(formatDate(selectedDate.value))) {
+        if (
+            !props.range_dates.includes(
+                dateObjectToYmdString(selectedDate.value),
+            )
+        ) {
             selectedDate.value = new Date(
                 props.range_dates[props.range_dates.length - 1],
             );
@@ -295,7 +285,11 @@ const updateCharts = () => {
     }
 
     if (selectedGraphType.value === "percentile") {
-        if (!props.percentile_dates.includes(formatDate(selectedDate.value))) {
+        if (
+            !props.percentile_dates.includes(
+                dateObjectToYmdString(selectedDate.value),
+            )
+        ) {
             selectedDate.value = new Date(
                 props.percentile_dates[props.percentile_dates.length - 1],
             );
