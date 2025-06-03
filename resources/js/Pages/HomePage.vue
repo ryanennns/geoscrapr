@@ -120,6 +120,7 @@ interface Props {
     percentile_dates: string[];
     leaderboard: Player[];
 }
+
 const props = defineProps<Props>();
 
 const { getRateableHistory, getSnapshotForDate } = useApiClient();
@@ -204,12 +205,15 @@ const soloSnapshots = ref(props.solo_snapshots);
 const teamSnapshots = ref(props.team_snapshots);
 
 const availableDates = computed<Date[]>(() => {
-    const soloDates = props.range_dates.map((s) => new Date(s));
-    const teamDates = props.percentile_dates.map((s) => new Date(s));
+    if (selectedGraphType.value === "elo_range") {
+        return [
+            ...new Set([...props.range_dates.map((s) => new Date(s))]),
+        ].sort((a, b) => b.getTime() - a.getTime());
+    }
 
-    return [...new Set([...soloDates, ...teamDates])].sort(
-        (a, b) => b.getTime() - a.getTime(),
-    );
+    return [
+        ...new Set([...props.percentile_dates.map((s) => new Date(s))]),
+    ].sort((a, b) => b.getTime() - a.getTime());
 });
 
 const selectedDate = ref<Date>(availableDates.value[0]);
