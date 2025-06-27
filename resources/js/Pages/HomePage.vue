@@ -217,7 +217,6 @@ const availableDates = computed<Date[]>(() => {
 });
 
 const selectedDate = ref<Date>(availableDates.value[0]);
-console.log(availableDates.value);
 const dateObjectToYmdString = (date: Date) => date.toISOString().split("T")[0];
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
     soloSnapshots.value.find(
