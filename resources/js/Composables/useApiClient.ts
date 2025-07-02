@@ -25,6 +25,25 @@ export type GetAvailableCountriesApiResponse = ApiResponse<CountryCode[]>;
 
 export type GetRateablesApiResponse = ApiResponse<Rateable[]>;
 
+interface GeoGuessrNumericType {
+    amount: number;
+    unit: string;
+    percentage: number;
+}
+
+export type GetInDepthPlayerDataApiResponse = ApiResponse<{
+    gamesPlayed: number;
+    roundsPlayed: number;
+    maxGameScore: GeoGuessrNumericType;
+    averageGameScore: GeoGuessrNumericType;
+    maxRoundScore: GeoGuessrNumericType;
+    streakGamesPlayed: number;
+    averageDistance: any;
+    averageTime: number;
+    timedOutGuesses: any;
+    division: string;
+}>;
+
 export function useApiClient() {
     const getRateableHistory = async (
         rateableType: RateableType,
@@ -152,11 +171,17 @@ export function useApiClient() {
             };
         };
 
+    const getInDepthPlayerData =
+        async (): Promise<GetInDepthPlayerDataApiResponse> => {
+            throw new Error("not implemented");
+        };
+
     return {
         getRateableHistory,
         getLastUpdated,
         getSnapshotForDate,
         getRateables,
         getAvailableCountries,
+        getInDepthPlayerData,
     };
 }

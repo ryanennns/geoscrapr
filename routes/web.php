@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DownloadSqliteController;
 use App\Http\Controllers\GetAvailableCountriesController;
+use App\Http\Controllers\GetInDepthPlayerData;
 use App\Http\Controllers\GetPlayersController;
 use App\Http\Controllers\GetPlayerRatingChanges;
 use App\Http\Controllers\GetSnapshotForDate;
@@ -22,6 +23,7 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
             Route::get('/', GetPlayersController::class);
             Route::get('search', SearchPlayerController::class);
             Route::get('history/{id}', GetPlayerRatingChanges::class);
+            Route::get('/{id}/stats', GetInDepthPlayerData::class);
         });
 
         Route::get('snapshots', GetSnapshotForDate::class);
