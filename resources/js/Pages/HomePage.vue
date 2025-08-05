@@ -209,7 +209,7 @@ onMounted(async () => {
             return;
         }
 
-        getAndSetRateableHistory(rateableToLeaderboardRow(rateable));
+        await getAndSetRateableHistory(rateableToLeaderboardRow(rateable));
         selectedLeaderboardRow.value = rateableToLeaderboardRow(rateable);
 
         showModal.value = true;
