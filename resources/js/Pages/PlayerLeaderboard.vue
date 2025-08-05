@@ -172,7 +172,7 @@ import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import { useApiClient } from "@/Composables/useApiClient.ts";
 
 const { getRateables } = useApiClient();
-const { rateableToLeaderboardRows } = usePlayerUtils();
+const { rateableToLeaderboardRow } = usePlayerUtils();
 
 const leaderboardRowToRating = (row: LeaderboardRow) => {
     if (row.isPlaceholder) {
@@ -352,7 +352,7 @@ watch(
 
 const leaderboardRows = computed<LeaderboardRow[]>(() => {
     const rows: LeaderboardRow[] = [
-        ...rateables.value.map(rateableToLeaderboardRows),
+        ...rateables.value.map(rateableToLeaderboardRow),
     ];
 
     const maybeCountryCode = rows[0]?.countryCodes[0] ?? "";

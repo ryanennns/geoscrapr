@@ -3,8 +3,9 @@
 use App\Http\Controllers\DownloadSqliteController;
 use App\Http\Controllers\GetAvailableCountriesController;
 use App\Http\Controllers\GetInDepthPlayerData;
-use App\Http\Controllers\GetPlayersController;
 use App\Http\Controllers\GetPlayerRatingChanges;
+use App\Http\Controllers\GetPlayersController;
+use App\Http\Controllers\GetRateable;
 use App\Http\Controllers\GetSnapshotForDate;
 use App\Http\Controllers\GetTeamRatingChanges;
 use App\Http\Controllers\GetTeamsController;
@@ -32,6 +33,8 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
         Route::get('last-updated', function () {
             return ['date' => EloSnapshot::query()->select('created_at')->latest()->first()->created_at];
         });
+
+        Route::get('rateables', GetRateable::class)->name('rateables');
     })
     ->group(function () {
         Route::prefix('teams')->group(function () {

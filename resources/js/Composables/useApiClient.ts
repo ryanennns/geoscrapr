@@ -1,9 +1,11 @@
 import type {
     GameType,
+    Player,
     Rateable,
     RateableType,
     RatingChange,
     Snapshot,
+    Team,
 } from "@/Types/core.ts";
 import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 
@@ -43,6 +45,8 @@ export type GetInDepthPlayerDataApiResponse = ApiResponse<{
     timedOutGuesses: any;
     division: string;
 }>;
+
+export type GetRateableApiResponse = ApiResponse<Player | Team>;
 
 export function useApiClient() {
     const getRateableHistory = async (
@@ -176,6 +180,12 @@ export function useApiClient() {
             throw new Error("not implemented");
         };
 
+    const getRateable = async (id: string): Promise<GetRateableApiResponse> => {
+        const response = await fetch(`rateables?id=${id}`);
+
+        return await response.json();
+    };
+
     return {
         getRateableHistory,
         getLastUpdated,
@@ -183,5 +193,6 @@ export function useApiClient() {
         getRateables,
         getAvailableCountries,
         getInDepthPlayerData,
+        getRateable,
     };
 }

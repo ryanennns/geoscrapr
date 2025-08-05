@@ -579,7 +579,7 @@ export function usePlayerUtils() {
         generateProfileUrl,
         getCountryName,
         getFlagImg,
-        rateableToLeaderboardRows,
+        rateableToLeaderboardRow: rateableToLeaderboardRows,
         countryMap,
     };
 }

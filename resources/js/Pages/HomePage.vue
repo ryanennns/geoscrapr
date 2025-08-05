@@ -107,6 +107,8 @@ import {
 import { useRatingChart } from "@/Composables/useRatingChart";
 import Toggle from "@/Components/Toggle.vue";
 import { useApiClient } from "@/Composables/useApiClient.ts";
+import { useUrlParams } from "@/Composables/useUrlParams.ts";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
 
 Chart.defaults.animation = false;
 Chart.register(...registerables);
@@ -123,7 +125,9 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { getRateableHistory, getSnapshotForDate } = useApiClient();
+const { getRateableHistory, getSnapshotForDate, getRateable } = useApiClient();
+const { getId, setId, clearId } = useUrlParams();
+const { rateableToLeaderboardRow } = usePlayerUtils();
 
 const graphTypes = [
     { label: "Range", value: "elo_range" },
@@ -136,12 +140,17 @@ watch([selectedGraphType], () => {
 
 const selectedLeaderboardRow = ref<LeaderboardRow>(EMPTY_LEADERBOARD_ROW);
 const showModal = ref<boolean>(false);
-const closeModal = () => (showModal.value = false);
+const closeModal = () => {
+    showModal.value = false;
+    clearId();
+};
 const playerRatingHistory = ref<RatingChange[]>([]);
 const isLoadingHistory = ref<boolean>(false);
 
 const ratingHistoryCache = ref<Record<string, RatingChange[]>>({});
 const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
+    setId(event.rateable.id);
+
     const rateable = event.rateable;
     selectedLeaderboardRow.value = rateable;
 
@@ -154,9 +163,12 @@ const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
 
     await getAndSetRateableHistory(rateable);
 };
-const getAndSetRateableHistory = async (rateable: LeaderboardRow) => {
+const getAndSetRateableHistory = async (leaderboardRow: LeaderboardRow) => {
     isLoadingHistory.value = true;
-    const history = await getRateableHistory(rateable.type, rateable.id);
+    const history = await getRateableHistory(
+        leaderboardRow.type,
+        leaderboardRow.id,
+    );
 
     const ratingChanges = history.data ?? [];
 
@@ -166,7 +178,7 @@ const getAndSetRateableHistory = async (rateable: LeaderboardRow) => {
         return;
     }
 
-    ratingHistoryCache.value[rateable.id] = ratingChanges;
+    ratingHistoryCache.value[leaderboardRow.id] = ratingChanges;
 
     playerRatingHistory.value = ratingChanges.sort(
         (a: RatingChange, b: RatingChange) =>
@@ -185,8 +197,23 @@ const handleResize = () => {
         updateCharts();
     }, 250);
 };
-onMounted(() => {
+onMounted(async () => {
     window.addEventListener("resize", handleResize);
+
+    const id = getId();
+    if (id) {
+        const rateable = (await getRateable(id)).data;
+
+        if (!rateable) {
+            clearId();
+            return;
+        }
+
+        getAndSetRateableHistory(rateableToLeaderboardRow(rateable));
+        selectedLeaderboardRow.value = rateableToLeaderboardRow(rateable);
+
+        showModal.value = true;
+    }
 });
 onBeforeUnmount(() => {
     window.removeEventListener("resize", handleResize);
