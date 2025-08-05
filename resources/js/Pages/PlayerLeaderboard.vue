@@ -116,7 +116,7 @@
                                 <div
                                     class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-full"
                                 >
-                                    {{ leaderboardRow.name || "-" }}
+                                    {{ leaderboardRow.name.length > 17 ? leaderboardRow.name.slice(0, 14) + '...' : leaderboardRow.name || "-" }}
                                 </div>
                             </td>
                             <td
