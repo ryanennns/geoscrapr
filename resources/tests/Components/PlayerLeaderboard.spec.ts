@@ -84,12 +84,13 @@ describe("PlayerLeaderboard.vue", () => {
             active: "all",
             country: "all",
             order: "desc",
+            page: 1,
             gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.all.all.desc.team.all).toEqual(
-            mockRateables,
-        );
+        expect(
+            (wrapper.vm as any).dataCache.all.all.desc.team.all["1"],
+        ).toEqual(mockRateables);
         expect(wrapper.text()).toContain("some-team");
         expect(wrapper.text()).not.toContain("some-player");
     });
@@ -116,10 +117,11 @@ describe("PlayerLeaderboard.vue", () => {
             active: "all",
             country: "all",
             order: "asc",
+            page: 1,
             gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.all.all.asc.solo.all).toEqual(
+        expect((wrapper.vm as any).dataCache.all.all.asc.solo.all["1"]).toEqual(
             mockRateables,
         );
         expect(wrapper.text()).not.toContain("some-player");
@@ -146,12 +148,13 @@ describe("PlayerLeaderboard.vue", () => {
             active: "active",
             country: "all",
             order: "desc",
+            page: 1,
             gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.all.active.desc.solo.all).toEqual(
-            mockRateables,
-        );
+        expect(
+            (wrapper.vm as any).dataCache.all.active.desc.solo.all["1"],
+        ).toEqual(mockRateables);
     });
 
     it("changes game type filter and updates leaderboard", async () => {
@@ -171,6 +174,7 @@ describe("PlayerLeaderboard.vue", () => {
             active: "all",
             country: "all",
             order: "desc",
+            page: 1,
             gameType: "moving",
         });
     });
@@ -189,9 +193,9 @@ describe("PlayerLeaderboard.vue", () => {
         await (toggle as any).vm.$emit("update:modelValue", "team");
         await nextTick();
 
-        expect((wrapper.vm as any).dataCache.all.all.desc.team.all).toEqual(
-            mockRateables,
-        );
+        expect(
+            (wrapper.vm as any).dataCache.all.all.desc.team.all["1"],
+        ).toEqual(mockRateables);
 
         await (toggle as any).vm.$emit("update:modelValue", "solo");
         await nextTick();
