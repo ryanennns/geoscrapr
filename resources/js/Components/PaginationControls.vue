@@ -22,7 +22,7 @@
             </button>
 
             <div class="text-sm font-medium select-none">
-                Page {{ currentPage }}
+                Page {{ props.modelValue }}
             </div>
 
             <button
@@ -46,17 +46,22 @@
             </button>
         </div>
     </div>
-
 </template>
 
 <script setup lang="ts">
-import {ref, watch} from "vue";
+import { watch } from "vue";
 
-const currentPage = ref(1);
+const props = defineProps<{
+    modelValue: number;
+}>();
+const emit = defineEmits(["update:modelValue", "page-changed"]);
 
-const increment = () => currentPage.value = currentPage.value + 1;
-const decrement = () => currentPage.value = Math.max(currentPage.value - 1, 1)
+const increment = () => emit("update:modelValue", props.modelValue + 1);
+const decrement = () =>
+    emit("update:modelValue", Math.max(props.modelValue - 1, 0));
 
-const emit = defineEmits(["page-changed"]);
-watch(currentPage, (newPage: number) => emit('page-changed', newPage));
+watch(
+    () => props.modelValue,
+    (newPage) => emit("page-changed", newPage),
+);
 </script>
