@@ -111,6 +111,7 @@ export function useApiClient() {
         country?: string;
         order?: string;
         gameType?: GameType;
+        page?: number;
     }
     const getRateables = async ({
         playersOrTeams,
@@ -118,6 +119,7 @@ export function useApiClient() {
         country,
         order,
         gameType,
+        page,
     }: GetRateablesInput): Promise<GetRateablesApiResponse> => {
         const params = new URLSearchParams();
 
@@ -135,6 +137,10 @@ export function useApiClient() {
 
         if (gameType && gameType !== "all") {
             params.append("game_type", gameType);
+        }
+
+        if (page && page > 1) {
+            params.append("page", page.toString());
         }
 
         const response = await fetch(

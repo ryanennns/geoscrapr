@@ -19,6 +19,7 @@ class GetPlayersController extends Controller
         $order = Arr::get($validated, 'order');
         $active = Arr::get($validated, 'active');
         $gameType = Arr::get($validated, 'game_type');
+        $page = Arr::get($validated, 'page', 1);
 
         $query = Player::query();
 
@@ -42,7 +43,7 @@ class GetPlayersController extends Controller
         }
 
         return PlayerResource::collection(
-            $query->limit(10)->get()
+            $query->forPage($page, 10)->limit(10)->get()
         );
     }
 }

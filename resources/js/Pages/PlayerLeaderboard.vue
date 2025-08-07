@@ -157,7 +157,7 @@
                 </table>
             </div>
 
-            <PaginationControls @page-changed="(page) => console.log(page)" />
+            <PaginationControls @page-changed="onPageChange" />
         </div>
     </div>
 </template>
@@ -326,6 +326,7 @@ const updateLeaderboard = async () => {
         country,
         order,
         gameType,
+        page: rateablesPage.value,
     });
 
     if (rateablesResponse.error && rateablesResponse.data === undefined) {
@@ -394,4 +395,12 @@ onMounted(() => {
         ].solo.all = props.playersOrTeams as Player[];
     }
 });
+
+const rateablesPage = ref<number>(1);
+
+const onPageChange = (page: number) => {
+    console.log('onPageChange', page);
+    rateablesPage.value = page;
+    updateLeaderboard();
+};
 </script>
