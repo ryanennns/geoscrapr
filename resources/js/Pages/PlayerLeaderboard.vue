@@ -117,7 +117,7 @@
                                     class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-full"
                                 >
                                     {{
-                                        leaderboardRow.name.length > 17
+                                        leaderboardRow.name.length > 17 && isMobile
                                             ? leaderboardRow.name.slice(0, 14) +
                                               "..."
                                             : leaderboardRow.name || "-"
@@ -181,9 +181,11 @@ import {
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import { useApiClient } from "@/Composables/useApiClient.ts";
 import PaginationControls from "@/Components/PaginationControls.vue";
+import {useBrowserUtils} from "@/Composables/useBrowserUtils.ts";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRow } = usePlayerUtils();
+const { isMobile } = useBrowserUtils();
 
 const leaderboardRowToRating = (row: LeaderboardRow) => {
     if (row.isPlaceholder) {
