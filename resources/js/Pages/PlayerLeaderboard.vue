@@ -116,7 +116,12 @@
                                 <div
                                     class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-full"
                                 >
-                                    {{ leaderboardRow.name.length > 17 ? leaderboardRow.name.slice(0, 14) + '...' : leaderboardRow.name || "-" }}
+                                    {{
+                                        leaderboardRow.name.length > 17
+                                            ? leaderboardRow.name.slice(0, 14) +
+                                              "..."
+                                            : leaderboardRow.name || "-"
+                                    }}
                                 </div>
                             </td>
                             <td
@@ -151,6 +156,8 @@
                     </tbody>
                 </table>
             </div>
+
+            <PaginationControls @page-changed="(page) => console.log(page)" />
         </div>
     </div>
 </template>
@@ -170,6 +177,7 @@ import {
 } from "@/Types/core.ts";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import { useApiClient } from "@/Composables/useApiClient.ts";
+import PaginationControls from "@/Components/PaginationControls.vue";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRow } = usePlayerUtils();
@@ -259,7 +267,6 @@ const modeOptions = [
     { label: "Team", value: "team" },
 ];
 watch(selectedMode, (newMode) => {
-    // force reset game type to all if selected mode changes to team
     if (newMode === "team") {
         selectedGameType.value = "all";
     }
@@ -285,7 +292,6 @@ const gameTypeOptions = [
     { label: "NMPZ", value: "nmpz" },
 ];
 watch(selectedGameType, () => {
-    // force reset game type filter if displaying teams
     if (selectedMode.value === "team") {
         selectedGameType.value = "all";
     }
