@@ -57,7 +57,8 @@ const props = defineProps<{
 const emit = defineEmits(["update:modelValue", "page-changed"]);
 
 const increment = () => emit("update:modelValue", props.modelValue + 1);
-const decrement = () => emit("update:modelValue", Math.max(props.modelValue - 1, 1));
+const decrement = () =>
+    emit("update:modelValue", Math.max(props.modelValue - 1, 1));
 
 watch(
     () => props.modelValue,
