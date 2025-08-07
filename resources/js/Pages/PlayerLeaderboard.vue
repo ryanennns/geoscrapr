@@ -301,7 +301,9 @@ const gameTypeOptions = [
     { label: "NMPZ", value: "nmpz" },
 ];
 watch(selectedGameType, () => {
-    if (selectedMode.value === "team") selectedGameType.value = "all";
+    if (selectedMode.value === "team") {
+        selectedGameType.value = "all";
+    }
 });
 
 const isSolo = computed(() => selectedMode.value === "solo");

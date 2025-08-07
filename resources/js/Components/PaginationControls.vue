@@ -22,7 +22,7 @@
             </button>
 
             <div class="text-sm font-medium select-none">
-                Page {{ currentPage }} of {{ totalPages }}
+                Page {{ currentPage }}
             </div>
 
             <button
@@ -53,9 +53,8 @@
 import {ref, watch} from "vue";
 
 const currentPage = ref(1);
-const totalPages = ref(10);
 
-const increment = () => currentPage.value = Math.min(currentPage.value + 1, totalPages.value)
+const increment = () => currentPage.value = currentPage.value + 1;
 const decrement = () => currentPage.value = Math.max(currentPage.value - 1, 1)
 
 const emit = defineEmits(["page-changed"]);
