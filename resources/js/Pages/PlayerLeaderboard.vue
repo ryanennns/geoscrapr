@@ -166,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import CountryDropdown from "@/Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "@/Components/LeaderboardLoadingSkeleton.vue";
 import Flag from "@/Components/Flag.vue";
@@ -448,8 +448,9 @@ watch(
         selectedOrder.value,
         isActive.value,
     ],
-    () => {
+    async () => {
         rateablesPage.value = 1;
+        await nextTick();
     },
 );
 </script>
