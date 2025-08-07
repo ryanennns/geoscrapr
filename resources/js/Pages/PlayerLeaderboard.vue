@@ -10,7 +10,7 @@
                 <div class="flex flex-wrap gap-2 sm:gap-4">
                     <div class="relative">
                         <CountryDropdown
-                            @change="handleCountryFilterChange"
+                            v-model="selectedCountry"
                             :disabled="!isSolo"
                         />
                     </div>
@@ -46,6 +46,8 @@
                         color="indigo"
                         @update:modelValue="updateLeaderboard"
                     />
+
+                    <ResetButton @click="resetFilters" />
                 </div>
             </div>
             <div class="overflow-x-auto -mx-4 md:mx-0">
@@ -120,11 +122,12 @@ import {
     type Player,
     type Rateable,
 } from "@/Types/core.ts";
-import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
+import {CountryCode, usePlayerUtils} from "@/Composables/usePlayerUtils.js";
 import { useApiClient } from "@/Composables/useApiClient.ts";
 import PaginationControls from "@/Components/PaginationControls.vue";
 import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 import Row from "@/Pages/Row.vue";
+import ResetButton from "@/Components/ResetButton.vue";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRow } = usePlayerUtils();
@@ -174,7 +177,7 @@ type ActiveCache = {
 
 type PlayerTeamCache = Record<GameType, ActiveCache>;
 
-const emit = defineEmits(["playerClick", "countryFilterChange"]);
+const emit = defineEmits(["playerClick"]);
 
 const createPlayerTeamBranch = (): PlayerTeamBranch => ({
     solo: { all: {} }, // country -> page -> data
@@ -237,13 +240,24 @@ watch(selectedGameType, () => {
     }
 });
 
+const resetFilters = () => {
+    selectedGameType.value = "all";
+    selectedMode.value = "solo";
+    selectedOrder.value = "desc";
+    isActive.value = "all";
+    selectedCountry.value = "";
+    rateablesPage.value = 1;
+    updateLeaderboard();
+}
+
 const isSolo = computed(() => selectedMode.value === "solo");
 
-const selectedCountry = ref("");
-const handleCountryFilterChange = (event: { country: string }) => {
-    selectedCountry.value = event.country;
+const selectedCountry = ref<CountryCode>("");
+
+watch(selectedCountry, (newCountry) => {
+    selectedCountry.value = newCountry;
     updateLeaderboard();
-};
+})
 
 const loading = ref(false);
 const rateablesPage = ref<number>(1);

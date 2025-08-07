@@ -32,7 +32,7 @@
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M19 9l-7 7-7-7"
-            ></path>
+            />
         </svg>
     </div>
 </template>
@@ -47,6 +47,7 @@ import { computed, onMounted, ref } from "vue";
 import { useApiClient } from "@/Composables/useApiClient.ts";
 
 interface Props {
+    modelValue: string;
     disabled: boolean;
 }
 
@@ -74,10 +75,10 @@ const availableCountries = computed(() => {
         : apiCountries.value.map(countryMapMethod).sort(countrySortMethod);
 });
 
-const emits = defineEmits(["change"]);
+const emit = defineEmits(["update:modelValue"]);
 
 const handleCountryFilterChange = (event: Event) => {
-    emits("change", { country: (event.target as HTMLSelectElement)?.value });
+    emit("update:modelValue", (event.target as HTMLSelectElement)?.value);
 };
 
 onMounted(async () => {
