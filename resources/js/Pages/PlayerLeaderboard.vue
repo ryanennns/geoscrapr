@@ -389,6 +389,7 @@ watch(
         selectedMode.value,
         selectedOrder.value,
         isActive.value,
+        selectedCountry.value,
     ],
     async () => {
         rateablesPage.value = 1;
