@@ -107,7 +107,7 @@
                                 class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
                             >
                                 <div class="text-xs sm:text-sm font-medium">
-                                    {{ rateablesPage * 10 - 10 + index + 1 }}
+                                    {{ (rateablesPage - 1) * 10 + index + 1 }}
                                 </div>
                             </td>
                             <td
