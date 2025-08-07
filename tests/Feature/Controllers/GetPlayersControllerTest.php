@@ -108,6 +108,22 @@ class GetPlayersControllerTest extends TestCase
         );
     }
 
+    public function test_it_paginates_response()
+    {
+        $players = Player::factory(20)->create();
+
+        $response = $this->getJson('players?page=2');
+        $response->assertSuccessful();
+
+        $data = Arr::get($response->json(), 'data');
+
+        $this->assertCount(10, $data);
+        $this->assertEquals(
+            Arr::get($players->sortByDesc('rating')->values(), '10.id'),
+            Arr::get($data, '0.id')
+        );
+    }
+
     public static function provideRatingOptions(): array
     {
         return [

@@ -74,4 +74,19 @@ class GetTeamsControllerTest extends TestCase
             ]
         ]);
     }
+
+    public function test_it_paginates_response()
+    {
+        $playerA = Player::factory()->create();
+        $playerB = Player::factory()->create();
+
+        Team::factory()->count(15)->create([
+            'player_a' => $playerA->user_id,
+            'player_b' => $playerB->user_id,
+        ]);
+
+        $response = $this->getJson('teams?page=2');
+        $response->assertSuccessful();
+        $response->assertJsonCount(5, 'data');
+    }
 }

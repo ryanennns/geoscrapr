@@ -3,6 +3,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import { Chart } from "chart.js";
 import HomePage from "../../js/Pages/HomePage.vue";
 import type { Snapshot } from "@/Types/core.ts";
+import { createPlayer } from "../utils/utils.ts";
 
 const mockRenderRangeChart = vi.fn();
 const mockRenderPercentileChart = vi.fn();
@@ -26,6 +27,7 @@ vi.mock("@composables/useApiClient", () => ({
         getAvailableCountries: vi
             .fn()
             .mockResolvedValue({ data: ["au", "nz", "ca"] }),
+        getRateable: vi.fn().mockResolvedValue({ data: createPlayer() }),
     }),
 }));
 

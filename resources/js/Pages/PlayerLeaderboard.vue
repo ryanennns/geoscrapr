@@ -107,7 +107,7 @@
                                 class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap"
                             >
                                 <div class="text-xs sm:text-sm font-medium">
-                                    {{ index + 1 }}
+                                    {{ (rateablesPage - 1) * 10 + index + 1 }}
                                 </div>
                             </td>
                             <td
@@ -116,7 +116,12 @@
                                 <div
                                     class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-full"
                                 >
-                                    {{ leaderboardRow.name.length > 17 ? leaderboardRow.name.slice(0, 14) + '...' : leaderboardRow.name || "-" }}
+                                    {{
+                                        leaderboardRow.name.length > 17
+                                            ? leaderboardRow.name.slice(0, 14) +
+                                              "..."
+                                            : leaderboardRow.name || "-"
+                                    }}
                                 </div>
                             </td>
                             <td
@@ -151,6 +156,11 @@
                     </tbody>
                 </table>
             </div>
+
+            <PaginationControls
+                v-model="rateablesPage"
+                @page-changed="onPageChanged"
+            />
         </div>
     </div>
 </template>
@@ -170,6 +180,7 @@ import {
 } from "@/Types/core.ts";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import { useApiClient } from "@/Composables/useApiClient.ts";
+import PaginationControls from "@/Components/PaginationControls.vue";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRow } = usePlayerUtils();
@@ -215,42 +226,51 @@ const props = defineProps<Props>();
 
 type IsActive = "active" | "all";
 
-interface SubCache {
-    [key: string]: Rateable[];
-}
+type PageCache = Record<number, Rateable[]>;
+type CountryCache = Record<string, PageCache>;
 
-type PlayerTeamCache = Record<
-    GameType,
-    Record<IsActive, Record<SortOrder, Record<Gamemode, SubCache>>>
->;
+type PlayerTeamBranch = {
+    solo: CountryCache;
+    team: CountryCache;
+};
+
+type ModeCache = {
+    asc: PlayerTeamBranch;
+    desc: PlayerTeamBranch;
+};
+
+type ActiveCache = {
+    active: ModeCache;
+    all: ModeCache;
+};
+
+type PlayerTeamCache = Record<GameType, ActiveCache>;
 
 const emit = defineEmits(["playerClick", "countryFilterChange"]);
 
-const createCacheRoot = () => ({
-    solo: { all: [] },
-    team: { all: [] },
+const createPlayerTeamBranch = (): PlayerTeamBranch => ({
+    solo: { all: {} }, // country -> page -> data
+    team: { all: {} },
 });
 
-const newCacheRoot = () => ({
-    active: {
-        asc: createCacheRoot(),
-        desc: createCacheRoot(),
-    },
-    all: {
-        asc: createCacheRoot(),
-        desc: createCacheRoot(),
-    },
+const createModeCache = (): ModeCache => ({
+    asc: createPlayerTeamBranch(),
+    desc: createPlayerTeamBranch(),
 });
+
+const createActiveCache = (): ActiveCache => ({
+    active: createModeCache(),
+    all: createModeCache(),
+});
+
 const dataCache = ref<PlayerTeamCache>({
-    all: newCacheRoot(),
-    moving: newCacheRoot(),
-    no_move: newCacheRoot(),
-    nmpz: newCacheRoot(),
+    all: createActiveCache(),
+    moving: createActiveCache(),
+    no_move: createActiveCache(),
+    nmpz: createActiveCache(),
 });
 
 const rateables = ref<Rateable[]>(props.playersOrTeams);
-
-const isSolo = computed(() => selectedMode.value === "solo");
 
 type Gamemode = "solo" | "team";
 const selectedMode = ref<Gamemode>("solo");
@@ -259,7 +279,6 @@ const modeOptions = [
     { label: "Team", value: "team" },
 ];
 watch(selectedMode, (newMode) => {
-    // force reset game type to all if selected mode changes to team
     if (newMode === "team") {
         selectedGameType.value = "all";
     }
@@ -285,11 +304,12 @@ const gameTypeOptions = [
     { label: "NMPZ", value: "nmpz" },
 ];
 watch(selectedGameType, () => {
-    // force reset game type filter if displaying teams
     if (selectedMode.value === "team") {
         selectedGameType.value = "all";
     }
 });
+
+const isSolo = computed(() => selectedMode.value === "solo");
 
 const selectedCountry = ref("");
 const handleCountryFilterChange = (event: { country: string }) => {
@@ -298,39 +318,60 @@ const handleCountryFilterChange = (event: { country: string }) => {
 };
 
 const loading = ref(false);
-const updateLeaderboard = async () => {
-    const active = isActive.value;
-    const order = selectedOrder.value;
+const rateablesPage = ref<number>(1);
+
+const getCacheBucket = () => {
+    const gt = selectedGameType.value;
+    const act = isActive.value;
+    const ord = selectedOrder.value;
     const mode = selectedMode.value;
     const country = selectedCountry.value || "all";
-    const gameType = selectedGameType.value;
+    return {
+        bucket: dataCache.value[gt][act][ord][mode],
+        country,
+        page: rateablesPage.value,
+    };
+};
 
-    if (dataCache.value[gameType][active][order][mode][country]?.length > 0) {
-        rateables.value = dataCache.value[gameType][active][order][mode][
-            country
-        ] as Rateable[];
+const readFromCache = (): Rateable[] | undefined => {
+    const { bucket, country, page } = getCacheBucket();
+    const countryCache = bucket[country] ?? {};
+    return countryCache[page];
+};
 
+const writeToCache = (rows: Rateable[]) => {
+    const { bucket, country, page } = getCacheBucket();
+    if (!bucket[country]) bucket[country] = {};
+    bucket[country][page] = rows;
+};
+
+const updateLeaderboard = async () => {
+    const cached = readFromCache();
+    if (cached && cached.length > 0) {
+        rateables.value = cached;
         return;
     }
 
     loading.value = true;
     const rateablesResponse = await getRateables({
-        playersOrTeams: mode === "solo" ? "players" : "teams",
-        active,
-        country,
-        order,
-        gameType,
+        playersOrTeams: selectedMode.value === "solo" ? "players" : "teams",
+        active: isActive.value,
+        country: selectedCountry.value || "all",
+        order: selectedOrder.value,
+        gameType: selectedGameType.value,
+        page: rateablesPage.value,
     });
 
     if (rateablesResponse.error && rateablesResponse.data === undefined) {
         console.error("Error fetching leaderboard data");
         rateables.value = [];
+        loading.value = false;
         return;
     }
 
-    dataCache.value[gameType][active][order][mode][country] =
-        rateablesResponse.data ?? [];
-    rateables.value = rateablesResponse.data ?? [];
+    const data = rateablesResponse.data ?? [];
+    writeToCache(data);
+    rateables.value = data;
     setTimeout(() => (loading.value = false), 300);
 };
 
@@ -338,9 +379,13 @@ watch(
     () => props.playersOrTeams,
     (newPlayers) => {
         if (newPlayers && newPlayers.length > 0 && !isTeam(newPlayers[0])) {
-            dataCache.value[selectedGameType.value][isActive.value][
-                selectedOrder.value
-            ].solo.all = newPlayers as Player[];
+            // seed page 1 of "solo/all" with initial props
+            const branch =
+                dataCache.value[selectedGameType.value][isActive.value][
+                    selectedOrder.value
+                ].solo;
+            if (!branch.all) branch.all = {};
+            branch.all[1] = newPlayers as Player[];
 
             if (selectedMode.value === "solo" && !selectedCountry.value) {
                 rateables.value = newPlayers;
@@ -354,11 +399,8 @@ const leaderboardRows = computed<LeaderboardRow[]>(() => {
     const rows: LeaderboardRow[] = [
         ...rateables.value.map(rateableToLeaderboardRow),
     ];
-
     const maybeCountryCode = rows[0]?.countryCodes[0] ?? "";
-
     const placeholderCount = Math.max(0, 10 - rows.length);
-
     for (let i = 0; i < placeholderCount; i++) {
         rows.push({
             id: `placeholder-${i}`,
@@ -383,9 +425,31 @@ const handlePlayerClick = (playerOrTeam: LeaderboardRow) => {
 
 onMounted(() => {
     if (props.playersOrTeams && props.playersOrTeams.length > 0) {
-        dataCache.value[selectedGameType.value][isActive.value][
-            selectedOrder.value
-        ].solo.all = props.playersOrTeams as Player[];
+        const branch =
+            dataCache.value[selectedGameType.value][isActive.value][
+                selectedOrder.value
+            ].solo;
+        if (!branch.all) {
+            branch.all = {};
+        }
+        branch.all[1] = props.playersOrTeams as Player[];
     }
 });
+
+const onPageChanged = (page: number) => {
+    rateablesPage.value = page;
+    updateLeaderboard();
+};
+
+watch(
+    () => [
+        selectedGameType.value,
+        selectedMode.value,
+        selectedOrder.value,
+        isActive.value,
+    ],
+    () => {
+        rateablesPage.value = 1;
+    },
+);
 </script>

@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import PlayerLeaderboard from "@/Pages/PlayerLeaderboard.vue";
-import type { Player, Rateable, RateableType } from "@/Types/core.ts";
+import type { Rateable, RateableType } from "@/Types/core.ts";
 import { v4 } from "uuid";
-import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 import { nextTick } from "vue";
+import { createPlayer } from "../utils/utils.ts";
 
 const mockGetAvailableCountries = vi.fn();
 const mockGetRateables = vi.fn();
@@ -84,12 +84,13 @@ describe("PlayerLeaderboard.vue", () => {
             active: "all",
             country: "all",
             order: "desc",
+            page: 1,
             gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.all.all.desc.team.all).toEqual(
-            mockRateables,
-        );
+        expect(
+            (wrapper.vm as any).dataCache.all.all.desc.team.all["1"],
+        ).toEqual(mockRateables);
         expect(wrapper.text()).toContain("some-team");
         expect(wrapper.text()).not.toContain("some-player");
     });
@@ -116,10 +117,11 @@ describe("PlayerLeaderboard.vue", () => {
             active: "all",
             country: "all",
             order: "asc",
+            page: 1,
             gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.all.all.asc.solo.all).toEqual(
+        expect((wrapper.vm as any).dataCache.all.all.asc.solo.all["1"]).toEqual(
             mockRateables,
         );
         expect(wrapper.text()).not.toContain("some-player");
@@ -146,12 +148,13 @@ describe("PlayerLeaderboard.vue", () => {
             active: "active",
             country: "all",
             order: "desc",
+            page: 1,
             gameType: "all",
         });
 
-        expect((wrapper.vm as any).dataCache.all.active.desc.solo.all).toEqual(
-            mockRateables,
-        );
+        expect(
+            (wrapper.vm as any).dataCache.all.active.desc.solo.all["1"],
+        ).toEqual(mockRateables);
     });
 
     it("changes game type filter and updates leaderboard", async () => {
@@ -171,6 +174,7 @@ describe("PlayerLeaderboard.vue", () => {
             active: "all",
             country: "all",
             order: "desc",
+            page: 1,
             gameType: "moving",
         });
     });
@@ -189,9 +193,9 @@ describe("PlayerLeaderboard.vue", () => {
         await (toggle as any).vm.$emit("update:modelValue", "team");
         await nextTick();
 
-        expect((wrapper.vm as any).dataCache.all.all.desc.team.all).toEqual(
-            mockRateables,
-        );
+        expect(
+            (wrapper.vm as any).dataCache.all.all.desc.team.all["1"],
+        ).toEqual(mockRateables);
 
         await (toggle as any).vm.$emit("update:modelValue", "solo");
         await nextTick();
@@ -223,20 +227,6 @@ describe("PlayerLeaderboard.vue", () => {
         ).toBe(true);
     });
 });
-
-const createPlayer = (overrides: Partial<Player> = {}): Player => {
-    return {
-        id: v4(),
-        user_id: v4(),
-        name: "some-player",
-        rating: 1000,
-        moving_rating: 990,
-        no_move_rating: 985,
-        nmpz_rating: 1001,
-        country_code: "nz" as CountryCode,
-        ...overrides,
-    };
-};
 
 const createRateable = (type: RateableType = "player"): Rateable => {
     if (type === "player") {

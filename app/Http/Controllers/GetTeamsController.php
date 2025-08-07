@@ -18,10 +18,12 @@ class GetTeamsController extends Controller
         $validated = $request->validate([
             'order'  => Rule::enum(SortOrder::class),
             'active' => 'boolean|nullable',
+            'page'   => 'integer|nullable|min:1',
         ]);
 
         $order = Arr::get($validated, 'order');
         $active = Arr::get($validated, 'active');
+        $page = Arr::get($validated, 'page', 1);
 
         $query = Team::query();
 
@@ -35,6 +37,7 @@ class GetTeamsController extends Controller
 
         return TeamResource::collection(
             $query->with(['playerA', 'playerB'])
+                ->forPage($page, 10)
                 ->limit(10)
                 ->get()
         );
