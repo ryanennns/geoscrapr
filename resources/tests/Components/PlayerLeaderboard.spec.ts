@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import PlayerLeaderboard from "@/Pages/PlayerLeaderboard.vue";
-import type { Player, Rateable, RateableType } from "@/Types/core.ts";
+import type { Rateable, RateableType } from "@/Types/core.ts";
 import { v4 } from "uuid";
-import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 import { nextTick } from "vue";
+import { createPlayer } from "../utils/utils.ts";
 
 const mockGetAvailableCountries = vi.fn();
 const mockGetRateables = vi.fn();
@@ -227,20 +227,6 @@ describe("PlayerLeaderboard.vue", () => {
         ).toBe(true);
     });
 });
-
-const createPlayer = (overrides: Partial<Player> = {}): Player => {
-    return {
-        id: v4(),
-        user_id: v4(),
-        name: "some-player",
-        rating: 1000,
-        moving_rating: 990,
-        no_move_rating: 985,
-        nmpz_rating: 1001,
-        country_code: "nz" as CountryCode,
-        ...overrides,
-    };
-};
 
 const createRateable = (type: RateableType = "player"): Rateable => {
     if (type === "player") {

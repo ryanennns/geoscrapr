@@ -106,9 +106,9 @@ import {
 } from "@/Types/core.ts";
 import { useRatingChart } from "@/Composables/useRatingChart";
 import Toggle from "@/Components/Toggle.vue";
-import { useApiClient } from "@/Composables/useApiClient.ts";
-import { useUrlParams } from "@/Composables/useUrlParams.ts";
-import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
+import { useApiClient } from "@/Composables/useApiClient";
+import { useUrlParams } from "@/Composables/useUrlParams";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils";
 
 Chart.defaults.animation = false;
 Chart.register(...registerables);
