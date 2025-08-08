@@ -55,6 +55,7 @@
 <script setup lang="ts">
 import { type GameType, type LeaderboardRow } from "@/Types/core.ts";
 import Flag from "@/Components/Flag.vue";
+import {useBrowserUtils} from "@/Composables/useBrowserUtils.ts";
 
 interface Props {
     leaderboardRow: LeaderboardRow;
@@ -65,6 +66,8 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits(["player-click"]);
+
+const { isMobile } = useBrowserUtils();
 
 const leaderboardRowToRating = (row: LeaderboardRow) => {
     if (row.isPlaceholder) {
