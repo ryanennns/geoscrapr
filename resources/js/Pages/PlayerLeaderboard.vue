@@ -122,7 +122,7 @@ import {
     type Player,
     type Rateable,
 } from "@/Types/core.ts";
-import {CountryCode, usePlayerUtils} from "@/Composables/usePlayerUtils.js";
+import { CountryCode, usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import { useApiClient } from "@/Composables/useApiClient.ts";
 import PaginationControls from "@/Components/PaginationControls.vue";
 import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
@@ -248,7 +248,7 @@ const resetFilters = () => {
     selectedCountry.value = "";
     rateablesPage.value = 1;
     updateLeaderboard();
-}
+};
 
 const isSolo = computed(() => selectedMode.value === "solo");
 
@@ -257,7 +257,7 @@ const selectedCountry = ref<CountryCode>("");
 watch(selectedCountry, (newCountry) => {
     selectedCountry.value = newCountry;
     updateLeaderboard();
-})
+});
 
 const loading = ref(false);
 const rateablesPage = ref<number>(1);

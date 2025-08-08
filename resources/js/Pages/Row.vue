@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { type GameType, type LeaderboardRow } from "@/Types/core.ts";
 import Flag from "@/Components/Flag.vue";
-import {useBrowserUtils} from "@/Composables/useBrowserUtils.ts";
+import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 
 interface Props {
     leaderboardRow: LeaderboardRow;
