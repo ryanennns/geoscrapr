@@ -125,13 +125,11 @@ import {
 import { CountryCode, usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import { useApiClient } from "@/Composables/useApiClient.ts";
 import PaginationControls from "@/Components/PaginationControls.vue";
-import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 import Row from "@/Pages/Row.vue";
 import ResetButton from "@/Components/ResetButton.vue";
 
 const { getRateables } = useApiClient();
-const { rateableToLeaderboardRow } = usePlayerUtils();
-const { isMobile } = useBrowserUtils();
+const { rateableToLeaderboardRows } = usePlayerUtils();
 
 const ratingHeader = computed<string>(() => {
     switch (selectedGameType.value) {
@@ -245,14 +243,14 @@ const resetFilters = () => {
     selectedMode.value = "solo";
     selectedOrder.value = "desc";
     isActive.value = "all";
-    selectedCountry.value = "";
+    selectedCountry.value = CountryCode.none;
     rateablesPage.value = 1;
     updateLeaderboard();
 };
 
 const isSolo = computed(() => selectedMode.value === "solo");
 
-const selectedCountry = ref<CountryCode>("");
+const selectedCountry = ref<CountryCode>(CountryCode.none);
 
 watch(selectedCountry, (newCountry) => {
     selectedCountry.value = newCountry;
@@ -339,7 +337,7 @@ watch(
 
 const leaderboardRows = computed<LeaderboardRow[]>(() => {
     const rows: LeaderboardRow[] = [
-        ...rateables.value.map(rateableToLeaderboardRow),
+        ...rateables.value.map(rateableToLeaderboardRows),
     ];
     const maybeCountryCode = rows[0]?.countryCodes[0] ?? "";
     const placeholderCount = Math.max(0, 10 - rows.length);

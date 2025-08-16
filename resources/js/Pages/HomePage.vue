@@ -127,7 +127,7 @@ const props = defineProps<Props>();
 
 const { getRateableHistory, getSnapshotForDate, getRateable } = useApiClient();
 const { getId, setId, clearId } = useUrlParams();
-const { rateableToLeaderboardRow } = usePlayerUtils();
+const { rateableToLeaderboardRows } = usePlayerUtils();
 
 const graphTypes = [
     { label: "Range", value: "elo_range" },
@@ -163,6 +163,7 @@ const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
 
     await getAndSetRateableHistory(rateable);
 };
+
 const getAndSetRateableHistory = async (leaderboardRow: LeaderboardRow) => {
     isLoadingHistory.value = true;
     const history = await getRateableHistory(
@@ -209,8 +210,8 @@ onMounted(async () => {
             return;
         }
 
-        await getAndSetRateableHistory(rateableToLeaderboardRow(rateable));
-        selectedLeaderboardRow.value = rateableToLeaderboardRow(rateable);
+        await getAndSetRateableHistory(rateableToLeaderboardRows(rateable));
+        selectedLeaderboardRow.value = rateableToLeaderboardRows(rateable);
 
         showModal.value = true;
     }

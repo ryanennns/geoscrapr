@@ -256,6 +256,7 @@ export enum CountryCode {
     za = "za",
     zm = "zm",
     zw = "zw",
+    none = "none",
 }
 
 export const countryMap: Record<CountryCode, string> = {
@@ -509,6 +510,7 @@ export const countryMap: Record<CountryCode, string> = {
     za: "South Africa",
     zm: "Zambia",
     zw: "Zimbabwe",
+    none: "None",
 };
 
 export function usePlayerUtils() {
@@ -579,7 +581,7 @@ export function usePlayerUtils() {
         generateProfileUrl,
         getCountryName,
         getFlagImg,
-        rateableToLeaderboardRow: rateableToLeaderboardRows,
+        rateableToLeaderboardRows,
         countryMap,
     };
 }

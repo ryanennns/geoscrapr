@@ -99,7 +99,7 @@ import type { Player, Rateable, Team } from "@/Types/core.ts";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import TeamSearchResult from "@/Components/TeamSearchResult.vue";
 
-const { rateableToLeaderboardRow } = usePlayerUtils();
+const { rateableToLeaderboardRows } = usePlayerUtils();
 
 const searchInputElement = ref<HTMLInputElement>();
 const searchQuery = ref<string>("");
@@ -163,7 +163,7 @@ const emit = defineEmits(["rowClicked"]);
 const handlePlayerOrTeamClicked = async (rateable: Rateable) => {
     searchInputElement.value?.blur();
     emit("rowClicked", {
-        rateable: rateableToLeaderboardRow(rateable),
+        rateable: rateableToLeaderboardRows(rateable),
     });
 };
 </script>
