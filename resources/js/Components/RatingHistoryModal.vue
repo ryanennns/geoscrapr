@@ -94,7 +94,7 @@
                                 </p>
                             </a>
                         </span>
-                        <span v-else>
+                        <span v-else class="flex items-center mb-2 gap-2">
                             <a
                                 :href="
                                     generateProfileUrl(
@@ -109,6 +109,19 @@
                                     {{ props.leaderboardRow.geoGuessrId }}
                                 </p>
                             </a>
+
+                            <span class="flex items-center gap-2 grow">
+                                <p>Rank: #{{ props.leaderboardRow.rank }}</p>
+                                -
+                                <p v-if="props.leaderboardRow.percentile">
+                                    P{{
+                                        Math.floor(
+                                            props.leaderboardRow.percentile *
+                                                100,
+                                        ) / 100
+                                    }}
+                                </p>
+                            </span>
                         </span>
                     </span>
                     <button
@@ -161,7 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { Chart, type TooltipItem } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
@@ -468,6 +481,8 @@ watch(
 watch(
     () => props.showModal,
     (show) => {
+        console.log(JSON.stringify(props.leaderboardRow));
+
         show
             ? window.addEventListener("keydown", handleKeydown)
             : window.removeEventListener("keydown", handleKeydown);

@@ -562,6 +562,8 @@ export function usePlayerUtils() {
                   players: [playerOrTeam.player_a, playerOrTeam.player_b],
                   isPlaceholder: false,
                   type: "team",
+                  percentile: playerOrTeam.percentile,
+                  rank: playerOrTeam.rank,
               }
             : {
                   id: playerOrTeam.id,
@@ -574,6 +576,8 @@ export function usePlayerUtils() {
                   countryCodes: [playerOrTeam.country_code],
                   isPlaceholder: false,
                   type: "player",
+                  percentile: playerOrTeam.percentile,
+                  rank: playerOrTeam.rank,
               };
 
     return {

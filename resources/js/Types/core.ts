@@ -11,6 +11,8 @@ export interface Player {
     no_move_rating: number | null;
     nmpz_rating: number | null;
     country_code: CountryCode;
+    percentile?: number;
+    rank?: number;
 }
 
 export interface Team {
@@ -20,6 +22,8 @@ export interface Team {
     rating: number;
     player_a: Player;
     player_b: Player;
+    percentile?: number;
+    rank?: number;
 }
 
 export type Rateable = Player | Team;
@@ -38,6 +42,8 @@ export interface LeaderboardRow {
     players?: Player[];
     isPlaceholder: boolean;
     type: RateableType;
+    percentile?: number | undefined;
+    rank?: number | undefined;
 }
 
 export const EMPTY_LEADERBOARD_ROW: LeaderboardRow = {
