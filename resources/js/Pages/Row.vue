@@ -74,7 +74,7 @@ const leaderboardRowToRating = (row: LeaderboardRow) => {
         return "-";
     }
 
-    switch (props.selectedGameType.value) {
+    switch (props.selectedGameType) {
         case "moving":
             return row.moving_rating?.toLocaleString() ?? "-";
         case "no_move":
