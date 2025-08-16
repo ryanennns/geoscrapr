@@ -36,5 +36,5 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "types": ["vitest/globals"]
-    },
+    }
 }
