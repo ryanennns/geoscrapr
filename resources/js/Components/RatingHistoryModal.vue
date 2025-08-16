@@ -174,7 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 import { Chart, type TooltipItem } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
