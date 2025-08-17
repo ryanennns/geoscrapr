@@ -59,6 +59,26 @@
                             </div>
                         </span>
 
+                        <span class="flex items-center gap-2">
+                            <p>
+                                Rank:
+                                <span class="font-bold"
+                                    >#{{ props.leaderboardRow.rank }}</span
+                                >
+                            </p>
+                            —
+                            <p
+                                v-if="props.leaderboardRow.percentile"
+                                class="font-bold"
+                            >
+                                P{{
+                                    Math.floor(
+                                        props.leaderboardRow.percentile * 100,
+                                    ) / 100
+                                }}
+                            </p>
+                        </span>
+
                         <span v-if="props.leaderboardRow.players" class="flex">
                             <a
                                 :href="
@@ -109,19 +129,6 @@
                                     {{ props.leaderboardRow.geoGuessrId }}
                                 </p>
                             </a>
-
-                            <span class="flex items-center gap-2 grow">
-                                <p>Rank: #{{ props.leaderboardRow.rank }}</p>
-                                -
-                                <p v-if="props.leaderboardRow.percentile">
-                                    P{{
-                                        Math.floor(
-                                            props.leaderboardRow.percentile *
-                                                100,
-                                        ) / 100
-                                    }}
-                                </p>
-                            </span>
                         </span>
                     </span>
                     <button
