@@ -3,7 +3,7 @@
         <div
             v-if="props.showModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/75"
-            @click.self="emitClose"
+            @click.self="onClose"
         >
             <div
                 class="flex flex-col bg-white rounded-lg shadow-lg px-6 pt-6 pb-5 w-full max-w-2xl transition-all duration-300"
@@ -139,7 +139,7 @@
                         :expanded="expanded"
                         @toggle="toggleExpand"
                     />
-                    <CloseButton v-else @close="() => emitClose()" />
+                    <CloseButton v-else @close="() => onClose()" />
                 </div>
 
                 <div class="mt-auto">
@@ -174,7 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { Chart, type TooltipItem } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
@@ -185,6 +185,7 @@ import RatingBadge from "@/Components/RatingBadge.vue";
 import ExpandContractButton from "@/Components/ExpandContractButton.vue";
 import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 import CloseButton from "@/Components/CloseButton.vue";
+import { useUrlParams } from "@/Composables/useUrlParams.ts";
 
 interface Props {
     showModal: boolean;
@@ -227,11 +228,13 @@ const handleKeydown = (e: KeyboardEvent) => {
         return;
     }
 
-    emitClose();
+    onClose();
 };
 
-const emitClose = () => {
+const onClose = () => {
     emit("close");
+
+    clear("expanded");
 
     if (ratingChartInstance.value) {
         setTimeout(() => {
@@ -277,6 +280,9 @@ const expanded = ref<boolean>(false);
 const toggleExpand = () => {
     expanded.value = !expanded.value;
     expanded.value ? (daysToShow.value = 56) : (daysToShow.value = 14);
+    expanded.value
+        ? set("expanded", String(expanded.value))
+        : clear("expanded");
 
     nextTick(() => {
         renderRatingChart();
@@ -518,6 +524,13 @@ watch(
             : (document.documentElement.style.overflow = "auto");
     },
 );
+
+const { get, set, clear } = useUrlParams();
+onMounted(() => {
+    if (!!get("expanded") && !isMobile) {
+        toggleExpand();
+    }
+});
 
 onUnmounted(() => {
     window.removeEventListener("keydown", handleKeydown);
