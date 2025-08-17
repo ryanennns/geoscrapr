@@ -1,8 +1,7 @@
 import { onMounted, ref } from "vue";
 
+const isMobile = ref(false);
 export function useBrowserUtils() {
-    const isMobile = ref(false);
-
     onMounted(() => {
         const mql = window.matchMedia("(max-width: 767px)");
         isMobile.value = mql.matches;
