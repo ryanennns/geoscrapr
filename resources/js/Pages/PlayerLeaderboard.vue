@@ -102,13 +102,16 @@
                 </table>
             </div>
 
-            <PaginationControls v-model="rateablesPage" />
+            <PaginationControls
+                @page-changed="updateLeaderboard"
+                v-model="rateablesPage"
+            />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import CountryDropdown from "@/Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "@/Components/LeaderboardLoadingSkeleton.vue";
 import Toggle from "@/Components/Toggle.vue";
@@ -368,10 +371,6 @@ onMounted(() => {
     }
 });
 
-watch(rateablesPage, () => {
-    updateLeaderboard();
-});
-
 watch(
     () => [
         selectedGameType.value,
@@ -380,10 +379,8 @@ watch(
         isActive.value,
         selectedCountry.value,
     ],
-    async () => {
+    () => {
         rateablesPage.value = 1;
-        await nextTick();
-        await updateLeaderboard();
     },
 );
 </script>
