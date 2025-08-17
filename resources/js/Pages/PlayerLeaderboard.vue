@@ -102,10 +102,7 @@
                 </table>
             </div>
 
-            <PaginationControls
-                v-model="rateablesPage"
-                @page-changed="onPageChanged"
-            />
+            <PaginationControls v-model="rateablesPage" />
         </div>
     </div>
 </template>
@@ -252,11 +249,6 @@ const isSolo = computed(() => selectedMode.value === "solo");
 
 const selectedCountry = ref<CountryCode | "">("");
 
-watch(selectedCountry, (newCountry) => {
-    selectedCountry.value = newCountry;
-    updateLeaderboard();
-});
-
 const loading = ref(false);
 const rateablesPage = ref<number>(1);
 
@@ -376,10 +368,9 @@ onMounted(() => {
     }
 });
 
-const onPageChanged = (page: number) => {
-    rateablesPage.value = page;
+watch(rateablesPage, () => {
     updateLeaderboard();
-};
+});
 
 watch(
     () => [
@@ -392,6 +383,7 @@ watch(
     async () => {
         rateablesPage.value = 1;
         await nextTick();
+        await updateLeaderboard();
     },
 );
 </script>
