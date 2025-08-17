@@ -135,9 +135,11 @@
                         </span>
                     </span>
                     <ExpandContractButton
+                        v-if="!isMobile"
                         :expanded="expanded"
                         @toggle="toggleExpand"
                     />
+                    <CloseButton v-else @close="() => emitClose()" />
                 </div>
 
                 <div class="mt-auto">
@@ -172,16 +174,17 @@
 </template>
 
 <script setup lang="ts">
-import {computed, nextTick, onUnmounted, ref, watch} from "vue";
-import {Chart, type TooltipItem} from "chart.js";
+import { computed, nextTick, onUnmounted, ref, watch } from "vue";
+import { Chart, type TooltipItem } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
-import {usePlayerUtils} from "@/Composables/usePlayerUtils.ts";
-import type {LeaderboardRow, RatingChange} from "@/Types/core.ts";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
+import type { LeaderboardRow, RatingChange } from "@/Types/core.ts";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
 import RatingBadge from "@/Components/RatingBadge.vue";
 import ExpandContractButton from "@/Components/ExpandContractButton.vue";
-import {useBrowserUtils} from "@/Composables/useBrowserUtils.ts";
+import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
+import CloseButton from "@/Components/CloseButton.vue";
 
 interface Props {
     showModal: boolean;
@@ -280,8 +283,16 @@ const toggleExpand = () => {
     });
 };
 
-const wrapperClasses = computed<string>(() => isMobile.value ? 'h-360px' : expanded.value ? 'max-w-7xl h-[80vh]' : 'max-w-2xl h-[40vh]')
-const canvasWrapperClasses = computed<string>(() => isMobile.value ? 'w-full h-60' : expanded.value ? 'h-[65vh]' : 'h-60')
+const wrapperClasses = computed<string>(() =>
+    isMobile.value
+        ? "h-360px"
+        : expanded.value
+          ? "max-w-7xl h-[80vh]"
+          : "max-w-2xl h-[40vh]",
+);
+const canvasWrapperClasses = computed<string>(() =>
+    isMobile.value ? "w-full h-60" : expanded.value ? "h-[65vh]" : "h-60",
+);
 
 const renderRatingChart = () => {
     if (!ratingChartCanvas.value || props.ratingHistory.length === 0) return;
