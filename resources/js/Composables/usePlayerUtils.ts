@@ -256,6 +256,7 @@ export enum CountryCode {
     za = "za",
     zm = "zm",
     zw = "zw",
+    zz = "zz",
 }
 
 export const countryMap: Record<CountryCode, string> = {
@@ -509,6 +510,7 @@ export const countryMap: Record<CountryCode, string> = {
     za: "South Africa",
     zm: "Zambia",
     zw: "Zimbabwe",
+    zz: "Unknown",
 };
 
 export function usePlayerUtils() {
@@ -530,6 +532,9 @@ export function usePlayerUtils() {
     };
 
     const getFlagImg = (countryCode: string, size = "24x18") => {
+        if (countryCode === CountryCode.zz) {
+            countryCode = "un";
+        }
         return `https://flagcdn.com/${size}/${countryCode}.png`;
     };
 
