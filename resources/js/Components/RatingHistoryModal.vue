@@ -129,19 +129,6 @@
                                     {{ props.leaderboardRow.geoGuessrId }}
                                 </p>
                             </a>
-
-                            <span class="flex items-center gap-2 grow">
-                                <p>Rank: #{{ props.leaderboardRow.rank }}</p>
-                                -
-                                <p v-if="props.leaderboardRow.percentile">
-                                    P{{
-                                        Math.floor(
-                                            props.leaderboardRow.percentile *
-                                                100,
-                                        ) / 100
-                                    }}
-                                </p>
-                            </span>
                         </span>
                     </span>
                     <button
