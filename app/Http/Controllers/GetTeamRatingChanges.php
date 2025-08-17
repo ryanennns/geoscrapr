@@ -16,7 +16,7 @@ class GetTeamRatingChanges extends Controller
             ->firstOrFail();
 
         $numberOfRatingChangesFromTheLastTwoWeeks = $team->ratingChanges()
-            ->where('created_at', '>', Carbon::now()->subWeeks(2))
+            ->where('created_at', '>', Carbon::now()->subWeeks(8))
             ->count();
 
         return RatingHistoryResource::collection(
