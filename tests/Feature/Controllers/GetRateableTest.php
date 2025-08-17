@@ -16,8 +16,6 @@ class GetRateableTest extends TestCase
     public function test_it_returns_player_if_exists()
     {
         $player = Player::factory()->create();
-        $player->rank = 1; // Set rank manually for testing
-        $player->percentile = 100; // Set percentile manually for testing
 
         $response = $this->get(route('rateables', ['id' => $player->getKey()]));
         $response->assertOk();

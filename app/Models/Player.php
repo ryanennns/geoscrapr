@@ -18,29 +18,6 @@ class Player extends Model
 
     protected $guarded = [];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::retrieved(function (Player $player) {
-            $playerCount = EloSnapshot::query()
-                ->where('gamemode', 'solo')
-                ->latest()
-                ->select('n')
-                ->first()->n ?? 0;
-
-            $rank = DB::table(DB::raw("(SELECT id,
-                row_number() OVER (ORDER BY rating DESC, id ASC) AS rank
-                FROM players
-                WHERE rating IS NOT NULL) ranked"))
-                ->where('id', $player->getKey())
-                ->value('rank');
-
-            $player->rank = $rank ?: 0;
-            $player->percentile = 100 - (($rank - 1) / $playerCount * 100);
-        });
-    }
-
     public function teamAsA(): HasOne
     {
         return $this->hasOne(Team::class, 'player_a', 'user_id');
