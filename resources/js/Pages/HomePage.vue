@@ -360,7 +360,6 @@ const initializeCharts = () => {
 };
 
 onMounted(() => {
-    console.log(props)
     initializeCharts();
 });
 

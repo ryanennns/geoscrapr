@@ -501,8 +501,6 @@ watch(
 watch(
     () => props.showModal,
     (show) => {
-        console.log(JSON.stringify(props.leaderboardRow));
-
         show
             ? window.addEventListener("keydown", handleKeydown)
             : window.removeEventListener("keydown", handleKeydown);
