@@ -23,7 +23,11 @@ class Player extends Model
         parent::boot();
 
         static::retrieved(function (Player $player) {
-            $playerCount = Player::query()->whereNotNull('rating')->count();
+            $playerCount = EloSnapshot::query()
+                ->where('gamemode', 'solo')
+                ->latest()
+                ->select('n')
+                ->first()->n ?? 0;
 
             $rank = DB::table(DB::raw("(SELECT id,
                 row_number() OVER (ORDER BY rating DESC, id ASC) AS rank
