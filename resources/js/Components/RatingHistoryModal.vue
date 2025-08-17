@@ -6,8 +6,7 @@
             @click.self="emitClose"
         >
             <div
-                class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl"
-                style="height: 360px"
+                class="bg-white rounded-lg shadow-lg px-6 pt-6 pb-3 w-full max-w-2xl"
             >
                 <div class="flex justify-between items-start mb-4">
                     <span>
@@ -155,7 +154,7 @@
                     </button>
                 </div>
 
-                <div class="h-64 mt-4 flex-grow overflow-hidden">
+                <div class="h-64 mt-4 flex-grow">
                     <LoadingSpinner
                         v-show="props.loading"
                         text="Loading rating history"
