@@ -525,9 +525,13 @@ watch(
     },
 );
 
+watch(() => isMobile, (newValue) => {
+    console.log("Mobile state changed:", newValue.value);
+})
 const { get, set, clear } = useUrlParams();
-onMounted(() => {
-    if (!!get("expanded") && !isMobile) {
+onMounted(async () => {
+    await nextTick();
+    if (!!get("expanded")) {
         toggleExpand();
     }
 });
