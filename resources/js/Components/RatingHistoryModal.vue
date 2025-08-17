@@ -6,9 +6,10 @@
             @click.self="emitClose"
         >
             <div
-                class="bg-white rounded-lg shadow-lg px-6 pt-6 pb-3 w-full max-w-2xl"
+                class="flex flex-col bg-white rounded-lg shadow-lg px-6 pt-6 pb-5 w-full max-w-2xl transition-all duration-300"
+                :class="wrapperClasses"
             >
-                <div class="flex justify-between items-start mb-4">
+                <div class="flex justify-between items-start">
                     <span>
                         <span class="text-xl font-bold flex items-center mb-2">
                             <span
@@ -133,28 +134,13 @@
                             </a>
                         </span>
                     </span>
-                    <button
-                        @click="emitClose"
-                        class="text-gray-500 hover:text-gray-700"
-                    >
-                        <svg
-                            class="h-6 w-6"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"
-                            />
-                        </svg>
-                    </button>
+                    <ExpandContractButton
+                        :expanded="expanded"
+                        @toggle="toggleExpand"
+                    />
                 </div>
 
-                <div class="h-64 mt-4 flex-grow">
+                <div class="mt-auto">
                     <LoadingSpinner
                         v-show="props.loading"
                         text="Loading rating history"
@@ -165,7 +151,10 @@
                         "
                         class="h-full"
                     >
-                        <div class="w-full h-60">
+                        <div
+                            class="w-full transition-all duration-300"
+                            :class="canvasWrapperClasses"
+                        >
                             <canvas ref="ratingChartCanvas" />
                         </div>
                     </div>
@@ -183,14 +172,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onUnmounted, ref, watch } from "vue";
-import { Chart, type TooltipItem } from "chart.js";
+import {computed, nextTick, onUnmounted, ref, watch} from "vue";
+import {Chart, type TooltipItem} from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
-import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
-import type { LeaderboardRow, RatingChange } from "@/Types/core.ts";
+import {usePlayerUtils} from "@/Composables/usePlayerUtils.ts";
+import type {LeaderboardRow, RatingChange} from "@/Types/core.ts";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
 import RatingBadge from "@/Components/RatingBadge.vue";
+import ExpandContractButton from "@/Components/ExpandContractButton.vue";
+import {useBrowserUtils} from "@/Composables/useBrowserUtils.ts";
 
 interface Props {
     showModal: boolean;
@@ -198,6 +189,8 @@ interface Props {
     ratingHistory: RatingChange[];
     loading: boolean;
 }
+
+const { isMobile } = useBrowserUtils();
 
 const props = defineProps<Props>();
 const allowedNameLength = computed<number>(() => {
@@ -243,6 +236,9 @@ const emitClose = () => {
             ratingChartInstance.value = null;
         }, 100);
     }
+
+    expanded.value = false;
+    daysToShow.value = 14;
 };
 
 const formatDateString = (date: Date) => {
@@ -273,6 +269,19 @@ const calculateStepSize = (range: number) => {
     if (range <= 400) return 250;
     return Math.ceil(range / 4 / 50) * 50;
 };
+
+const expanded = ref<boolean>(false);
+const toggleExpand = () => {
+    expanded.value = !expanded.value;
+    expanded.value ? (daysToShow.value = 56) : (daysToShow.value = 14);
+
+    nextTick(() => {
+        renderRatingChart();
+    });
+};
+
+const wrapperClasses = computed<string>(() => isMobile.value ? 'h-360px' : expanded.value ? 'max-w-7xl h-[80vh]' : 'max-w-2xl h-[40vh]')
+const canvasWrapperClasses = computed<string>(() => isMobile.value ? 'w-full h-60' : expanded.value ? 'h-[65vh]' : 'h-60')
 
 const renderRatingChart = () => {
     if (!ratingChartCanvas.value || props.ratingHistory.length === 0) return;
@@ -415,7 +424,7 @@ const renderRatingChart = () => {
                 x: {
                     title: {
                         display: true,
-                        text: `Rating History (Last ${daysToShow.value} Days)`,
+                        text: `Rating History (Last ${daysToShow.value / 7} Weeks)`,
                         font: {
                             size: 12,
                         },
