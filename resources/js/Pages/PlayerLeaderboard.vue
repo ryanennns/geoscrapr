@@ -243,14 +243,14 @@ const resetFilters = () => {
     selectedMode.value = "solo";
     selectedOrder.value = "desc";
     isActive.value = "all";
-    selectedCountry.value = CountryCode.none;
+    selectedCountry.value = "";
     rateablesPage.value = 1;
     updateLeaderboard();
 };
 
 const isSolo = computed(() => selectedMode.value === "solo");
 
-const selectedCountry = ref<CountryCode>(CountryCode.none);
+const selectedCountry = ref<CountryCode | "">("");
 
 watch(selectedCountry, (newCountry) => {
     selectedCountry.value = newCountry;

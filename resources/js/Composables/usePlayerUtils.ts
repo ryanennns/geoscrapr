@@ -256,7 +256,6 @@ export enum CountryCode {
     za = "za",
     zm = "zm",
     zw = "zw",
-    none = "none",
 }
 
 export const countryMap: Record<CountryCode, string> = {
@@ -510,7 +509,6 @@ export const countryMap: Record<CountryCode, string> = {
     za: "South Africa",
     zm: "Zambia",
     zw: "Zimbabwe",
-    none: "None",
 };
 
 export function usePlayerUtils() {
@@ -562,6 +560,8 @@ export function usePlayerUtils() {
                   players: [playerOrTeam.player_a, playerOrTeam.player_b],
                   isPlaceholder: false,
                   type: "team",
+                  percentile: playerOrTeam.percentile,
+                  rank: playerOrTeam.rank,
               }
             : {
                   id: playerOrTeam.id,
@@ -574,6 +574,8 @@ export function usePlayerUtils() {
                   countryCodes: [playerOrTeam.country_code],
                   isPlaceholder: false,
                   type: "player",
+                  percentile: playerOrTeam.percentile,
+                  rank: playerOrTeam.rank,
               };
 
     return {
