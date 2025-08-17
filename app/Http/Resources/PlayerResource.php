@@ -18,6 +18,8 @@ class PlayerResource extends JsonResource
             'no_move_rating' => $this->no_move_rating,
             'nmpz_rating'    => $this->nmpz_rating,
             'country_code'   => $this->country_code,
+            'rank'           => $this->rank,
+            'percentile'     => $this->percentile,
         ];
     }
 }
