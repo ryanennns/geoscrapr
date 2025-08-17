@@ -21,18 +21,19 @@ class GetPlayersControllerTest extends TestCase
 
         $response->assertSuccessful();
 
-        $response->assertJsonFragment(['data' => [
-            [
-                'id'             => $player->id,
-                'user_id'        => $player->user_id,
-                'name'           => $player->name,
-                'rating'         => $player->rating,
-                'moving_rating'  => null,
-                'no_move_rating' => null,
-                'nmpz_rating'    => null,
-                'country_code'   => $player->country_code,
-            ]
-        ]]);
+        $response->assertJson(fn($json) => $json->has(
+            'data.0',
+            fn($json) => $json->where('id', $player->id)
+                ->where('user_id', $player->user_id)
+                ->where('name', $player->name)
+                ->where('rating', $player->rating)
+                ->where('moving_rating', null)
+                ->where('no_move_rating', null)
+                ->where('nmpz_rating', null)
+                ->where('country_code', $player->country_code)
+                ->has('rank')        // only check the key exists
+                ->has('percentile')  // only check the key exists
+        ));
     }
 
     /**
