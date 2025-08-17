@@ -59,9 +59,12 @@
                             </div>
                         </span>
 
-                        <span class="flex items-center gap-2">
+                        <span
+                            class="flex items-center gap-2"
+                            v-if="!props.leaderboardRow.players"
+                        >
                             <p>
-                                Rank:
+                                Overall Rank:
                                 <span class="font-bold"
                                     >#{{ props.leaderboardRow.rank }}</span
                                 >
