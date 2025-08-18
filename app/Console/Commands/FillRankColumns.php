@@ -19,8 +19,7 @@ class FillRankColumns extends Command
                                        name,
                                        rating,
                                        ROW_NUMBER() OVER (ORDER BY rating DESC, id ASC)  AS rank,
-                                       100 - ((ROW_NUMBER() OVER (ORDER BY rating DESC, id ASC) - 1)
-                                                  * 100.0 / NULLIF(COUNT(*) OVER (), 0)) AS percentile
+                                       100 - PERCENT_RANK() OVER (ORDER BY rating DESC) * 100 AS percentile
                                 FROM players
                                 WHERE rating IS NOT NULL)
                 UPDATE players
