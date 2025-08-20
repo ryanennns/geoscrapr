@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import CountryDropdown from "@/Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "@/Components/LeaderboardLoadingSkeleton.vue";
 import Toggle from "@/Components/Toggle.vue";
@@ -281,6 +281,8 @@ const writeToCache = (rows: Rateable[]) => {
 };
 
 const updateLeaderboard = async () => {
+    await nextTick();
+
     const cached = readFromCache();
     if (cached && cached.length > 0) {
         rateables.value = cached;
@@ -382,5 +384,6 @@ watch(
     () => {
         rateablesPage.value = 1;
     },
+    {immediate:true}
 );
 </script>
