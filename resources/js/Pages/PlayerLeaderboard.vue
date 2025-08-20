@@ -111,7 +111,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, nextTick, onMounted, ref, watch} from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import CountryDropdown from "@/Components/CountryDropdown.vue";
 import LeaderboardLoadingSkeleton from "@/Components/LeaderboardLoadingSkeleton.vue";
 import Toggle from "@/Components/Toggle.vue";
@@ -384,6 +384,6 @@ watch(
     () => {
         rateablesPage.value = 1;
     },
-    {immediate:true}
+    { immediate: true },
 );
 </script>
