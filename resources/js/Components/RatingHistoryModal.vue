@@ -27,7 +27,7 @@
                             <p class="">
                                 {{
                                     props.leaderboardRow.name.length >
-                                    allowedNameLength
+                                    allowedNameLength && !expanded && !isMobile
                                         ? props.leaderboardRow.name
                                               .trim()
                                               .slice(0, allowedNameLength - 3) +
