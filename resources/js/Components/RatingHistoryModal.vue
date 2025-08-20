@@ -525,9 +525,12 @@ watch(
     },
 );
 
-watch(() => isMobile, (newValue) => {
-    console.log("Mobile state changed:", newValue.value);
-})
+watch(
+    () => isMobile,
+    (newValue) => {
+        console.log("Mobile state changed:", newValue.value);
+    },
+);
 const { get, set, clear } = useUrlParams();
 onMounted(async () => {
     await nextTick();
