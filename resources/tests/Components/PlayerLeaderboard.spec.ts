@@ -3,7 +3,6 @@ import { mount, flushPromises } from "@vue/test-utils";
 import PlayerLeaderboard from "@/Pages/PlayerLeaderboard.vue";
 import type { Rateable, RateableType } from "@/Types/core.ts";
 import { v4 } from "uuid";
-import { nextTick } from "vue";
 import { createPlayer } from "../utils/utils.ts";
 
 const mockGetAvailableCountries = vi.fn();
@@ -54,7 +53,7 @@ describe("PlayerLeaderboard.vue", () => {
     it("disables country dropdown when not in solo mode", async () => {
         const toggle = wrapper.findComponent('[data-testid="mode-toggle"]');
         await (toggle as any).vm.$emit("update:modelValue", "team");
-        await nextTick();
+        await flushPromises();
         const countryDropdown = wrapper.get('[data-testid="country-dropdown"]');
         expect((countryDropdown.element as HTMLSelectElement).disabled).toBe(
             true,
@@ -76,7 +75,7 @@ describe("PlayerLeaderboard.vue", () => {
         expect(toggle).toBeDefined();
 
         await (toggle as any).vm.$emit("update:modelValue", "team");
-        await nextTick();
+        await flushPromises();
 
         expect(mockGetRateables).toHaveBeenCalledTimes(1);
         expect(mockGetRateables).toHaveBeenCalledWith({
@@ -109,7 +108,7 @@ describe("PlayerLeaderboard.vue", () => {
         const toggle = wrapper.findComponent('[data-testid="order-toggle"]');
         expect(toggle).toBeDefined();
         await (toggle as any).vm.$emit("update:modelValue", "asc");
-        await nextTick();
+        await flushPromises();
 
         expect(mockGetRateables).toHaveBeenCalledTimes(1);
         expect(mockGetRateables).toHaveBeenCalledWith({
@@ -140,7 +139,7 @@ describe("PlayerLeaderboard.vue", () => {
         const toggle = wrapper.findComponent('[data-testid="active-toggle"]');
         expect(toggle).toBeDefined();
         await (toggle as any).vm.$emit("update:modelValue", "active");
-        await nextTick();
+        await flushPromises();
 
         expect(mockGetRateables).toHaveBeenCalledTimes(1);
         expect(mockGetRateables).toHaveBeenCalledWith({
@@ -166,7 +165,7 @@ describe("PlayerLeaderboard.vue", () => {
 
         expect(toggle).toBeDefined();
         await (toggle as any).vm.$emit("update:modelValue", "moving");
-        await nextTick();
+        await flushPromises();
 
         expect(mockGetRateables).toHaveBeenCalledTimes(1);
         expect(mockGetRateables).toHaveBeenCalledWith({
@@ -191,14 +190,14 @@ describe("PlayerLeaderboard.vue", () => {
         expect(toggle).toBeDefined();
 
         await (toggle as any).vm.$emit("update:modelValue", "team");
-        await nextTick();
+        await flushPromises();
 
         expect(
             (wrapper.vm as any).dataCache.all.all.desc.team.all["1"],
         ).toEqual(mockRateables);
 
         await (toggle as any).vm.$emit("update:modelValue", "solo");
-        await nextTick();
+        await flushPromises();
 
         expect(mockGetRateables).toHaveBeenCalledTimes(1);
     });
@@ -219,7 +218,7 @@ describe("PlayerLeaderboard.vue", () => {
     it("shows loading skeleton when loading is true", async () => {
         const comp = wrapper.vm as any;
         comp.loading = true;
-        await nextTick();
+        await flushPromises();
         expect(
             wrapper
                 .findComponent({ name: "LeaderboardLoadingSkeleton" })
