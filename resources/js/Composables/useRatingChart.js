@@ -7,13 +7,36 @@ export function useRatingChart() {
         isTeamChart = false,
         instanceRef,
     ) => {
-        if (!snapshot || !canvasRef?.value) return;
+        if (!snapshot || !canvasRef?.value) {
+            return;
+        }
 
         const entries = Object.entries(snapshot.buckets);
-        const nonZeroEntries = entries.filter(([, v]) => v > 0);
 
-        const labels = nonZeroEntries.map(([key]) => key);
-        const data = nonZeroEntries.map(([, val]) => val);
+        let numberOfElementsToTrimOffTheEnd = 0;
+        const reversedEntries = [...entries].reverse();
+        for (let i = 0; i < entries.length; i++) {
+            if (reversedEntries[i][1] > 0) {
+                numberOfElementsToTrimOffTheEnd = i;
+                break;
+            }
+        }
+
+        let numberOfElementsToTrimOffTheStart = 0;
+        for (let i = 0; i < entries.length; i++) {
+            if (entries[i][1] > 0) {
+                numberOfElementsToTrimOffTheStart = i;
+                break;
+            }
+        }
+
+        const trimmedEntries = entries.slice(
+            numberOfElementsToTrimOffTheStart,
+            entries.length - numberOfElementsToTrimOffTheEnd,
+        );
+
+        const labels = trimmedEntries.map(([key]) => key);
+        const data = trimmedEntries.map(([, val]) => val);
 
         const numericLabels = labels.map((label) =>
             parseInt(label.match(/\d+/)?.[0] || "0", 10),
