@@ -86,7 +86,7 @@ export interface Match {
     player_two_id: string;
     winner: Player | null;
     isComplete: boolean;
-    isLive?: boolean;
+    is_live?: boolean;
     link: string;
     score1?: number | undefined;
     score2?: number | undefined;

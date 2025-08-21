@@ -2,16 +2,16 @@
     <div class="relative">
         <!-- LIVE dot -->
         <span
-            v-if="match.isLive"
-            class="absolute top-2 right-2 w-3 h-3 rounded-full bg-red-500 animate-ping"
+            v-if="match.is_live"
+            class="absolute top-1 right-2 w-3 h-3 rounded-full bg-red-500 animate-ping"
             aria-hidden="true"
         ></span>
         <span
-            v-if="match.isLive"
-            class="absolute top-2 right-2 w-3 h-3 rounded-full bg-red-500"
+            v-if="match.is_live"
+            class="absolute top-1 right-2 w-3 h-3 rounded-full bg-red-500"
             aria-hidden="true"
         ></span>
-        <span v-if="match.isLive" class="sr-only">Live</span>
+        <span v-if="match.is_live" class="sr-only">Live</span>
 
         <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
             {{ match.round }}

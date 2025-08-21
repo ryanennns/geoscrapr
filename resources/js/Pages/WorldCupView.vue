@@ -1,6 +1,6 @@
 <template>
-    <div class="bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <div class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md">
+    <div class="bg-gray-50 dark:bg-gray-800 min-h-screen">
+        <div class="bg-white dark:bg-gray-800 p-4 md:p-6">
             <div class="flex flex-col text-center mb-4 gap-3">
                 <h2
                     class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100"
