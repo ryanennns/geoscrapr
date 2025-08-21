@@ -11,6 +11,7 @@
                     <div class="relative">
                         <CountryDropdown
                             v-model="selectedCountry"
+                            @update:modelValue="updateLeaderboard"
                             :disabled="!isSolo"
                         />
                     </div>
