@@ -17,11 +17,8 @@
                             <div
                                 v-for="match in leftSide"
                                 :key="match.id"
-                                class="p-2 space-y-1 border-l-4 border-blue-300 pl-2 bg-blue-50 rounded-lg"
+                                class="relative p-2 space-y-1 border-l-4 border-blue-300 pl-2 bg-blue-50 rounded-lg"
                             >
-                                <div class="text-xs font-medium text-gray-500 mb-2">
-                                    {{ match.round }}
-                                </div>
                                 <MatchCard
                                     :match="match"
                                     @player-click="handlePlayerClick"
@@ -30,15 +27,12 @@
                         </div>
 
                         <!-- Left Side - Quarter Finals -->
-                        <div class="space-y-16 mt-8">
+                        <div class="space-y-16">
                             <div
                                 v-for="match in leftQuarters"
                                 :key="match.id"
                                 class="p-2 space-y-1 border-l-4 border-green-300 pl-2 bg-green-50 rounded-lg"
                             >
-                                <div class="text-xs font-medium text-gray-500 mb-2">
-                                    {{ match.round }}
-                                </div>
                                 <MatchCard
                                     :match="match"
                                     @player-click="handlePlayerClick"
@@ -47,11 +41,10 @@
                         </div>
 
                         <!-- Left Semi Final -->
-                        <div class="mt-16">
-                            <div class="p-2 space-y-1 border-l-4 border-purple-300 pl-2 bg-purple-50 rounded-lg">
-                                <div class="text-xs font-medium text-gray-500 mb-2 text-center">
-                                    {{ leftSemi.round }}
-                                </div>
+                        <div>
+                            <div
+                                class="p-2 space-y-1 border-l-4 border-purple-300 pl-2 bg-purple-50 rounded-lg"
+                            >
                                 <MatchCard
                                     :match="leftSemi"
                                     @player-click="handlePlayerClick"
@@ -62,10 +55,9 @@
                         <!-- Finals Column -->
                         <div class="space-y-8">
                             <!-- Grand Final -->
-                            <div class="p-2 space-y-1 border-l-4 border-r-4 border-yellow-400 px-2 bg-yellow-50 rounded-lg">
-                                <div class="text-xs font-medium text-gray-500 mb-2 text-center">
-                                    {{ grandFinal.round }}
-                                </div>
+                            <div
+                                class="p-2 space-y-1 border-l-4 border-r-4 border-yellow-400 px-2 bg-yellow-50 rounded-lg"
+                            >
                                 <MatchCard
                                     :match="grandFinal"
                                     @player-click="handlePlayerClick"
@@ -74,10 +66,9 @@
                             </div>
 
                             <!-- Third Place Match -->
-                            <div class="p-2 space-y-1 border-r-4 border-l-4 border-orange-400 px-2 bg-orange-50 rounded-lg">
-                                <div class="text-xs font-medium text-gray-500 mb-2 text-center">
-                                    {{ thirdPlaceMatch.round }}
-                                </div>
+                            <div
+                                class="p-2 space-y-1 border-r-4 border-l-4 border-orange-400 px-2 bg-orange-50 rounded-lg"
+                            >
                                 <MatchCard
                                     :match="thirdPlaceMatch"
                                     @player-click="handlePlayerClick"
@@ -86,11 +77,10 @@
                         </div>
 
                         <!-- Right Semi Final -->
-                        <div class="mt-16">
-                            <div class="p-2 space-y-1 border-r-4 border-purple-300 pr-2 bg-purple-50 rounded-lg">
-                                <div class="text-xs font-medium text-gray-500 mb-2 text-center">
-                                    {{ rightSemi.round }}
-                                </div>
+                        <div>
+                            <div
+                                class="p-2 space-y-1 border-r-4 border-purple-300 pr-2 bg-purple-50 rounded-lg"
+                            >
                                 <MatchCard
                                     :match="rightSemi"
                                     @player-click="handlePlayerClick"
@@ -99,15 +89,12 @@
                         </div>
 
                         <!-- Right Side - Quarter Finals -->
-                        <div class="space-y-16 mt-8">
+                        <div class="space-y-16">
                             <div
                                 v-for="match in rightQuarters"
                                 :key="match.id"
                                 class="p-2 space-y-1 border-r-4 border-green-300 pr-2 bg-green-50 rounded-lg"
                             >
-                                <div class="text-xs font-medium text-gray-500 mb-2">
-                                    {{ match.round }}
-                                </div>
                                 <MatchCard
                                     :match="match"
                                     @player-click="handlePlayerClick"
@@ -122,9 +109,6 @@
                                 :key="match.id"
                                 class="p-2 space-y-1 border-r-4 border-blue-300 pr-2 bg-blue-50 rounded-lg"
                             >
-                                <div class="text-xs font-medium text-gray-500 mb-2">
-                                    {{ match.round }}
-                                </div>
                                 <MatchCard
                                     :match="match"
                                     @player-click="handlePlayerClick"
@@ -141,21 +125,10 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import MatchCard from "@/Components/MatchCard.vue";
-import type { Player } from "@/Types/core.ts";
+import type { Match, Player } from "@/Types/core.ts";
 
 const props = defineProps<{ players: Player[] }>();
 const players = ref(props.players);
-
-interface Match {
-    id: string;
-    round: string;
-    player1: Player | null;
-    player2: Player | null;
-    winner: Player | null;
-    isComplete: boolean;
-    score1?: number | undefined;
-    score2?: number | undefined;
-}
 
 const emit = defineEmits(["playerClick"]);
 
@@ -172,6 +145,8 @@ const tournament = reactive({
         ),
         winner: null,
         isComplete: false,
+        isLive: true,
+        link: "https://twitch.tv/GeoGuessr",
     },
     leftR1M2: {
         id: "L1-2",
@@ -184,6 +159,7 @@ const tournament = reactive({
         ),
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     leftR1M3: {
         id: "L1-3",
@@ -196,6 +172,7 @@ const tournament = reactive({
         ),
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     leftR1M4: {
         id: "L1-4",
@@ -208,6 +185,7 @@ const tournament = reactive({
         ),
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
 
     // Right side
@@ -222,6 +200,7 @@ const tournament = reactive({
         ),
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     rightR1M2: {
         id: "R1-2",
@@ -234,6 +213,7 @@ const tournament = reactive({
         ),
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     rightR1M3: {
         id: "R1-3",
@@ -246,6 +226,7 @@ const tournament = reactive({
         ),
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     rightR1M4: {
         id: "R1-4",
@@ -258,6 +239,7 @@ const tournament = reactive({
         ),
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
 
     // Quarter Finals
@@ -268,6 +250,7 @@ const tournament = reactive({
         player2: null,
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     leftQ2: {
         id: "LQ-2",
@@ -276,6 +259,7 @@ const tournament = reactive({
         player2: null,
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     rightQ1: {
         id: "RQ-1",
@@ -284,6 +268,7 @@ const tournament = reactive({
         player2: null,
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     rightQ2: {
         id: "RQ-2",
@@ -292,6 +277,7 @@ const tournament = reactive({
         player2: null,
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
 
     // Semi Finals
@@ -302,6 +288,7 @@ const tournament = reactive({
         player2: null,
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     rightSemi: {
         id: "RS",
@@ -310,6 +297,7 @@ const tournament = reactive({
         player2: null,
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
 
     // Finals
@@ -320,6 +308,7 @@ const tournament = reactive({
         player2: null,
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
     grandFinal: {
         id: "GF",
@@ -328,6 +317,7 @@ const tournament = reactive({
         player2: null,
         winner: null,
         isComplete: false,
+        link: "https://twitch.tv/GeoGuessr"
     },
 } as Record<string, Match>);
 

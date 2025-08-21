@@ -76,3 +76,16 @@ export interface Snapshot {
 
 export const isTeam = (maybeTeam: any): maybeTeam is Team =>
     maybeTeam.player_a && maybeTeam.player_b;
+
+export interface Match {
+    id: string;
+    round: string;
+    player1: Player | null;
+    player2: Player | null;
+    winner: Player | null;
+    isComplete: boolean;
+    isLive?: boolean;
+    link: string;
+    score1?: number | undefined;
+    score2?: number | undefined;
+}
