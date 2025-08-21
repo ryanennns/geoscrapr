@@ -1,5 +1,5 @@
 <template>
-    <div :class="['border rounded-lg shadow-sm p-3', customClass]">
+    <div :class="['border rounded-lg shadow-sm p-3 border-gray-300', customClass]">
         <!-- Player 1 -->
         <div
             v-if="match.player1"
