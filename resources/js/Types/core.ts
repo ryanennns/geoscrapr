@@ -80,8 +80,10 @@ export const isTeam = (maybeTeam: any): maybeTeam is Team =>
 export interface Match {
     id: string;
     round: string;
-    player1: Player | null;
-    player2: Player | null;
+    player_one: Player | null;
+    player_one_id: string;
+    player_two: Player | null;
+    player_two_id: string;
     winner: Player | null;
     isComplete: boolean;
     isLive?: boolean;

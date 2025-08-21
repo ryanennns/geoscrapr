@@ -21,11 +21,11 @@
         >
             <!-- Player 1 -->
             <div
-                v-if="match.player1"
-                @click="$emit('playerClick', match.player1)"
+                v-if="match.player_one"
+                @click="$emit('playerClick', match.player_one)"
                 :class="[
                     'flex items-center justify-between p-2 rounded cursor-pointer hover:bg-gray-50 transition-colors mb-1',
-                    match.winner?.id === match.player1.id
+                    match.winner?.id === match.player_one.id
                         ? 'bg-green-100 border border-green-300'
                         : 'bg-gray-50',
                 ]"
@@ -33,18 +33,18 @@
                 <div class="flex items-center space-x-2">
                     <Flag
                         :country-code="
-                            match.player1.country_code as CountryCode
+                            match.player_one.country_code as CountryCode
                         "
                     />
                     <span
                         :class="[
                             'text-sm font-medium',
-                            match.winner?.id === match.player1.id
+                            match.winner?.id === match.player_one.id
                                 ? 'text-green-800'
                                 : 'text-gray-700',
                         ]"
                     >
-                        {{ match.player1.name }}
+                        {{ match.player_one.name }}
                     </span>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -54,7 +54,7 @@
                         >{{ match.score1 }}</span
                     >
                     <span class="text-xs text-gray-500"
-                        >({{ match.player1.rating ?? "N/A" }})</span
+                        >({{ match.player_one.rating ?? "N/A" }})</span
                     >
                 </div>
             </div>
@@ -74,11 +74,11 @@
 
             <!-- Player 2 -->
             <div
-                v-if="match.player2"
-                @click="$emit('playerClick', match.player2)"
+                v-if="match.player_two"
+                @click="$emit('playerClick', match.player_two)"
                 :class="[
                     'flex items-center justify-between p-2 rounded cursor-pointer hover:bg-gray-50 transition-colors mt-1',
-                    match.winner?.id === match.player2.id
+                    match.winner?.id === match.player_two.id
                         ? 'bg-green-100 border border-green-300'
                         : 'bg-gray-50',
                 ]"
@@ -86,18 +86,18 @@
                 <div class="flex items-center space-x-2">
                     <Flag
                         :country-code="
-                            match.player2.country_code as CountryCode
+                            match.player_two.country_code as CountryCode
                         "
                     />
                     <span
                         :class="[
                             'text-sm font-medium',
-                            match.winner?.id === match.player2.id
+                            match.winner?.id === match.player_two.id
                                 ? 'text-green-800'
                                 : 'text-gray-700',
                         ]"
                     >
-                        {{ match.player2.name }}
+                        {{ match.player_two.name }}
                     </span>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -107,7 +107,7 @@
                         >{{ match.score2 }}</span
                     >
                     <span class="text-xs text-gray-500"
-                        >({{ match.player2.rating ?? "N/A" }})</span
+                        >({{ match.player_two.rating ?? "N/A" }})</span
                     >
                 </div>
             </div>
