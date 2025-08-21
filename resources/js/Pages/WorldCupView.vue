@@ -64,7 +64,7 @@
                                 <MatchCard
                                     :match="grandFinal"
                                     @player-click="handlePlayerClick"
-                                    class="border-yellow-300 bg-yellow-50 dark:border-yellow-400/40 bg-yello-50 dark:bg-yellow-400/10 shadow-lg text-gray-800 dark:text-gray-100"
+                                    class="border-yellow-300 dark:border-yellow-400/40 bg-yello-50  shadow-lg text-gray-800 dark:text-gray-100"
                                 />
                             </div>
 
