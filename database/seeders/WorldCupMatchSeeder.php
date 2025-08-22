@@ -67,28 +67,28 @@ class WorldCupMatchSeeder extends Seeder
 
         // Quarter Finals
         WorldCupMatch::query()->create([
-            'round'         => "Quarter Final",
+            'round'         => "Quarter Final 1",
             'player_one_id' => null,
             'player_two_id' => null,
             'link'          => "https://twitch.tv/GeoGuessr",
         ]);
 
         WorldCupMatch::query()->create([
-            'round'         => "Quarter Final",
+            'round'         => "Quarter Final 2",
             'player_one_id' => null,
             'player_two_id' => null,
             'link'          => "https://twitch.tv/GeoGuessr",
         ]);
 
         WorldCupMatch::query()->create([
-            'round'         => "Quarter Final",
+            'round'         => "Quarter Final 3",
             'player_one_id' => null,
             'player_two_id' => null,
             'link'          => "https://twitch.tv/GeoGuessr",
         ]);
 
         WorldCupMatch::query()->create([
-            'round'         => "Quarter Final",
+            'round'         => "Quarter Final 4",
             'player_one_id' => null,
             'player_two_id' => null,
             'link'          => "https://twitch.tv/GeoGuessr",
@@ -96,14 +96,14 @@ class WorldCupMatchSeeder extends Seeder
 
         // Semi Finals
         WorldCupMatch::query()->create([
-            'round'         => "Semi Final",
+            'round'         => "Semi Final 1",
             'player_one_id' => null,
             'player_two_id' => null,
             'link'          => "https://twitch.tv/GeoGuessr",
         ]);
 
         WorldCupMatch::query()->create([
-            'round'         => "Semi Final",
+            'round'         => "Semi Final 2",
             'player_one_id' => null,
             'player_two_id' => null,
             'link'          => "https://twitch.tv/GeoGuessr",
