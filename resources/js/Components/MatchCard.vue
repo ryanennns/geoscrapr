@@ -19,15 +19,20 @@
             </div>
 
             <div
-                v-if="match.scheduled_at && !match.is_live"
+                v-if="match.scheduled_at && !match.is_live && !match.winner"
                 class="text-xs text-gray-500 dark:text-gray-400 font-medium"
             >
                 {{
-                    new Date(match.scheduled_at).toLocaleTimeString([], {
+                    new Date(match.scheduled_at).toLocaleString([], {
+                        month: "short",
+                        day: "2-digit",
                         hour: "2-digit",
                         minute: "2-digit",
                     })
                 }}
+            </div>
+            <div v-else-if="!match.is_live" class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                --:--
             </div>
         </div>
 
@@ -65,6 +70,14 @@
                                 alt=""
                                 class="h-full w-full object-cover scale-225 object-[50%_100%]"
                                 loading="lazy"
+                            />
+
+                            <Flag
+                                v-if="props.match.player_one?.country_code"
+                                :country-code="
+                                    props.match.player_one.country_code
+                                "
+                                class="absolute bottom-1 right-1 translate-x-1/4 translate-y-1/4 rounded-sm shadow-md"
                             />
                         </div>
                     </div>
@@ -107,6 +120,14 @@
                                 class="h-full w-full object-cover scale-225 object-[40%_40%]"
                                 loading="lazy"
                             />
+
+                            <Flag
+                                v-if="props.match.player_two?.country_code"
+                                :country-code="
+                                    props.match.player_two.country_code
+                                "
+                                class="absolute bottom-1 right-1 translate-x-1/4 translate-y-1/4 rounded-sm shadow-md"
+                            />
                         </div>
                     </div>
                     <div
@@ -123,6 +144,7 @@
 <script setup lang="ts">
 import type { Match, Player } from "@/Types/core.ts";
 import { computed } from "vue";
+import Flag from "@/Components/Flag.vue";
 
 const props = defineProps<{
     match: Match;
