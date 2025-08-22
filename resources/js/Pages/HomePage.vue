@@ -5,8 +5,7 @@
                 GeoGuessr Ranking Distributions
             </h1>
             <p class="text-sm md:text-base text-gray-600 lg:visible">
-                Explore player statistics, historical rating distributions, and
-                more
+                🚨<a href="world-cup" class="underline">Now covering the GeoGuessr World Cup 2025!</a>🚨
             </p>
         </div>
 
