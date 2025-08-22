@@ -1,2 +1,2 @@
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+import Echo from "laravel-echo";
+import Pusher from "pusher-js";

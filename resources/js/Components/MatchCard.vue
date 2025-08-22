@@ -1,150 +1,141 @@
 <template>
     <div class="relative">
-        <span
-            v-if="match.is_live"
-            class="absolute top-1 right-2 w-3 h-3 rounded-full bg-red-500 animate-ping"
-            aria-hidden="true"
-        ></span>
-        <span
-            v-if="match.is_live"
-            class="absolute top-1 right-2 w-3 h-3 rounded-full bg-red-500"
-            aria-hidden="true"
-        ></span>
+        <div v-if="match.is_live" class="absolute -top-1 -right-1 z-10">
+            <span class="relative flex h-3 w-3 sm:h-4 sm:w-4">
+                <span
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+                ></span>
+                <span
+                    class="relative inline-flex rounded-full h-3 w-3 sm:h-4 sm:w-4 bg-red-500 shadow-lg"
+                ></span>
+            </span>
+        </div>
 
-        <span class="flex justify-between items-center mb-2">
-            <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
+        <div class="flex justify-between items-center mb-2 sm:mb-3">
+            <div
+                class="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide"
+            >
                 {{ match.round }}
             </div>
 
             <div
-                v-if="match.scheduled_at"
-                class="text-xs text-gray-400 dark:text-gray-500"
+                v-if="match.scheduled_at && !match.is_live"
+                class="text-xs text-gray-500 dark:text-gray-400 font-medium"
             >
-                {{ new Date(match.scheduled_at).toLocaleTimeString() }}
+                {{
+                    new Date(match.scheduled_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
+                }}
             </div>
-        </span>
+        </div>
 
         <div
             :class="[
-                'border rounded-lg shadow-sm p-3',
-                'border-gray-300 dark:border-gray-700',
-                'bg-white dark:bg-gray-800',
+                'relative border rounded-xl shadow-md hover:shadow-lg transition-all duration-300',
+                'border-gray-200 dark:border-gray-600',
+                'bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900',
+                'p-2 sm:p-3 lg:p-4 space-y-3 sm:space-y-4',
+                match.is_live
+                    ? 'ring-2 ring-red-500/20 border-red-200 dark:border-red-800'
+                    : '',
                 customClass,
             ]"
         >
-            <div
-                v-if="match.player_one"
-                @click="$emit('playerClick', match.player_one)"
-                :class="[
-                    'flex items-center justify-between p-2 rounded cursor-pointer transition-colors mb-1',
-                    'hover:bg-gray-50 dark:hover:bg-gray-700/50',
-                    match.winner?.id === match.player_one.id
-                        ? 'bg-green-100 border border-green-300 dark:bg-green-900/20 dark:border-green-500/40'
-                        : 'bg-gray-50 dark:bg-gray-700/40 dark:border-transparent',
-                ]"
-            >
-                <div class="flex items-center space-x-2">
-                    <Flag
-                        :country-code="
-                            match.player_one.country_code as CountryCode
-                        "
-                    />
-                    <span
-                        :class="[
-                            'text-sm font-medium',
-                            match.winner?.id === match.player_one.id
-                                ? 'text-green-800 dark:text-green-200'
-                                : 'text-gray-700 dark:text-gray-200',
-                        ]"
-                    >
-                        {{ match.player_one.name }}
-                    </span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span
-                        v-if="match.score1 !== undefined"
-                        class="text-sm font-bold text-gray-900 dark:text-gray-100"
-                        >{{ match.score1 }}</span
-                    >
-                    <span class="text-xs text-gray-500 dark:text-gray-400"
-                        >({{ match.player_one.rating ?? "N/A" }})</span
-                    >
-                </div>
-            </div>
-
-            <div
-                v-else
-                class="flex items-center justify-between p-2 rounded bg-gray-100 dark:bg-gray-700/40 mb-1"
-            >
-                <span class="text-sm text-gray-400 dark:text-gray-500"
-                    >TBD</span
+            <div class="flex items-center justify-between min-w-0">
+                <!-- Player One -->
+                <div
+                    class="flex flex-col items-center space-y-1 sm:space-y-2 flex-1 min-w-0"
                 >
-            </div>
-
-            <div
-                class="text-center text-xs text-gray-400 dark:text-gray-500 font-medium py-1"
-            >
-                VS
-            </div>
-
-            <div
-                v-if="match.player_two"
-                @click="$emit('playerClick', match.player_two)"
-                :class="[
-                    'flex items-center justify-between p-2 rounded cursor-pointer transition-colors mt-1',
-                    'hover:bg-gray-50 dark:hover:bg-gray-700/50',
-                    match.winner?.id === match.player_two.id
-                        ? 'bg-green-100 border border-green-300 dark:bg-green-900/20 dark:border-green-500/40'
-                        : 'bg-gray-50 dark:bg-gray-700/40 dark:border-transparent',
-                ]"
-            >
-                <div class="flex items-center space-x-2">
-                    <Flag
-                        :country-code="
-                            match.player_two.country_code as CountryCode
-                        "
-                    />
-                    <span
-                        :class="[
-                            'text-sm font-medium',
-                            match.winner?.id === match.player_two.id
-                                ? 'text-green-800 dark:text-green-200'
-                                : 'text-gray-700 dark:text-gray-200',
-                        ]"
+                    <div
+                        class="relative w-full max-w-[4rem] sm:max-w-[5rem] lg:max-w-[4rem] aspect-square"
                     >
-                        {{ match.player_two.name }}
-                    </span>
+                        <div
+                            class="w-full h-full overflow-hidden rounded-full ring-2"
+                            :class="
+                                isP1Winner
+                                    ? 'ring-green-500 dark:ring-green-400'
+                                    : 'ring-gray-200 dark:ring-gray-700'
+                            "
+                        >
+                            <img
+                                v-show="playerOneImageSlug !== 'finalist-tbd'"
+                                :src="`images/${playerOneImageSlug}.webp`"
+                                alt=""
+                                class="h-full w-full object-cover scale-225 object-[50%_100%]"
+                                loading="lazy"
+                            />
+                        </div>
+                    </div>
+                    <div
+                        class="text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-200 text-center leading-tight px-1 min-w-0 w-full"
+                    >
+                        <span class="block truncate">{{ playerOneName }}</span>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <span
-                        v-if="match.score2 !== undefined"
-                        class="text-sm font-bold text-gray-900 dark:text-gray-100"
-                        >{{ match.score2 }}</span
-                    >
-                    <span class="text-xs text-gray-500 dark:text-gray-400"
-                        >({{ match.player_two.rating ?? "N/A" }})</span
-                    >
-                </div>
-            </div>
 
-            <div
-                v-else
-                class="flex items-center justify-between p-2 rounded bg-gray-100 dark:bg-gray-700/40 mt-1"
-            >
-                <span class="text-sm text-gray-400 dark:text-gray-500"
-                    >TBD</span
+                <div
+                    class="flex flex-col items-center px-2 sm:px-3 flex-shrink-0"
                 >
+                    <div
+                        class="text-xs font-bold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 sm:px-2 py-1 rounded-full"
+                    >
+                        VS
+                    </div>
+                </div>
+
+                <!-- Player Two -->
+                <div
+                    class="flex flex-col items-center space-y-1 sm:space-y-2 flex-1 min-w-0"
+                >
+                    <div
+                        class="relative w-full max-w-[4rem] sm:max-w-[5rem] lg:max-w-[4rem] aspect-square"
+                    >
+                        <div
+                            class="w-full h-full overflow-hidden rounded-full ring-2"
+                            :class="
+                                isP2Winner
+                                    ? 'ring-green-500 dark:ring-green-400'
+                                    : 'ring-gray-200 dark:ring-gray-700'
+                            "
+                        >
+                            <img
+                                v-show="playerTwoImageSlug !== 'finalist-tbd'"
+                                :src="`images/${playerTwoImageSlug}.webp`"
+                                alt=""
+                                class="h-full w-full object-cover scale-225 object-[40%_40%]"
+                                loading="lazy"
+                            />
+                        </div>
+                    </div>
+                    <div
+                        class="text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-200 text-center leading-tight px-1 min-w-0 w-full"
+                    >
+                        <span class="block truncate">{{ playerTwoName }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                v-if="match.is_live"
+                class="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2"
+            >
+                <span
+                    class="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 px-2 py-1 rounded-full"
+                >
+                    LIVE
+                </span>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import Flag from "@/Components/Flag.vue";
-import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 import type { Match, Player } from "@/Types/core.ts";
+import { computed } from "vue";
 
-defineProps<{
+const props = defineProps<{
     match: Match;
     customClass?: string;
 }>();
@@ -152,4 +143,34 @@ defineProps<{
 defineEmits<{
     (e: "playerClick", player: Player): void;
 }>();
+
+const playerOneName = computed(() => props.match.player_one?.name || "TBD");
+const playerTwoName = computed(() => props.match.player_two?.name || "TBD");
+
+const playerOneImageSlug = computed(
+    () =>
+        "finalist-" +
+        (props.match.player_one?.name ?? "tbd")
+            .toLowerCase()
+            .replace(/ /g, "-"),
+);
+const playerTwoImageSlug = computed(
+    () =>
+        "finalist-" +
+        (props.match.player_two?.name ?? "tbd")
+            .toLowerCase()
+            .replace(/ /g, "-"),
+);
+
+// Winner ring logic
+const isP1Winner = computed(
+    () =>
+        !!props.match.winner?.id &&
+        props.match.winner?.id === props.match.player_one?.id,
+);
+const isP2Winner = computed(
+    () =>
+        !!props.match.winner?.id &&
+        props.match.winner?.id === props.match.player_two?.id,
+);
 </script>

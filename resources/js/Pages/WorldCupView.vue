@@ -9,7 +9,8 @@
                 </h2>
             </div>
 
-            <div class="md:hidden">
+            <!-- Mobile View (sm and below) -->
+            <div class="sm:hidden">
                 <div class="space-y-3">
                     <div
                         v-for="match in mobileMatches"
@@ -25,7 +26,145 @@
                 </div>
             </div>
 
-            <div class="hidden md:block overflow-x-auto">
+            <!-- Tablet View (sm to lg) -->
+            <div class="hidden sm:block lg:hidden">
+                <div class="space-y-8">
+                    <!-- Round 1 -->
+                    <div class="space-y-4">
+                        <h3
+                            class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center border-b border-blue-300 dark:border-blue-500/40 pb-2"
+                        >
+                            Round 1
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-4">
+                                <div
+                                    v-for="match in leftSide"
+                                    :key="match.id"
+                                    class="p-2 border-l-4 border-blue-300 dark:border-blue-500/40 pl-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg"
+                                >
+                                    <MatchCard
+                                        :match="match"
+                                        @player-click="handlePlayerClick"
+                                        class="text-gray-800 dark:text-gray-100"
+                                    />
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div
+                                    v-for="match in rightSide"
+                                    :key="match.id"
+                                    class="p-2 border-r-4 border-blue-300 dark:border-blue-500/40 pr-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg"
+                                >
+                                    <MatchCard
+                                        :match="match"
+                                        @player-click="handlePlayerClick"
+                                        class="text-gray-800 dark:text-gray-100"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quarter Finals -->
+                    <div class="space-y-4">
+                        <h3
+                            class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center border-b border-green-300 dark:border-green-500/40 pb-2"
+                        >
+                            Quarter Finals
+                        </h3>
+                        <div class="grid grid-cols-2 gap-8">
+                            <div class="space-y-6">
+                                <div
+                                    v-for="match in leftQuarters"
+                                    :key="match.id"
+                                    class="p-2 border-l-4 border-green-300 dark:border-green-500/40 pl-2 bg-green-50 dark:bg-green-500/10 rounded-lg"
+                                >
+                                    <MatchCard
+                                        :match="match"
+                                        @player-click="handlePlayerClick"
+                                        class="text-gray-800 dark:text-gray-100"
+                                    />
+                                </div>
+                            </div>
+                            <div class="space-y-6">
+                                <div
+                                    v-for="match in rightQuarters"
+                                    :key="match.id"
+                                    class="p-2 border-r-4 border-green-300 dark:border-green-500/40 pr-2 bg-green-50 dark:bg-green-500/10 rounded-lg"
+                                >
+                                    <MatchCard
+                                        :match="match"
+                                        @player-click="handlePlayerClick"
+                                        class="text-gray-800 dark:text-gray-100"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Semi Finals -->
+                    <div class="space-y-4">
+                        <h3
+                            class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center border-b border-purple-300 dark:border-purple-500/40 pb-2"
+                        >
+                            Semi Finals
+                        </h3>
+                        <div class="grid grid-cols-2 gap-12">
+                            <div
+                                class="p-2 border-l-4 border-purple-300 dark:border-purple-500/40 pl-2 bg-purple-50 dark:bg-purple-500/10 rounded-lg"
+                            >
+                                <MatchCard
+                                    :match="leftSemi"
+                                    @player-click="handlePlayerClick"
+                                    class="text-gray-800 dark:text-gray-100"
+                                />
+                            </div>
+                            <div
+                                class="p-2 border-r-4 border-purple-300 dark:border-purple-500/40 pr-2 bg-purple-50 dark:bg-purple-500/10 rounded-lg"
+                            >
+                                <MatchCard
+                                    :match="rightSemi"
+                                    @player-click="handlePlayerClick"
+                                    class="text-gray-800 dark:text-gray-100"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Finals -->
+                    <div class="space-y-4">
+                        <h3
+                            class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center border-b border-yellow-400 dark:border-yellow-400/60 pb-2"
+                        >
+                            Finals
+                        </h3>
+                        <div class="space-y-6 max-w-md mx-auto">
+                            <div
+                                class="p-2 border-4 border-yellow-400 dark:border-yellow-400/60 bg-yellow-50 dark:bg-yellow-400/10 rounded-lg"
+                            >
+                                <MatchCard
+                                    :match="grandFinal"
+                                    @player-click="handlePlayerClick"
+                                    class="text-gray-800 dark:text-gray-100"
+                                />
+                            </div>
+                            <div
+                                class="p-2 border-4 border-orange-400 dark:border-orange-400/60 bg-orange-50 dark:bg-orange-400/10 rounded-lg"
+                            >
+                                <MatchCard
+                                    :match="thirdPlaceMatch"
+                                    @player-click="handlePlayerClick"
+                                    class="text-gray-800 dark:text-gray-100"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop View (lg and above) -->
+            <div class="hidden lg:block overflow-x-auto">
                 <div class="min-w-[1200px] p-4">
                     <div class="grid grid-cols-7 gap-4 items-center">
                         <!-- Left Side - Round 1 -->
