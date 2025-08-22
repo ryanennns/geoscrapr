@@ -76,10 +76,10 @@
                 </div>
 
                 <div
-                    class="flex flex-col items-center px-2 sm:px-3 flex-shrink-0"
+                    class="flex flex-col items-center justify-center px-2 sm:px-3 flex-shrink-0"
                 >
                     <div
-                        class="text-xs font-bold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 sm:px-2 py-1 rounded-full"
+                        class="text-xs font-bold text-gray-600 dark:text-gray-400 px-1.5 sm:px-2 py-1 rounded-full"
                     >
                         VS
                     </div>
@@ -115,17 +115,6 @@
                         <span class="block truncate">{{ playerTwoName }}</span>
                     </div>
                 </div>
-            </div>
-
-            <div
-                v-if="match.is_live"
-                class="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2"
-            >
-                <span
-                    class="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 px-2 py-1 rounded-full"
-                >
-                    LIVE
-                </span>
             </div>
         </div>
     </div>
