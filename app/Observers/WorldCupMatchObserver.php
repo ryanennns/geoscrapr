@@ -2,19 +2,20 @@
 
 namespace App\Observers;
 
+use App\Events\MatchUpdated;
 use App\Models\WorldCupMatch;
 
 class WorldCupMatchObserver
 {
-    public function updating(WorldCupMatch $model): void
+    public function updating(WorldCupMatch $match): void
     {
-        $winnerId = $model->winner_id;
+        $winnerId = $match->winner_id;
 
         if ($winnerId) {
-            $model->is_live = false;
-            $model->finished_at = now();
+            $match->is_live = false;
+            $match->finished_at = now();
 
-            $nextMatch = $model->nextMatch;
+            $nextMatch = $match->nextMatch;
 
             if ($nextMatch) {
                 !!$nextMatch->player_one_id ?
@@ -22,5 +23,10 @@ class WorldCupMatchObserver
                     $nextMatch->update(['player_one_id' => $winnerId]);
             }
         }
+    }
+
+    public function updated(WorldCupMatch $match): void
+    {
+        MatchUpdated::dispatch($match);
     }
 }

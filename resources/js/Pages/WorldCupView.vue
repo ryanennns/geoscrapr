@@ -130,9 +130,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, onUnmounted, reactive } from "vue";
 import MatchCard from "@/Components/MatchCard.vue";
 import type { Match } from "@/Types/core.ts";
+
+window.Echo.channel("world-cup-2025").listenToAll(
+    (eventName: string, payload: unknown) => {
+        if (eventName === "MatchUpdated") {
+            const updatedMatch = (payload as { match: Match }).match as Match;
+            for (const key in tournament) {
+                if (tournament[key].id === updatedMatch.id) {
+                    tournament[key] = updatedMatch;
+                    break;
+                }
+            }
+        }
+    },
+);
+
+onUnmounted(() => {
+    window.Echo.leave("world-cup-2025");
+});
 
 const props = defineProps<{ matches: Match[] }>();
 const emit = defineEmits(["playerClick"]);
