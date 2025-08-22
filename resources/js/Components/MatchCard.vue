@@ -11,16 +11,18 @@
             aria-hidden="true"
         ></span>
 
-        <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-            {{ match.round }}
-        </div>
+        <span class="flex justify-between items-center mb-2">
+            <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ match.round }}
+            </div>
 
-        <div
-            v-if="match.scheduled_at"
-            class="text-xs text-gray-400 dark:text-gray-500 mb-2"
-        >
-            {{ new Date(match.scheduled_at).toLocaleString() }}
-        </div>
+            <div
+                v-if="match.scheduled_at"
+                class="text-xs text-gray-400 dark:text-gray-500 mb-2"
+            >
+                {{ new Date(match.scheduled_at).toLocaleTimeString() }}
+            </div>
+        </span>
 
         <div
             :class="[
