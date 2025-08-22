@@ -9,13 +9,15 @@
                 </h2>
             </div>
 
-            <!-- Mobile View (sm and below) -->
             <div class="sm:hidden">
                 <div class="space-y-3">
                     <div
                         v-for="match in mobileMatches"
                         :key="match.id"
-                        class="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/20"
+                        :class="[
+                            'p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/20',
+                            fuckingInsaneCopilotGeneratedTernary(match),
+                        ]"
                     >
                         <MatchCard
                             :match="match"
@@ -26,10 +28,8 @@
                 </div>
             </div>
 
-            <!-- Tablet View (sm to lg) -->
             <div class="hidden sm:block lg:hidden">
                 <div class="space-y-8">
-                    <!-- Round 1 -->
                     <div class="space-y-4">
                         <h3
                             class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center border-b border-blue-300 dark:border-blue-500/40 pb-2"
@@ -66,7 +66,6 @@
                         </div>
                     </div>
 
-                    <!-- Quarter Finals -->
                     <div class="space-y-4">
                         <h3
                             class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center border-b border-green-300 dark:border-green-500/40 pb-2"
@@ -103,7 +102,6 @@
                         </div>
                     </div>
 
-                    <!-- Semi Finals -->
                     <div class="space-y-4">
                         <h3
                             class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center border-b border-purple-300 dark:border-purple-500/40 pb-2"
@@ -132,7 +130,6 @@
                         </div>
                     </div>
 
-                    <!-- Finals -->
                     <div class="space-y-4">
                         <h3
                             class="text-lg font-semibold text-gray-700 dark:text-gray-300 text-center border-b border-yellow-400 dark:border-yellow-400/60 pb-2"
@@ -163,7 +160,6 @@
                 </div>
             </div>
 
-            <!-- Desktop View (lg and above) -->
             <div class="hidden lg:block overflow-x-auto">
                 <div class="min-w-[1200px] p-4">
                     <div class="grid grid-cols-7 gap-4 items-center">
@@ -280,7 +276,6 @@
                     </div>
                 </div>
             </div>
-            <!-- /Desktop -->
         </div>
     </div>
 </template>
@@ -290,7 +285,7 @@ import { computed, onUnmounted, reactive } from "vue";
 import MatchCard from "@/Components/MatchCard.vue";
 import type { Match } from "@/Types/core.ts";
 
-window.Echo.channel("world-cup-2025").listenToAll(
+(window as any).Echo.channel("world-cup-2025").listenToAll(
     (eventName: string, payload: unknown) => {
         if (eventName === "MatchUpdated") {
             const updatedMatch = (payload as { match: Match }).match as Match;
@@ -305,7 +300,7 @@ window.Echo.channel("world-cup-2025").listenToAll(
 );
 
 onUnmounted(() => {
-    window.Echo.leave("world-cup-2025");
+    (window as any).Echo.leave("world-cup-2025");
 });
 
 const props = defineProps<{ matches: Match[] }>();
@@ -370,4 +365,15 @@ const mobileMatches = computed(() => [
 ]);
 
 const handlePlayerClick = () => [];
+
+const fuckingInsaneCopilotGeneratedTernary = (match: Match) =>
+    match.round === "Grand Final"
+        ? "border-yellow-400 dark:border-yellow-400/60 bg-yellow-50 dark:bg-yellow-400/10"
+        : match.round === "3rd Place"
+          ? "border-orange-400 dark:border-orange-400/60 bg-orange-50 dark:bg-orange-400/10"
+          : match.round.includes("Semi Final")
+            ? "border-purple-300 dark:border-purple-500/40 bg-purple-50 dark:bg-purple-500/10"
+            : match.round.includes("Quarter Final") // do blue instead
+              ? "border-red-300 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10"
+              : "border-blue-300 dark:border-blue-500/40 bg-blue-50 dark:bg-blue-500/10";
 </script>
