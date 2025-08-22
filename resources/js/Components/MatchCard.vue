@@ -31,7 +31,10 @@
                     })
                 }}
             </div>
-            <div v-else-if="!match.is_live" class="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            <div
+                v-else-if="!match.is_live"
+                class="text-xs text-gray-500 dark:text-gray-400 font-medium"
+            >
                 --:--
             </div>
         </div>

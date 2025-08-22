@@ -12,8 +12,8 @@ declare global {
 
 createInertiaApp({
     resolve: (name) => import(`./Pages/${name}.vue`),
-    setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
+    setup({ el, app, props, plugin }) {
+        createApp({ render: () => h(app, props) })
             .use(plugin)
             .mount(el);
     },
@@ -23,7 +23,7 @@ console.log("Connecting to Echo...");
 window.Pusher = Pusher;
 window.Echo = new Echo({
     broadcaster: "pusher",
-    key: import.meta.env.VITE_PUSHER_APP_KEY,
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    key: (import.meta as any).env.VITE_PUSHER_APP_KEY,
+    cluster: (import.meta as any).env.VITE_PUSHER_APP_CLUSTER,
     forceTLS: true,
 });
