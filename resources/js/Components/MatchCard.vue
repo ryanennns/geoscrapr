@@ -1,6 +1,5 @@
 <template>
     <div class="relative">
-        <!-- LIVE dot -->
         <span
             v-if="match.is_live"
             class="absolute top-1 right-2 w-3 h-3 rounded-full bg-red-500 animate-ping"
@@ -11,7 +10,6 @@
             class="absolute top-1 right-2 w-3 h-3 rounded-full bg-red-500"
             aria-hidden="true"
         ></span>
-        <span v-if="match.is_live" class="sr-only">Live</span>
 
         <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
             {{ match.round }}
@@ -26,15 +24,12 @@
                 customClass,
             ]"
         >
-            <!-- Player 1 -->
             <div
                 v-if="match.player_one"
                 @click="$emit('playerClick', match.player_one)"
                 :class="[
                     'flex items-center justify-between p-2 rounded cursor-pointer transition-colors mb-1',
-                    // hover states
                     'hover:bg-gray-50 dark:hover:bg-gray-700/50',
-                    // winner vs default styling
                     match.winner?.id === match.player_one.id
                         ? 'bg-green-100 border border-green-300 dark:bg-green-900/20 dark:border-green-500/40'
                         : 'bg-gray-50 dark:bg-gray-700/40 dark:border-transparent',
@@ -69,7 +64,6 @@
                 </div>
             </div>
 
-            <!-- Placeholder for Player 1 -->
             <div
                 v-else
                 class="flex items-center justify-between p-2 rounded bg-gray-100 dark:bg-gray-700/40 mb-1"
@@ -79,14 +73,12 @@
                 >
             </div>
 
-            <!-- VS Divider -->
             <div
                 class="text-center text-xs text-gray-400 dark:text-gray-500 font-medium py-1"
             >
                 VS
             </div>
 
-            <!-- Player 2 -->
             <div
                 v-if="match.player_two"
                 @click="$emit('playerClick', match.player_two)"
@@ -127,7 +119,6 @@
                 </div>
             </div>
 
-            <!-- Placeholder for Player 2 -->
             <div
                 v-else
                 class="flex items-center justify-between p-2 rounded bg-gray-100 dark:bg-gray-700/40 mt-1"

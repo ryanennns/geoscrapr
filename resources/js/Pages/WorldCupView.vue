@@ -64,7 +64,7 @@
                                 <MatchCard
                                     :match="grandFinal"
                                     @player-click="handlePlayerClick"
-                                    class="border-yellow-300 dark:border-yellow-400/40 bg-yello-50  shadow-lg text-gray-800 dark:text-gray-100"
+                                    class="border-yellow-300 dark:border-yellow-400/40 bg-yello-50 shadow-lg text-gray-800 dark:text-gray-100"
                                 />
                             </div>
 
@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 import MatchCard from "@/Components/MatchCard.vue";
 import type { Match } from "@/Types/core.ts";
 
