@@ -18,7 +18,7 @@
 
             <div
                 v-if="match.scheduled_at"
-                class="text-xs text-gray-400 dark:text-gray-500 mb-2"
+                class="text-xs text-gray-400 dark:text-gray-500"
             >
                 {{ new Date(match.scheduled_at).toLocaleTimeString() }}
             </div>

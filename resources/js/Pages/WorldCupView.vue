@@ -226,8 +226,8 @@ const mobileMatches = computed(() => [
     ...rightQuarters.value,
     leftSemi.value,
     rightSemi.value,
-    grandFinal.value,
     thirdPlaceMatch.value,
+    grandFinal.value,
 ]);
 
 const handlePlayerClick = () => [];
