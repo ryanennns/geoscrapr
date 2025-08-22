@@ -7,6 +7,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class WorldCupMatchForm
@@ -79,27 +81,27 @@ class WorldCupMatchForm
                 ->getOptionLabelUsing(fn($value) => Player::query()->where('user_id', $value)->value('name') ?? (string)$value
                 ),
 
-            // Winner
+            // Winner: not searchable; options limited to the two selected players
             Select::make('winner_id')
                 ->label('Winner')
-                ->native(false)
-                ->searchable()
-                ->placeholder('Search player…')
-                ->getSearchResultsUsing(function (string $search): array {
-                    $search = trim($search);
-                    if (mb_strlen($search) < 2) {
+                ->native(false) // dropdown UI; not searchable
+                ->options(function (Get $get): array {
+                    $ids = array_values(array_filter([
+                        $get('player_one_id'),
+                        $get('player_two_id'),
+                    ], fn($v) => filled($v)));
+
+                    if (empty($ids)) {
                         return [];
                     }
 
                     return Player::query()
-                        ->where('name', 'like', "%{$search}%")
-                        ->whereIn('user_id', self::WORLD_CUP_PLAYER_IDS)
-                        ->limit(20)
+                        ->whereIn('user_id', $ids)
                         ->pluck('name', 'user_id')
                         ->toArray();
                 })
-                ->getOptionLabelUsing(fn($value) => Player::query()->where('user_id', $value)->value('name') ?? (string)$value
-                ),
+                ->placeholder('Select winner')
+                ->disabled(fn(Get $get) => blank($get('player_one_id')) || blank($get('player_two_id'))),
 
             Toggle::make('is_live')->required(),
             DateTimePicker::make('finished_at')->required(),
