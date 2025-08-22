@@ -26,4 +26,14 @@ class WorldCupMatch extends Model
     {
         return $this->belongsTo(Player::class, 'winner_id', 'user_id');
     }
+
+    public function nextMatch(): BelongsTo
+    {
+        return $this->belongsTo(WorldCupMatch::class, 'next_match_id');
+    }
+
+    public function loserMatch(): BelongsTo
+    {
+        return $this->belongsTo(WorldCupMatch::class, 'loser_match_id');
+    }
 }

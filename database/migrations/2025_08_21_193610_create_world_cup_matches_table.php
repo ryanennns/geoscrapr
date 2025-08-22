@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('world_cup_matches', function (Blueprint $table) {
@@ -23,6 +22,9 @@ return new class extends Migration
             $table->boolean('is_live')->default(false);
             $table->timestamp('finished_at')->default(false);
             $table->string('link');
+
+            $table->foreignId('next_match_id')->nullable()->constrained('world_cup_matches')->nullOnDelete();
+            $table->foreignId('loser_match_id')->nullable()->constrained('world_cup_matches')->nullOnDelete();
 
             $table->timestamps();
         });
