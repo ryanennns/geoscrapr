@@ -90,4 +90,5 @@ export interface Match {
     link: string;
     score1?: number | undefined;
     score2?: number | undefined;
+    scheduled_at: string;
 }

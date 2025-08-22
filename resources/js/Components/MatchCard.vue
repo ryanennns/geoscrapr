@@ -11,13 +11,19 @@
             aria-hidden="true"
         ></span>
 
-        <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+        <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
             {{ match.round }}
         </div>
 
         <div
+            v-if="match.scheduled_at"
+            class="text-xs text-gray-400 dark:text-gray-500 mb-2"
+        >
+            {{ new Date(match.scheduled_at).toLocaleString() }}
+        </div>
+
+        <div
             :class="[
-                // card shell
                 'border rounded-lg shadow-sm p-3',
                 'border-gray-300 dark:border-gray-700',
                 'bg-white dark:bg-gray-800',

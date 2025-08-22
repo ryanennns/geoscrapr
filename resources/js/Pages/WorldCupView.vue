@@ -9,7 +9,23 @@
                 </h2>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="md:hidden">
+                <div class="space-y-3">
+                    <div
+                        v-for="match in mobileMatches"
+                        :key="match.id"
+                        class="p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-700/20"
+                    >
+                        <MatchCard
+                            :match="match"
+                            @player-click="handlePlayerClick"
+                            class="text-gray-800 dark:text-gray-100"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden md:block overflow-x-auto">
                 <div class="min-w-[1200px] p-4">
                     <div class="grid grid-cols-7 gap-4 items-center">
                         <!-- Left Side - Round 1 -->
@@ -125,6 +141,7 @@
                     </div>
                 </div>
             </div>
+            <!-- /Desktop -->
         </div>
     </div>
 </template>
@@ -201,6 +218,17 @@ const leftSemi = computed(() => tournament.leftSemi);
 const rightSemi = computed(() => tournament.rightSemi);
 const thirdPlaceMatch = computed(() => tournament.thirdPlace);
 const grandFinal = computed(() => tournament.grandFinal);
+
+const mobileMatches = computed(() => [
+    ...leftSide.value,
+    ...rightSide.value,
+    ...leftQuarters.value,
+    ...rightQuarters.value,
+    leftSemi.value,
+    rightSemi.value,
+    grandFinal.value,
+    thirdPlaceMatch.value,
+]);
 
 const handlePlayerClick = () => [];
 </script>

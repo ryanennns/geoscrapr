@@ -21,6 +21,7 @@ return new class extends Migration {
 
             $table->boolean('is_live')->default(false);
             $table->timestamp('finished_at')->default(false);
+            $table->timestamp('scheduled_at')->nullable();
             $table->string('link');
 
             $table->foreignId('next_match_id')->nullable()->constrained('world_cup_matches')->nullOnDelete();
