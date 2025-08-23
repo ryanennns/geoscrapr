@@ -1,9 +1,9 @@
 <template>
     <div class="bg-gray-50 dark:bg-gray-800 min-h-screen">
-        <div class="bg-white dark:bg-gray-800 p-4 md:p-6">
+        <div class="relative bg-white dark:bg-gray-800 p-4 md:p-6">
             <div class="flex flex-col text-center mb-4 gap-3">
                 <h2
-                    class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100"
+                    class="lg:absolute lg:top-16 lg:left-1/2 lg:transform lg:-translate-x-1/2 text-center text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100"
                 >
                     🏆 GeoGuessr World Cup 2025 🏆
                 </h2>
@@ -278,12 +278,15 @@
             </div>
         </div>
     </div>
+
+    <Footer />
 </template>
 
 <script setup lang="ts">
 import { computed, onUnmounted, reactive } from "vue";
 import MatchCard from "@/Components/MatchCard.vue";
 import type { Match } from "@/Types/core.ts";
+import Footer from "@/Components/Footer.vue";
 
 (window as any).Echo.channel("world-cup-2025").listenToAll(
     (eventName: string, payload: unknown) => {
