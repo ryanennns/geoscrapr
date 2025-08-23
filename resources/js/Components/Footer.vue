@@ -1,6 +1,6 @@
 <!-- Footer Component -->
 <template>
-    <footer class="bg-gray-800 text-white py-8">
+    <footer class="bg-gray-900 text-white py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 <div class="mb-6 md:mb-0">
@@ -22,14 +22,14 @@
                             <p
                                 class="text-gray-300 hover:cursor-default text-sm"
                             >
-                                <s>Home</s>
+                                <a href="/">Home</a>
                             </p>
                         </li>
                         <li>
                             <p
                                 class="text-gray-300 hover:cursor-default text-sm"
                             >
-                                <s>Leaderboards</s>
+                                <a href="/world-cup">World Cup 2025</a>
                             </p>
                         </li>
                         <li>

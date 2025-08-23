@@ -13,7 +13,17 @@ use App\Http\Controllers\HomePageController;
 use App\Http\Controllers\SearchPlayerController;
 use App\Http\Middleware\VerifyRequestReferer;
 use App\Models\EloSnapshot;
+use App\Models\Player;
+use App\Models\WorldCupMatch;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/world-cup', function () {
+    return Inertia::render(
+        'WorldCupView',
+        ['matches' => WorldCupMatch::query()->get()->toArray()],
+    );
+});
 
 Route::get('/', HomePageController::class);
 

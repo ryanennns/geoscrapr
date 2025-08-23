@@ -3,3 +3,6 @@ composer.lock
 package-lock.json
 package.json
 database/*
+public/css/filament/*
+public/js/filament/*
+public/fonts/filament/*

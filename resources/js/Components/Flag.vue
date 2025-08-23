@@ -15,7 +15,7 @@ import {
 
 interface Props {
     countryCode: CountryCode;
-    dimensions: string;
+    dimensions?: string;
 }
 
 const props = defineProps<Props>();
