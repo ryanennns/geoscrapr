@@ -15,6 +15,8 @@ return new class extends Migration
             $table->integer("rating")->nullable();
             $table->string("country_code");
             $table->timestamps();
+
+            $table->index('user_id');
         });
     }
 
