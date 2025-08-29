@@ -106,6 +106,9 @@ class WorldCupMatchForm
             Toggle::make('is_live')->required(),
             DateTimePicker::make('finished_at')->required(),
             TextInput::make('link')->required(),
+
+            TextInput::make('player_one_score')->numeric()->default(0)->required(),
+            TextInput::make('player_two_score')->numeric()->default(0)->required(),
         ]);
     }
 }

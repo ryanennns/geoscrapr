@@ -38,6 +38,12 @@ class WorldCupMatchesTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('player_one_score')
+                    ->label('P1 Score')
+                    ->sortable(),
+                TextColumn::make('player_two_score')
+                    ->label('P2 Score')
+                    ->sortable(),
             ])
             ->filters([
                 //
