@@ -88,7 +88,7 @@ export interface Match {
     isComplete: boolean;
     is_live?: boolean;
     link: string;
-    score1?: number | undefined;
-    score2?: number | undefined;
+    player_one_score?: number | undefined;
+    player_two_score?: number | undefined;
     scheduled_at: string;
 }

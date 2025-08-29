@@ -141,6 +141,13 @@
                 </div>
             </div>
         </div>
+
+        <div
+            v-if="match.winner"
+            class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-sm"
+        >
+            {{ match.player_one_score }} - {{ match.player_two_score }}
+        </div>
     </div>
 </template>
 
