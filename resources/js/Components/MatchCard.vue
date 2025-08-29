@@ -143,7 +143,7 @@
         </div>
 
         <div
-            v-if="match.winner"
+            v-if="match.winner || match.is_live"
             class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-sm"
         >
             {{ match.player_one_score }} - {{ match.player_two_score }}
