@@ -104,6 +104,7 @@ class WorldCupMatchForm
                 ->disabled(fn(Get $get) => blank($get('player_one_id')) || blank($get('player_two_id'))),
 
             Toggle::make('is_live')->required(),
+            DateTimePicker::make('scheduled_at')->required(),
             DateTimePicker::make('finished_at')->required(),
             TextInput::make('link')->required(),
 
