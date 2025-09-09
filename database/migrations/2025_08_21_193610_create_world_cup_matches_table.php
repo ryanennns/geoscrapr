@@ -11,16 +11,16 @@ return new class extends Migration {
             $table->id();
             $table->string('round');
 
-            $table->uuid('player_one_id')->nullable();
-            $table->uuid('player_two_id')->nullable();
-            $table->uuid('winner_id')->nullable();
+            $table->string('player_one_id')->nullable();
+            $table->string('player_two_id')->nullable();
+            $table->string('winner_id')->nullable();
 
             $table->foreign('player_one_id')->references('user_id')->on('players');
             $table->foreign('player_two_id')->references('user_id')->on('players');
             $table->foreign('winner_id')->references('user_id')->on('players');
 
             $table->boolean('is_live')->default(false);
-            $table->timestamp('finished_at')->default(false);
+            $table->timestamp('finished_at')->nullable();
             $table->timestamp('scheduled_at')->nullable();
             $table->string('link');
 
