@@ -38,7 +38,7 @@ class GetLatestPlayerRatings extends Command
                 $this->fetchPaginatedPlayerData($gameMode);
             });
 
-        $diff = Player::query()->count(0) - $initPlayersCount;
+        $diff = Player::query()->count() - $initPlayersCount;
         $diffInRatingChanges = RatingChange::query()->where('rateable_type', Player::class)->count() - $initRatingChangeCount;
         $this->info("Added $diff users, and $diffInRatingChanges ratings changed.");
 
