@@ -16,12 +16,15 @@ class SearchController extends Controller
         $query = $request->input('q');
 
         $players = Player::query()
-            ->where('name', 'like', "%$query%")
-            ->orWhere('user_id', 'like', "%$query%")
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%$query%")
+                    ->orWhere('user_id', 'like', "%$query%");
+            })
             ->whereNotNull('rating')
             ->orderBy('rating', 'desc')
             ->limit(5)
             ->get();
+
 
         $teams = Team::query()
             ->where('name', 'like', "%$query%")
@@ -32,7 +35,7 @@ class SearchController extends Controller
 
         return JsonResource::collection([
             'players' => PlayerResource::collection($players),
-            'teams' => TeamResource::collection($teams),
+            'teams'   => TeamResource::collection($teams),
         ]);
     }
 }
