@@ -58,7 +58,7 @@ class HomePageController extends Controller
             ->get();
 
         $playerQuery = Player::query()
-            ->selectRaw("id, user_id, name, rating, moving_rating, no_move_rating, nmpz_rating, country_code, row_number() over (Order by rating desc) as rank")
+            ->whereNotNull('rating')
             ->orderBy('rating', 'desc');
 
         $playerData = $playerQuery->limit(10)->get();
