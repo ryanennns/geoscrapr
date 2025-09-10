@@ -14,21 +14,31 @@ class FillRankColumns extends Command
     public function handle(): void
     {
         DB::transaction(function () {
+            DB::statement("SET LOCAL work_mem = '256MB'");
             DB::statement(<<<'SQL'
-                WITH ranked AS (SELECT id,
-                                       name,
-                                       rating,
-                                       ROW_NUMBER() OVER (ORDER BY rating DESC, id ASC)  AS rank,
-                                       100 - PERCENT_RANK() OVER (ORDER BY rating DESC) * 100 AS percentile
-                                FROM players
-                                WHERE rating IS NOT NULL)
-                UPDATE players
-                set rank       = (select rank from ranked where ranked.id = players.id),
-                    percentile = (select percentile from ranked where ranked.id = players.id);
-                SQL
-            );
-            DB::statement("UPDATE players SET rank = NULL, percentile = NULL WHERE rating IS NULL");
-
+                WITH ranked AS (
+                  SELECT
+                    id,
+                    ROW_NUMBER() OVER (ORDER BY rating DESC, id ASC) AS rank,
+                    (100 - PERCENT_RANK() OVER (ORDER BY rating DESC) * 100)::numeric(5,2) AS percentile
+                  FROM players
+                  WHERE rating IS NOT NULL
+                ),
+                to_set AS (
+                  SELECT id, rank, percentile FROM ranked
+                  UNION ALL
+                  SELECT id,
+                         NULL::integer AS rank,
+                         NULL::numeric(5,2) AS percentile
+                  FROM players
+                  WHERE rating IS NULL
+                )
+                UPDATE players p
+                SET    rank = t.rank,
+                       percentile = t.percentile
+                FROM   to_set t
+                WHERE  p.id = t.id
+            SQL);
         });
     }
 }
