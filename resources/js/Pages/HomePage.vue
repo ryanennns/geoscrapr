@@ -5,9 +5,7 @@
                 GeoGuessr Ranking Distributions
             </h1>
             <p class="text-sm md:text-base text-gray-600 lg:visible">
-                🚨<a href="world-cup" class="underline"
-                    >Now covering the GeoGuessr World Cup 2025!</a
-                >🚨
+                I nuked this project by accident :( restarted as of 2025-09-10
             </p>
         </div>
 
