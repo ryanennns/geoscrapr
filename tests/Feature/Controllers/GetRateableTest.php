@@ -7,6 +7,7 @@ use App\Models\Player;
 use App\Models\Team;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class GetRateableTest extends TestCase
@@ -42,7 +43,7 @@ class GetRateableTest extends TestCase
 
     public function test_it_returns_not_found_if_no_player_or_team()
     {
-        $response = $this->get(route('rateables', ['id' => 1]));
+        $response = $this->get(route('rateables', ['id' => Str::uuid()]));
         $response->assertNotFound();
     }
 }
