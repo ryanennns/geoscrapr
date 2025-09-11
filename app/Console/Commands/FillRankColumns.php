@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FillRankColumns extends Command
 {
@@ -40,5 +41,7 @@ class FillRankColumns extends Command
                 WHERE  p.id = t.id
             SQL);
         });
+
+        Log::info('Updated ranking and percentiles for all players.');
     }
 }
