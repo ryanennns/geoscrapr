@@ -137,7 +137,10 @@
                         </span>
                     </span>
                     <ExpandContractButton
-                        v-if="!isMobile && !(props.ratingHistory.length < 1 && !props.loading)"
+                        v-if="
+                            !isMobile &&
+                            !(props.ratingHistory.length < 1 && !props.loading)
+                        "
                         :expanded="expanded"
                         @toggle="toggleExpand"
                     />
