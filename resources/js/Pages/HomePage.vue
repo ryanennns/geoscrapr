@@ -148,19 +148,19 @@ const isLoadingHistory = ref<boolean>(false);
 
 const ratingHistoryCache = ref<Record<string, RatingChange[]>>({});
 const onPlayerTeamClick = async (event: { rateable: LeaderboardRow }) => {
-    ,setId(event.rateable.id);
+    setId(event.rateable.id);
 
     const rateable = event.rateable;
     selectedLeaderboardRow.value = rateable;
 
-    ,setTimeout(() => (showModal.value = true), 25);
-    ,if (ratingHistoryCache.value[rateable.id]?.length > 0) {
-        ,playerRatingHistory.value = ratingHistoryCache.value[rateable.id];
+    setTimeout(() => (showModal.value = true), 25);
+    if (ratingHistoryCache.value[rateable.id]?.length > 0) {
+        playerRatingHistory.value = ratingHistoryCache.value[rateable.id];
 
         return;
     }
 
-    ,await getAndSetRateableHistory(rateable);
+    await getAndSetRateableHistory(rateable);
 };
 
 const getAndSetRateableHistory = async (leaderboardRow: LeaderboardRow) => {
@@ -174,7 +174,7 @@ const getAndSetRateableHistory = async (leaderboardRow: LeaderboardRow) => {
 
     ratingHistoryCache.value[leaderboardRow.id] = ratingChanges;
 
-    ,playerRatingHistory.value = ratingChanges.sort(
+    playerRatingHistory.value = ratingChanges.sort(
         (a: RatingChange, b: RatingChange) =>
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     );
