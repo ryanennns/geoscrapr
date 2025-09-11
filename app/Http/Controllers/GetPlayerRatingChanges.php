@@ -15,15 +15,22 @@ class GetPlayerRatingChanges extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        $numberOfRatingChangesFromTheLastTwoWeeks = $player->ratingChanges()
+        $ratingChanges = $player->ratingChanges()
             ->where('created_at', '>', Carbon::now()->subWeeks(8))
-            ->count();
+            ->get();
 
-        return RatingHistoryResource::collection(
-            $player->ratingChanges()
-                ->orderBy('created_at', 'desc')
-                ->limit($numberOfRatingChangesFromTheLastTwoWeeks + 1)
-                ->get()
-        );
+        $oldestInDataSet = $ratingChanges->sortBy('created_at')->first()->created_at;
+
+        $oldestInGeneral = $player->ratingChanges()->oldest()->select('created_at')->first()->created_at;
+
+        $includesOldest = true;
+        if (Carbon::parse($oldestInGeneral) < Carbon::parse($oldestInDataSet)) {
+            $includesOldest = false;
+        }
+
+        return RatingHistoryResource::collection($ratingChanges)
+            ->additional([
+                'includes_oldest' => $includesOldest,
+            ]);
     }
 }
