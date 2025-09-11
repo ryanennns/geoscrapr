@@ -30,7 +30,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Create SQLite database
-        run: touch database/database.testing.sqlite
+        run: touch database/database.sqlite
 
       - name: Create application key
         run: php artisan key:generate

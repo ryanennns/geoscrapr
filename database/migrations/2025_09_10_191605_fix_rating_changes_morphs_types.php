@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         // Drop the composite index Laravel added for morphs()
         // Name follows: {table}_{type}_{id}_index
         Schema::table('rating_changes', function ($table) {
@@ -36,6 +40,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         Schema::table('rating_changes', function ($table) {
             $table->dropIndex('rating_changes_rateable_type_rateable_id_index');
         });
