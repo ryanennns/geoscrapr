@@ -24,3 +24,4 @@ yarn-error.log
 /.zed
 tink.php
 *.sqlite
+*.dump
