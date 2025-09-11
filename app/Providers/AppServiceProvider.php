@@ -8,6 +8,7 @@ use App\Models\WorldCupMatch;
 use App\Observers\PlayerObserver;
 use App\Observers\TeamObserver;
 use App\Observers\WorldCupMatchObserver;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         Team::observe(TeamObserver::class);
         Player::observe(PlayerObserver::class);
         WorldCupMatch::observe(WorldCupMatchObserver::class);
