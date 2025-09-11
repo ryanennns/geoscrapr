@@ -342,6 +342,8 @@ const renderRatingChart = () => {
                 new Date(a.created_at).getTime(),
         );
 
+        console.log("snickers", { sortedRatingHistory });
+
         const leftOfStartDate = sortedRatingHistory.find(
             (r) => new Date(r.created_at) < startDate,
         );
@@ -364,8 +366,12 @@ const renderRatingChart = () => {
                 mostRecentRating = ratingsByDate[dateString];
             }
 
+            // if date is before the earliest date from ratingsByDate set, return undefined as data
+
             data.push(mostRecentRating);
         });
+
+        console.log("snickers", { labels, data });
 
         return { labels, data };
     };

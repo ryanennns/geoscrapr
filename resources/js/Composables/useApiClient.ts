@@ -67,6 +67,7 @@ export function useApiClient() {
 
         return {
             data: json.data,
+            includes_oldest: false,
         };
     };
 

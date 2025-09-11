@@ -19,12 +19,22 @@ class GetPlayerRatingChanges extends Controller
             ->where('created_at', '>', Carbon::now()->subWeeks(8))
             ->get();
 
-        $oldestInDataSet = $ratingChanges->sortBy('created_at')->first()->created_at;
+        $oldestInDataSet = $ratingChanges->sortBy('created_at')
+            ->first()
+            ->created_at;
 
-        $oldestInGeneral = $player->ratingChanges()->oldest()->select('created_at')->first()->created_at;
+        $oldestInGeneral = $player->ratingChanges()
+            ->oldest()
+            ->select('created_at')
+            ->first()
+            ->created_at;
 
         $includesOldest = true;
-        if (Carbon::parse($oldestInGeneral) < Carbon::parse($oldestInDataSet)) {
+        if (
+            $oldestInDataSet &&
+            $oldestInGeneral &&
+            Carbon::parse($oldestInGeneral) < Carbon::parse($oldestInDataSet)
+        ) {
             $includesOldest = false;
         }
 
