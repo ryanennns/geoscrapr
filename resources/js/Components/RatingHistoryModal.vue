@@ -137,14 +137,14 @@
                         </span>
                     </span>
                     <ExpandContractButton
-                        v-if="!isMobile"
+                        v-if="!isMobile && !(props.ratingHistory.length < 1 && !props.loading)"
                         :expanded="expanded"
                         @toggle="toggleExpand"
                     />
                     <CloseButton v-else @close="() => onClose()" />
                 </div>
 
-                <div class="mt-auto">
+                <div class="mt-10">
                     <LoadingSpinner
                         v-show="props.loading"
                         text="Loading rating history"
