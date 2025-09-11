@@ -2,11 +2,9 @@ name: Run PHPUnit Tests
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
   phpunit:
@@ -16,24 +14,42 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.4"
-          extensions: mbstring, pdo, pdo_sqlite, dom
-          coverage: none
-
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --no-progress --prefer-dist
 
-      - name: Create .env
-        run: cp .env.example .env
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Create SQLite database
-        run: touch database/database.testing.sqlite
+      - name: Build containers
+        run: |
+          export WWWUSER=1337
+          export WWWGROUP=1337
+          export DB_DATABASE=laravel
+          export DB_USERNAME=sail
+          export DB_PASSWORD=password
+          docker compose build
 
-      - name: Create application key
-        run: php artisan key:generate
+      - name: Start containers
+        run: docker compose up -d
+
+      - name: Copy env file
+        run: docker compose exec -T laravel.test cp .env.example .env
+
+      - name: Generate key
+        run: docker compose exec -T laravel.test php artisan key:generate
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            if docker compose exec -T pgsql pg_isready -U sail -d laravel; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+
+      - name: Run migrations
+        run: docker compose exec -T laravel.test php artisan migrate --env=testing --force
 
       - name: Run tests
-        run: ./vendor/bin/phpunit
+        run: docker compose exec -T laravel.test php artisan test --env=testing
