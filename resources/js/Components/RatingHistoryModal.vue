@@ -150,6 +150,7 @@
                 <div>
                     <LoadingSpinner
                         v-show="props.loading"
+                        class="mt-12"
                         text="Loading rating history"
                     />
                     <div
