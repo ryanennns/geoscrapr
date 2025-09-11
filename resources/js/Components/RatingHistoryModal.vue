@@ -144,7 +144,7 @@
                     <CloseButton v-else @close="() => onClose()" />
                 </div>
 
-                <div class="mt-10">
+                <div>
                     <LoadingSpinner
                         v-show="props.loading"
                         text="Loading rating history"
@@ -163,6 +163,7 @@
                         </div>
                     </div>
                     <ErrorMessage
+                        class="mt-6"
                         heading="We don't have any data for this player!"
                         sub-heading="Check back later or try another player."
                         v-show="
