@@ -15,7 +15,7 @@ class FillRankColumns extends Command
     public function handle(): void
     {
         DB::transaction(function () {
-            DB::statement("SET LOCAL work_mem = '256MB'");
+            // DB::statement("SET LOCAL work_mem = '256MB'");
             DB::statement(<<<'SQL'
                 WITH ranked AS (
                   SELECT
