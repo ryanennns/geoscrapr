@@ -2,10 +2,15 @@
     <div class="p-4 md:p-8 bg-gray-50 min-h-screen">
         <div class="mb-6 md:mb-8 text-center">
             <h1 class="text-xl md:text-3xl font-bold text-indigo-800">
-                GeoGuessr Ranking Distributions
+                <div
+                    class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent text-5xl font-bold italic"
+                >
+                    GeoScrapr
+                </div>
+                Competitive GeoGuessr Analytics
             </h1>
             <p class="text-sm md:text-base text-gray-600 lg:visible">
-                I nuked this project by accident :( restarted as of 2025-09-10
+                😎 tracking rating history since 2025-09-10 😎
             </p>
         </div>
 
