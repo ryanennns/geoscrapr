@@ -25,17 +25,7 @@
                                 />
                             </span>
                             <p class="">
-                                {{
-                                    props.leaderboardRow.name.length >
-                                        allowedNameLength &&
-                                    !expanded &&
-                                    !isMobile
-                                        ? props.leaderboardRow.name
-                                              .trim()
-                                              .slice(0, allowedNameLength - 3) +
-                                          "..."
-                                        : props.leaderboardRow.name.trim()
-                                }}
+                                {{ name }}
                             </p>
                             <p class="font-light ml-1">
                                 - {{ props.leaderboardRow.rating }}
@@ -194,16 +184,6 @@ import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 import CloseButton from "@/Components/CloseButton.vue";
 import { useUrlParams } from "@/Composables/useUrlParams.ts";
 
-interface Props {
-    showModal: boolean;
-    leaderboardRow: LeaderboardRow;
-    ratingHistory: RatingChange[];
-    loading: boolean;
-}
-
-const { isMobile } = useBrowserUtils();
-
-const props = defineProps<Props>();
 const allowedNameLength = computed<number>(() => {
     let numberOfNullRatings = 0;
 
@@ -219,8 +199,37 @@ const allowedNameLength = computed<number>(() => {
         numberOfNullRatings += 1;
     }
 
-    return 13 + numberOfNullRatings * 4;
+    return 13 + numberOfNullRatings * 2;
 });
+const name = computed<string>(() => {
+    if (isMobile.value) {
+        return (
+            props.leaderboardRow.name
+                .trim()
+                .slice(0, allowedNameLength.value - 3) + "..."
+        );
+    }
+
+    if (expanded.value) {
+        return props.leaderboardRow.name.trim();
+    }
+
+    return (
+        props.leaderboardRow.name.trim().slice(0, allowedNameLength.value - 3) +
+        "..."
+    );
+});
+
+interface Props {
+    showModal: boolean;
+    leaderboardRow: LeaderboardRow;
+    ratingHistory: RatingChange[];
+    loading: boolean;
+}
+
+const { isMobile } = useBrowserUtils();
+
+const props = defineProps<Props>();
 
 const emit = defineEmits(["close"]);
 
