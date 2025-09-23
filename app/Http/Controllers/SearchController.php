@@ -17,7 +17,7 @@ class SearchController extends Controller
 
         $players = Player::query()
             ->where(function ($q) use ($query) {
-                $q->where('name', 'like', "%$query%")
+                $q->where('name', 'ilike', "%$query%")
                     ->orWhere('user_id', 'like', "%$query%");
             })
             ->whereNotNull('rating')
