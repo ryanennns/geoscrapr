@@ -214,6 +214,10 @@ const name = computed<string>(() => {
         return props.leaderboardRow.name.trim();
     }
 
+    if (props.leaderboardRow.name.trim().length <= allowedNameLength.value) {
+        return props.leaderboardRow.name.trim();
+    }
+
     return (
         props.leaderboardRow.name.trim().slice(0, allowedNameLength.value - 3) +
         "..."
