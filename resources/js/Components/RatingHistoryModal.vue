@@ -10,7 +10,7 @@
                 :class="wrapperClasses"
             >
                 <div class="flex justify-between items-start">
-                    <span>
+                    <span class="grow">
                         <span class="text-xl font-bold flex items-center mb-2">
                             <span
                                 v-for="countryCode in props.leaderboardRow
@@ -109,7 +109,7 @@
                                 </p>
                             </a>
                         </span>
-                        <span v-else class="flex items-center mb-2 gap-2">
+                        <div v-else class="flex items-center mb-2 w-full">
                             <a
                                 :href="
                                     generateProfileUrl(
@@ -124,7 +124,34 @@
                                     {{ props.leaderboardRow.geoGuessrId }}
                                 </p>
                             </a>
-                        </span>
+
+                            <div
+                                v-if="
+                                    matchHistory.length &&
+                                    !isMobile &&
+                                    !loadingMatchHistory
+                                "
+                                class="flex gap-1 ml-auto"
+                            >
+                                Recent Matches:
+                                <div v-for="match in matchHistory">
+                                    <a
+                                        :href="`https://geoguessr.com/duels/${match.id}`"
+                                        target="_blank"
+                                    >
+                                        <div
+                                            v-if="
+                                                match.winner ===
+                                                leaderboardRow.id
+                                            "
+                                        >
+                                            🟢
+                                        </div>
+                                        <div v-else>🔴</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </span>
                     <ExpandContractButton
                         v-if="
@@ -183,6 +210,9 @@ import ExpandContractButton from "@/Components/ExpandContractButton.vue";
 import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 import CloseButton from "@/Components/CloseButton.vue";
 import { useUrlParams } from "@/Composables/useUrlParams.ts";
+import { type MatchHistory, useApiClient } from "@/Composables/useApiClient.ts";
+
+const { getMatchHistory } = useApiClient();
 
 const allowedNameLength = computed<number>(() => {
     let numberOfNullRatings = 0;
@@ -201,6 +231,7 @@ const allowedNameLength = computed<number>(() => {
 
     return 13 + numberOfNullRatings * 2;
 });
+
 const name = computed<string>(() => {
     if (isMobile.value) {
         return (
@@ -533,9 +564,18 @@ watch(
     { immediate: true },
 );
 
+const loadingMatchHistory = ref<boolean>(false);
+const matchHistory = ref<MatchHistory[]>([]);
 watch(
     () => props.showModal,
-    (show) => {
+    async (show) => {
+        if (show) {
+            loadingMatchHistory.value = true;
+            const stuff = await getMatchHistory(props.leaderboardRow.id);
+            matchHistory.value = stuff.data?.slice(0, 6) || [];
+            loadingMatchHistory.value = false;
+        }
+
         show
             ? window.addEventListener("keydown", handleKeydown)
             : window.removeEventListener("keydown", handleKeydown);
