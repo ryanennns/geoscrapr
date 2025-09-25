@@ -571,11 +571,8 @@ watch(
     async (show) => {
         if (show) {
             loadingMatchHistory.value = true;
-            matchHistory.value =
-                (await getMatchHistory(props.leaderboardRow.id)).data?.slice(
-                    0,
-                    6,
-                ) || [];
+            const stuff = await getMatchHistory(props.leaderboardRow.id);
+            matchHistory.value = stuff.data?.slice(0, 6) || [];
             loadingMatchHistory.value = false;
         }
 

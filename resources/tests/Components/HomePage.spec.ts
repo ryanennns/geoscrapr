@@ -28,6 +28,7 @@ vi.mock("@composables/useApiClient", () => ({
             .fn()
             .mockResolvedValue({ data: ["au", "nz", "ca"] }),
         getRateable: vi.fn().mockResolvedValue({ data: createPlayer() }),
+        getMatchHistory: vi.fn().mockResolvedValue({ data: [] }),
     }),
 }));
 
@@ -70,7 +71,9 @@ describe("HomePage.vue", () => {
 
     it("mounts successfully", () => {
         const wrapper = mountComponent();
-        expect(wrapper.text()).toContain("GeoGuessr Ranking Distributions");
+        expect(wrapper.text()).toContain(
+            "GeoScrapr  Competitive GeoGuessr Analytics",
+        );
     });
 
     it("renders range chart on mount", async () => {
