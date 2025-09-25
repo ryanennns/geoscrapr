@@ -126,7 +126,11 @@
                             </a>
 
                             <div
-                                v-if="matchHistory && !isMobile"
+                                v-if="
+                                    matchHistory &&
+                                    !isMobile &&
+                                    !loadingMatchHistory
+                                "
                                 class="flex gap-1 ml-auto"
                             >
                                 Recent Matches:
@@ -560,16 +564,19 @@ watch(
     { immediate: true },
 );
 
+const loadingMatchHistory = ref<boolean>(false);
 const matchHistory = ref<MatchHistory[]>([]);
 watch(
     () => props.showModal,
     async (show) => {
         if (show) {
+            loadingMatchHistory.value = true;
             matchHistory.value =
                 (await getMatchHistory(props.leaderboardRow.id)).data?.slice(
                     0,
                     6,
                 ) || [];
+            loadingMatchHistory.value = false;
         }
 
         show

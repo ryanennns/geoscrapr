@@ -152,7 +152,7 @@ class GetMatchHistoryTest extends TestCase
             GeoGuessrHttp::BASE_URL . 'api/v4/game-history/67771af50d5dc53559da3c7d' => Http::response($data)
         ]);
 
-        $response = $this->get('players/' . $ave->user_id . '/matches')
+        $response = $this->get('players/' . $ave->getKey() . '/matches')
             ->assertStatus(200);
 
         $response->assertJson([
