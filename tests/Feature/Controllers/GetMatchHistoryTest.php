@@ -4,6 +4,8 @@ namespace Tests\Feature\Controllers;
 
 use App\GeoGuessrHttp;
 use App\Models\Player;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -14,13 +16,21 @@ class GetMatchHistoryTest extends TestCase
 
     public function test_it_gets_match_history(): void
     {
-        $player = Player::factory()->create(["user_id" => "67771af50d5dc53559da3c7d"]);
+        $now = Carbon::now();
 
+        $ave = Player::factory()->create(["user_id" => "67771af50d5dc53559da3c7d", 'name' => 'Ave Cesaria', 'country_code' => 'ki', 'rating' => 2317]);
+        [$player1, $player2] = Player::factory()->count(2)->state(new Sequence (
+            ["user_id" => "5d6269cee9473f623039ce66"],
+            ["user_id" => "6771129d6d1359f9c1a2f187"]
+        ))->create();
+
+        $duel1Id = "a6e869a9-0a8b-4b4a-be81-41724426dccb";
+        $duel2Id = "8d8ebbb7-3be4-4d76-8f07-061226fb25b2";
         $data = [
             "userId"  => "67771af50d5dc53559da3c7d",
             "entries" => [
                 [
-                    "gameId"  => "a6e869a9-0a8b-4b4a-be81-41724426dccb",
+                    "gameId"  => $duel1Id,
                     "players" => [
                         [
                             "id"          => "67771af50d5dc53559da3c7d",
@@ -69,16 +79,16 @@ class GetMatchHistoryTest extends TestCase
                         ],
                         "gameMode" => "NoMoveDuels",
                         "status"   => 2,
-                        "winnerId" => "67771af50d5dc53559da3c7d",
+                        "winnerId" => "5d6269cee9473f623039ce66",
                         "rounds"   => [
                             [
-                                "startTime" => "2025-09-23T14:16:49.4010000+00:00",
+                                "startTime" => $now,
                             ],
                         ],
                     ],
                 ],
                 [
-                    "gameId"  => "8d8ebbb7-3be4-4d76-8f07-061226fb25b2",
+                    "gameId"  => $duel2Id,
                     "players" => [
                         [
                             "id"          => "6771129d6d1359f9c1a2f187",
@@ -130,7 +140,7 @@ class GetMatchHistoryTest extends TestCase
                         "winnerId" => "67771af50d5dc53559da3c7d",
                         "rounds"   => [
                             [
-                                "startTime" => "2025-09-19T14:54:51.1660000+00:00",
+                                "startTime" => $now,
                             ],
                         ],
                     ],
@@ -142,9 +152,70 @@ class GetMatchHistoryTest extends TestCase
             GeoGuessrHttp::BASE_URL . 'api/v4/game-history/67771af50d5dc53559da3c7d' => Http::response($data)
         ]);
 
-        $response = $this->get('players/' . $player->user_id . '/matches')
+        $response = $this->get('players/' . $ave->user_id . '/matches')
             ->assertStatus(200);
 
-        $this->assertEquals($response->json(), $data);
+        $response->assertJson([
+            [
+                'id'      => $duel1Id,
+                'players' => [
+                    [
+                        'country_code'   => $ave->country_code,
+                        "id"             => $ave->getKey(),
+                        "user_id"        => $ave->user_id,
+                        "name"           => $ave->name,
+                        'moving_rating'  => null,
+                        'nmpz_rating'    => null,
+                        'no_move_rating' => null,
+                        'percentile'     => null,
+                        'rank'           => null,
+                        'rating'         => $ave->rating,
+                    ],
+                    [
+                        'country_code'   => $player1->country_code,
+                        "id"             => $player1->getKey(),
+                        "user_id"        => $player1->user_id,
+                        "name"           => $player1->name,
+                        'moving_rating'  => null,
+                        'nmpz_rating'    => null,
+                        'no_move_rating' => null,
+                        'percentile'     => null,
+                        'rank'           => null,
+                        'rating'         => $player1->rating,
+                    ]
+                ],
+                'winner'  => $player1->getKey(),
+            ],
+            [
+                'id'      => $duel2Id,
+                'players' => [
+                    [
+                        'country_code'   => $player2->country_code,
+                        "id"             => $player2->getKey(),
+                        "user_id"        => $player2->user_id,
+                        "name"           => $player2->name,
+                        'moving_rating'  => null,
+                        'nmpz_rating'    => null,
+                        'no_move_rating' => null,
+                        'percentile'     => null,
+                        'rank'           => null,
+                        'rating'         => $player2->rating,
+                    ],
+                    [
+                        'country_code'   => $ave->country_code,
+                        "id"             => $ave->getKey(),
+                        "user_id"        => $ave->user_id,
+                        "name"           => $ave->name,
+                        'moving_rating'  => null,
+                        'nmpz_rating'    => null,
+                        'no_move_rating' => null,
+                        'percentile'     => null,
+                        'rank'           => null,
+                        'rating'         => $ave->rating,
+                    ],
+                ],
+                'winner'  => $ave->getKey(),
+            ],
+        ]);
     }
 }

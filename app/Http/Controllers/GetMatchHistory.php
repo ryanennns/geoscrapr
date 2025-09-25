@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\GeoGuessrHttp;
+use App\Http\Resources\PlayerResource;
+use App\Models\Player;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 
 class GetMatchHistory extends Controller
@@ -19,6 +23,30 @@ class GetMatchHistory extends Controller
             response()->json(['error' => 'failed to fetch data'], 400);
         }
 
-        return response()->json($response->json());
+        $json = $response->json();
+
+        $games = Arr::get($json, 'entries');
+
+        $r = collect($games)->map(function ($game) use ($games) {
+            $id = Arr::get($game, 'gameId');
+            $players = collect(
+                Arr::get($game, 'players'))->map(
+                fn($p) => PlayerResource::make(
+                    Player::query()
+                        ->where('user_id', Arr::get($p, 'id'))
+                        ->firstOrFail()
+                )
+            );
+            $winnerUserId = Arr::get($game, 'duel.winnerId');
+
+            return [
+                'id'         => $id,
+                'players'    => $players->toArray(),
+                'winner'     => $players->firstWhere('user_id', $winnerUserId)->id,
+                'started_at' => Carbon::parse(Arr::get($game, 'rounds.0.startTime')),
+            ];
+        });
+
+        return response()->json($r);
     }
 }
