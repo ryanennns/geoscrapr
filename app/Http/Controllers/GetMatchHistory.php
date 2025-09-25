@@ -14,10 +14,16 @@ class GetMatchHistory extends Controller
 {
     public function __invoke(string $id, Request $request)
     {
+        $playerUserId = Player::query()
+            ->select('user_id')
+            ->where('id', $id)
+            ->first()
+            ->user_id;
+
         $response = Http::withHeaders([
             ...GeoGuessrHttp::HEADERS,
             'cookie' => GeoGuessrHttp::cookieString(),
-        ])->get(GeoGuessrHttp::BASE_URL . "api/v4/game-history/$id");
+        ])->get(GeoGuessrHttp::BASE_URL . "api/v4/game-history/$playerUserId");
 
         if (!$response->ok()) {
             response()->json(['error' => 'failed to fetch data'], 400);

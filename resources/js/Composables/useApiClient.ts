@@ -48,6 +48,15 @@ export type GetInDepthPlayerDataApiResponse = ApiResponse<{
 
 export type GetRateableApiResponse = ApiResponse<Player | Team>;
 
+export interface MatchHistory {
+    id: string;
+    players: Player[];
+    started_at: string;
+    winner: string;
+}
+
+export type GetMatchHistoryApiResponse = ApiResponse<MatchHistory[]>;
+
 export function useApiClient() {
     const getRateableHistory = async (
         rateableType: RateableType,
@@ -57,9 +66,7 @@ export function useApiClient() {
 
         if (!response.ok) {
             return {
-                error: {
-                    statusCode: response.status,
-                },
+                error: response.status,
             };
         }
 
@@ -192,6 +199,22 @@ export function useApiClient() {
         return await response.json();
     };
 
+    const getMatchHistory = async (
+        id: string,
+    ): Promise<GetMatchHistoryApiResponse> => {
+        const response = await fetch(`players/${id}/matches`);
+
+        if (!response.ok) {
+            return {
+                error: response.status,
+            };
+        }
+
+        return {
+            data: await response.json(),
+        };
+    };
+
     return {
         getRateableHistory,
         getLastUpdated,
@@ -200,5 +223,6 @@ export function useApiClient() {
         getAvailableCountries,
         getInDepthPlayerData,
         getRateable,
+        getMatchHistory,
     };
 }
