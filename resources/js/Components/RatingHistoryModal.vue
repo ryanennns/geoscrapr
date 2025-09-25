@@ -127,7 +127,7 @@
 
                             <div
                                 v-if="
-                                    matchHistory &&
+                                    matchHistory.length &&
                                     !isMobile &&
                                     !loadingMatchHistory
                                 "
