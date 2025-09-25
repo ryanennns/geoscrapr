@@ -35,20 +35,11 @@ class GetMatchHistory extends Controller
 
         $r = collect($games)->map(function ($game) use ($games) {
             $id = Arr::get($game, 'gameId');
-            $players = collect(
-                Arr::get($game, 'players'))->map(
-                fn($p) => PlayerResource::make(
-                    Player::query()
-                        ->where('user_id', Arr::get($p, 'id'))
-                        ->firstOrFail()
-                )
-            );
             $winnerUserId = Arr::get($game, 'duel.winnerId');
 
             return [
                 'id'         => $id,
-                'players'    => $players->toArray(),
-                'winner'     => $players->firstWhere('user_id', $winnerUserId)->id,
+                'winner'     => Player::query()->where('user_id', $winnerUserId)->select('id')->first()?->id,
                 'started_at' => Carbon::parse(Arr::get($game, 'rounds.0.startTime')),
             ];
         });

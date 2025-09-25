@@ -158,62 +158,10 @@ class GetMatchHistoryTest extends TestCase
         $response->assertJson([
             [
                 'id'      => $duel1Id,
-                'players' => [
-                    [
-                        'country_code'   => $ave->country_code,
-                        "id"             => $ave->getKey(),
-                        "user_id"        => $ave->user_id,
-                        "name"           => $ave->name,
-                        'moving_rating'  => null,
-                        'nmpz_rating'    => null,
-                        'no_move_rating' => null,
-                        'percentile'     => null,
-                        'rank'           => null,
-                        'rating'         => $ave->rating,
-                    ],
-                    [
-                        'country_code'   => $player1->country_code,
-                        "id"             => $player1->getKey(),
-                        "user_id"        => $player1->user_id,
-                        "name"           => $player1->name,
-                        'moving_rating'  => null,
-                        'nmpz_rating'    => null,
-                        'no_move_rating' => null,
-                        'percentile'     => null,
-                        'rank'           => null,
-                        'rating'         => $player1->rating,
-                    ]
-                ],
                 'winner'  => $player1->getKey(),
             ],
             [
                 'id'      => $duel2Id,
-                'players' => [
-                    [
-                        'country_code'   => $player2->country_code,
-                        "id"             => $player2->getKey(),
-                        "user_id"        => $player2->user_id,
-                        "name"           => $player2->name,
-                        'moving_rating'  => null,
-                        'nmpz_rating'    => null,
-                        'no_move_rating' => null,
-                        'percentile'     => null,
-                        'rank'           => null,
-                        'rating'         => $player2->rating,
-                    ],
-                    [
-                        'country_code'   => $ave->country_code,
-                        "id"             => $ave->getKey(),
-                        "user_id"        => $ave->user_id,
-                        "name"           => $ave->name,
-                        'moving_rating'  => null,
-                        'nmpz_rating'    => null,
-                        'no_move_rating' => null,
-                        'percentile'     => null,
-                        'rank'           => null,
-                        'rating'         => $ave->rating,
-                    ],
-                ],
                 'winner'  => $ave->getKey(),
             ],
         ]);

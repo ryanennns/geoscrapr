@@ -50,7 +50,6 @@ export type GetRateableApiResponse = ApiResponse<Player | Team>;
 
 export interface MatchHistory {
     id: string;
-    players: Player[];
     started_at: string;
     winner: string;
 }
