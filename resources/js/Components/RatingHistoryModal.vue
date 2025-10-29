@@ -233,14 +233,6 @@ const allowedNameLength = computed<number>(() => {
 });
 
 const name = computed<string>(() => {
-    if (isMobile.value) {
-        return (
-            props.leaderboardRow.name
-                .trim()
-                .slice(0, allowedNameLength.value - 3) + "..."
-        );
-    }
-
     if (expanded.value) {
         return props.leaderboardRow.name.trim();
     }
