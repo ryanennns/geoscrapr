@@ -161,6 +161,7 @@ const onClose = () => {
     emit("close");
 
     clear("expanded");
+    clear("compare_with");
 
     if (ratingChartInstance.value) {
         setTimeout(() => {
@@ -263,6 +264,8 @@ const handleSelectPlayerToCompareWith = async (event: {
         playerToCompareWith.value.id,
     );
     playerToCompareWithRatingHistory.value = result.data || [];
+
+    set("compare_with", String(playerToCompareWith.value.id));
 
     renderRatingChart();
 };
