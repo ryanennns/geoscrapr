@@ -25,7 +25,7 @@
                                 />
                             </span>
                             <p class="">
-                                {{ name }}
+                                {{ croppedName }}
                             </p>
                             <p class="font-light ml-1">
                                 - {{ props.leaderboardRow.rating }}
@@ -129,7 +129,8 @@
                                 v-if="
                                     matchHistory.length &&
                                     !isMobile &&
-                                    !loadingMatchHistory
+                                    !loadingMatchHistory &&
+                                    expanded
                                 "
                                 class="flex gap-1 ml-auto"
                             >
@@ -199,7 +200,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
-import { Chart, type TooltipItem } from "chart.js";
+import { Chart } from "chart.js";
 import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
@@ -211,8 +212,25 @@ import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 import CloseButton from "@/Components/CloseButton.vue";
 import { useUrlParams } from "@/Composables/useUrlParams.ts";
 import { type MatchHistory, useApiClient } from "@/Composables/useApiClient.ts";
+import {
+    createRatingChart,
+    getRatingHistoryChartData,
+} from "@/modalChartUtils.ts";
+
+interface Props {
+    showModal: boolean;
+    leaderboardRow: LeaderboardRow;
+    ratingHistory: RatingChange[];
+    loading: boolean;
+}
+const props = defineProps<Props>();
 
 const { getMatchHistory } = useApiClient();
+const { isMobile } = useBrowserUtils();
+const { generateProfileUrl } = usePlayerUtils();
+const { get, set, clear } = useUrlParams();
+
+const emit = defineEmits(["close"]);
 
 const allowedNameLength = computed<number>(() => {
     let numberOfNullRatings = 0;
@@ -232,7 +250,7 @@ const allowedNameLength = computed<number>(() => {
     return 13 + numberOfNullRatings * 2;
 });
 
-const name = computed<string>(() => {
+const croppedName = computed<string>(() => {
     if (expanded.value) {
         return props.leaderboardRow.name.trim();
     }
@@ -247,23 +265,6 @@ const name = computed<string>(() => {
     );
 });
 
-interface Props {
-    showModal: boolean;
-    leaderboardRow: LeaderboardRow;
-    ratingHistory: RatingChange[];
-    loading: boolean;
-}
-
-const { isMobile } = useBrowserUtils();
-
-const props = defineProps<Props>();
-
-const emit = defineEmits(["close"]);
-
-const { generateProfileUrl } = usePlayerUtils();
-const ratingChartCanvas = ref<HTMLCanvasElement>();
-const ratingChartInstance = ref<Chart | null>(null);
-
 const daysToShow = ref(14);
 
 const handleKeydown = (e: KeyboardEvent) => {
@@ -272,44 +273,6 @@ const handleKeydown = (e: KeyboardEvent) => {
     }
 
     onClose();
-};
-
-const onClose = () => {
-    emit("close");
-
-    clear("expanded");
-
-    if (ratingChartInstance.value) {
-        setTimeout(() => {
-            ratingChartInstance.value?.destroy();
-            ratingChartInstance.value = null;
-        }, 100);
-    }
-
-    expanded.value = false;
-    daysToShow.value = 14;
-};
-
-const formatDateString = (date: Date) => {
-    return date.toISOString().split("T")[0];
-};
-
-const getDatesInRange = (startDate: Date, endDate: Date) => {
-    const dates: Date[] = [];
-    const currentDate = new Date(startDate);
-    const endDateCopy = new Date(endDate);
-
-    currentDate.setHours(0, 0, 0, 0);
-    endDateCopy.setHours(0, 0, 0, 0);
-
-    endDateCopy.setDate(endDateCopy.getDate() + 1);
-
-    while (currentDate < endDateCopy) {
-        dates.push(new Date(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return dates;
 };
 
 const calculateStepSize = (range: number) => {
@@ -343,11 +306,28 @@ const canvasWrapperClasses = computed<string>(() =>
     isMobile.value ? "w-full h-60" : expanded.value ? "h-[65vh]" : "h-60",
 );
 
-const renderRatingChart = () => {
-    if (!ratingChartCanvas.value || props.ratingHistory.length === 0) return;
+const ratingChartInstance = ref<Chart | null>(null);
+const onClose = () => {
+    emit("close");
+
+    clear("expanded");
 
     if (ratingChartInstance.value) {
-        ratingChartInstance.value.destroy();
+        setTimeout(() => {
+            ratingChartInstance.value?.destroy();
+            ratingChartInstance.value = null;
+        }, 100);
+    }
+
+    expanded.value = false;
+    daysToShow.value = 14;
+};
+
+const ratingChartCanvas = ref<HTMLCanvasElement>();
+
+const renderRatingChart = () => {
+    if (!ratingChartCanvas.value || props.ratingHistory.length === 0) {
+        return;
     }
 
     const ctx = ratingChartCanvas.value.getContext("2d");
@@ -358,55 +338,15 @@ const renderRatingChart = () => {
         return;
     }
 
-    const processData = () => {
-        const today = new Date();
-        const startDate = new Date(today);
-        startDate.setDate(today.getDate() - daysToShow.value);
+    if (ratingChartInstance.value) {
+        ratingChartInstance.value.destroy();
+    }
 
-        const allDates = getDatesInRange(startDate, today);
-
-        const ratingsByDate = Object.fromEntries(
-            props.ratingHistory.map((record) => [
-                formatDateString(new Date(record.created_at)),
-                record.rating,
-            ]),
-        );
-
-        const sortedRatingHistory = [...props.ratingHistory].sort(
-            (a, b) =>
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime(),
-        );
-
-        const leftOfStartDate = sortedRatingHistory.find(
-            (r) => new Date(r.created_at) < startDate,
-        );
-        const oldestRating =
-            sortedRatingHistory[sortedRatingHistory.length - 1];
-
-        const labels: string[] = [];
-        const data: number[] = [];
-
-        let mostRecentRating =
-            leftOfStartDate?.rating ??
-            oldestRating.rating ??
-            props.leaderboardRow?.rating;
-
-        allDates.forEach((date) => {
-            const dateString = formatDateString(date);
-            labels.push(date.toLocaleDateString());
-
-            if (ratingsByDate[dateString]) {
-                mostRecentRating = ratingsByDate[dateString];
-            }
-
-            data.push(mostRecentRating);
-        });
-
-        return { labels, data };
-    };
-
-    const { labels, data } = processData();
+    const { labels, data } = getRatingHistoryChartData({
+        daysToShow: daysToShow.value,
+        ratingHistory: props.ratingHistory,
+        leaderboardRow: props.leaderboardRow,
+    });
 
     if (data.length === 0) {
         return;
@@ -430,118 +370,15 @@ const renderRatingChart = () => {
     gradient.addColorStop(0, "rgba(79, 70, 229, 0.4)");
     gradient.addColorStop(1, "rgba(79, 70, 229, 0.05)");
 
-    ratingChartInstance.value = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: "Rating",
-                    data: data,
-                    backgroundColor: gradient,
-                    borderColor: "rgba(79, 70, 229, 0.9)",
-                    borderWidth: 2.5,
-                    tension: 0,
-                    fill: true,
-                    pointBackgroundColor: "#ffffff",
-                    pointBorderColor: "rgba(79, 70, 229, 1)",
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 6,
-                    pointHoverBackgroundColor: "white",
-                    pointHoverBorderColor: "rgba(79, 70, 229, 1)",
-                    pointHoverBorderWidth: 3,
-                    spanGaps: true,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: "index",
-                intersect: false,
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: yMin,
-                    max: yMax,
-                    ticks: {
-                        stepSize: step,
-                        font: {
-                            size: 11,
-                        },
-                        padding: 8,
-                        color: "#64748b",
-                    },
-                    grid: {
-                        color: "rgba(226, 232, 240, 0.8)",
-                    },
-                    border: {
-                        dash: [4, 4],
-                    },
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: `Rating History (Last ${daysToShow.value / 7} Weeks)`,
-                        font: {
-                            size: 12,
-                        },
-                        padding: {
-                            top: 10,
-                        },
-                        color: "#1e293b",
-                    },
-                    ticks: {
-                        maxTicksLimit: Math.min(10, labels.length),
-                        maxRotation: 45,
-                        minRotation: 45,
-                        font: {
-                            size: 10,
-                        },
-                        padding: 5,
-                        color: "#64748b",
-                    },
-                    grid: {
-                        color: "rgba(226, 232, 240, 0.6)",
-                    },
-                },
-            },
-            plugins: {
-                legend: {
-                    display: false,
-                },
-                tooltip: {
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    titleColor: "#1e293b",
-                    bodyColor: "#334155",
-                    borderColor: "#e2e8f0",
-                    borderWidth: 1,
-                    padding: 12,
-                    cornerRadius: 6,
-                    titleFont: {
-                        size: 13,
-                        weight: "bold",
-                    },
-                    bodyFont: {
-                        size: 12,
-                    },
-                    callbacks: {
-                        title(tooltipItems: TooltipItem<"line">[]) {
-                            return tooltipItems[0].label;
-                        },
-                        label(context: TooltipItem<"line">) {
-                            return `Rating: ${(context.raw as number).toLocaleString()}`;
-                        },
-                    },
-                },
-            },
-            animation: {
-                duration: 1500,
-                easing: "easeOutQuart",
-            },
-        },
+    ratingChartInstance.value = createRatingChart({
+        ctx,
+        labels,
+        data,
+        gradient,
+        yMin,
+        yMax,
+        step,
+        daysToShow: daysToShow.value,
     });
 };
 
@@ -583,7 +420,7 @@ watch(
         console.log("Mobile state changed:", newValue.value);
     },
 );
-const { get, set, clear } = useUrlParams();
+
 onMounted(async () => {
     await nextTick();
     if (!!get("expanded")) {
