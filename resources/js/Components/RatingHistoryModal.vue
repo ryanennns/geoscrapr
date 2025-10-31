@@ -265,7 +265,7 @@ const croppedName = computed<string>(() => {
     );
 });
 
-const daysToShow = ref(14);
+const daysToShow = ref<number>(14);
 
 const handleKeydown = (e: KeyboardEvent) => {
     if (e.key !== "Escape") {
@@ -290,9 +290,7 @@ const toggleExpand = () => {
         ? set("expanded", String(expanded.value))
         : clear("expanded");
 
-    nextTick(() => {
-        renderRatingChart();
-    });
+    renderRatingChart();
 };
 
 const wrapperClasses = computed<string>(() =>
@@ -316,7 +314,7 @@ const onClose = () => {
         setTimeout(() => {
             ratingChartInstance.value?.destroy();
             ratingChartInstance.value = null;
-        }, 100);
+        }, 300);
     }
 
     expanded.value = false;
@@ -324,7 +322,6 @@ const onClose = () => {
 };
 
 const ratingChartCanvas = ref<HTMLCanvasElement>();
-
 const renderRatingChart = () => {
     if (!ratingChartCanvas.value || props.ratingHistory.length === 0) {
         return;
@@ -414,13 +411,6 @@ watch(
     },
 );
 
-watch(
-    () => isMobile,
-    (newValue) => {
-        console.log("Mobile state changed:", newValue.value);
-    },
-);
-
 onMounted(async () => {
     await nextTick();
     if (!!get("expanded")) {
@@ -435,15 +425,3 @@ onUnmounted(() => {
     }
 });
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.2s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-</style>
