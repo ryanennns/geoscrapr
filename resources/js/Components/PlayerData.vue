@@ -13,7 +13,7 @@ interface Props {
     expanded: boolean;
     matchHistory: MatchHistory[];
     colour: string;
-    showColour: boolean;
+    comparing: boolean;
 }
 
 const { generateProfileUrl } = usePlayerUtils();
@@ -67,11 +67,14 @@ const croppedName = computed<string>(() => {
                     height="15"
                 />
             </span>
-            <p :style="{ color: showColour ? colour : 'inherit' }">
+            <p :style="{ color: comparing ? colour : 'inherit' }">
                 {{ croppedName }}
             </p>
             <p class="font-light ml-1">- {{ props.leaderboardRow.rating }}</p>
-            <div class="hidden sm:flex flex-wrap gap-2 items-center ml-4">
+            <div
+                v-if="!comparing"
+                class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
+            >
                 <RatingBadge
                     v-show="props.leaderboardRow.moving_rating"
                     label="Moving: "

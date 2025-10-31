@@ -17,7 +17,7 @@
                             :expanded="expanded"
                             :match-history="matchHistory"
                             colour="#2563eb"
-                            :showColour="playerToCompareWith !== null"
+                            :comparing="playerToCompareWith !== null"
                         />
                     </span>
                     <span class="grow" v-if="playerToCompareWith">
@@ -27,7 +27,7 @@
                             :expanded="expanded"
                             :matchHistory="[]"
                             colour="#dc2626"
-                            :showColour="true"
+                            :comparing="true"
                         />
                     </span>
                     <div class="flex h-full items-center mr-8">
