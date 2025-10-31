@@ -215,7 +215,7 @@ const renderRatingChart = () => {
         p2 = data;
     }
 
-    const validData = p1.filter((value) => value !== null);
+    const validData = [...p1.filter((v) => v !== null), ...p2.filter(v => v !== null)];
     const minRating = Math.min(...validData);
     const maxRating = Math.max(...validData);
 
