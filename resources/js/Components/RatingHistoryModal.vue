@@ -16,6 +16,8 @@
                             :loading-match-history="loadingMatchHistory"
                             :expanded="expanded"
                             :match-history="matchHistory"
+                            colour="#2563eb"
+                            :showColour="playerToCompareWith !== null"
                         />
                     </span>
                     <span class="grow" v-if="playerToCompareWith">
@@ -24,13 +26,18 @@
                             :loading-match-history="false"
                             :expanded="expanded"
                             :matchHistory="[]"
+                            colour="#dc2626"
+                            :showColour="true"
                         />
                     </span>
-                    <div class="w-64">
-                        <PlayerTeamSearch
-                            @rowClicked="handleSelectPlayerToCompareWith"
-                            v-show="expanded"
-                        />
+                    <div class="flex h-full items-center mr-8">
+                        <div class="items-center">
+                            <PlayerTeamSearch
+                                placeholder="Compare with player..."
+                                @rowClicked="handleSelectPlayerToCompareWith"
+                                v-show="expanded"
+                            />
+                        </div>
                     </div>
                     <ExpandContractButton
                         v-if="

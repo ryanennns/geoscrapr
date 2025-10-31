@@ -24,7 +24,9 @@
                 @input="fetchPlayers"
                 @focus="fetchPlayers"
                 @blur="() => (showDropdown = false)"
-                placeholder="Search for a player, team, or ID..."
+                :placeholder="
+                    placeholder ?? 'Search for a player, team, or ID...'
+                "
                 class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
             <transition name="fade">
@@ -98,6 +100,12 @@ import PlayerSearchResult from "./PlayerSearchResult.vue";
 import type { Player, Rateable, Team } from "@/Types/core.ts";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
 import TeamSearchResult from "@/Components/TeamSearchResult.vue";
+
+interface Props {
+    placeholder?: string;
+}
+
+defineProps<Props>();
 
 const { rateableToLeaderboardRows } = usePlayerUtils();
 
