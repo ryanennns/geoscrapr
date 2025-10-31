@@ -172,6 +172,9 @@ const onClose = () => {
 
     expanded.value = false;
     daysToShow.value = 14;
+
+    playerToCompareWith.value = null;
+    playerToCompareWithRatingHistory.value = [];
 };
 
 const ratingChartCanvas = ref<HTMLCanvasElement>();
