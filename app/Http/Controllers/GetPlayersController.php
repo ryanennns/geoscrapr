@@ -28,7 +28,9 @@ class GetPlayersController extends Controller
         }
 
         if ($active) {
-            $query->where('updated_at', '>=', Carbon::now()->subWeek());
+            $query->whereHas('ratingChanges', function ($q) {
+                $q->where('created_at', '>=', Carbon::now()->subWeek());
+            });
         }
 
         if ($gameType !== null) {

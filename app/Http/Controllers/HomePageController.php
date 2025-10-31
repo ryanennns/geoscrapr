@@ -58,6 +58,9 @@ class HomePageController extends Controller
             ->get();
 
         $playerQuery = Player::query()
+            ->whereHas('ratingChanges', function ($query) {
+                $query->where('created_at', '>=', Carbon::now()->subWeek());
+            })
             ->whereNotNull('rating')
             ->orderBy('rating', 'desc');
 
