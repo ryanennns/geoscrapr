@@ -100,6 +100,7 @@ import {
 } from "@/modalChartUtils.ts";
 import PlayerTeamSearch from "@/Components/PlayerTeamSearch.vue";
 import PlayerData from "@/Components/PlayerData.vue";
+import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
 
 interface Props {
     showModal: boolean;
@@ -109,7 +110,8 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const { getMatchHistory, getRateableHistory } = useApiClient();
+const { getMatchHistory, getRateableHistory, getRateable } = useApiClient();
+const { rateableToLeaderboardRows } = usePlayerUtils();
 const { isMobile } = useBrowserUtils();
 const { get, set, clear } = useUrlParams();
 
@@ -132,17 +134,19 @@ const calculateStepSize = (range: number) => {
 };
 
 const expanded = ref<boolean>(false);
-const toggleExpand = () => {
+const toggleExpand = (rerender: boolean = true) => {
     expanded.value = !expanded.value;
     expanded.value ? (daysToShow.value = 56) : (daysToShow.value = 14);
     expanded.value
         ? set("expanded", String(expanded.value))
-        : clear("expanded");
+        : clear("expanded") > clear("compare_with");
 
     playerToCompareWith.value = null;
     playerToCompareWithRatingHistory.value = [];
 
-    renderRatingChart();
+    if (rerender) {
+        renderRatingChart();
+    }
 };
 
 const wrapperClasses = computed<string>(() =>
@@ -303,9 +307,30 @@ watch(
 );
 
 onMounted(async () => {
-    await nextTick();
-    if (!!get("expanded")) {
-        toggleExpand();
+    if (isMobile.value) {
+        return;
+    }
+
+    if (get("compare_with") !== null && get("expanded") === null) {
+        set("expanded", "true");
+    }
+
+    if (Boolean(get("expanded"))) {
+        toggleExpand(false);
+    }
+
+    const compareWith = get("compare_with") as string;
+
+    if (compareWith) {
+        playerToCompareWith.value = rateableToLeaderboardRows(
+            (await getRateable(compareWith)).data!,
+        );
+        playerToCompareWithRatingHistory.value =
+            (await getRateableHistory("player", compareWith))?.data ?? [];
+
+        await nextTick();
+
+        renderRatingChart();
     }
 });
 
