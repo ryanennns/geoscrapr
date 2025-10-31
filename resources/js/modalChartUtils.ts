@@ -82,7 +82,8 @@ export const getRatingHistoryChartData = ({
 interface CreateRatingChartProps {
     ctx: CanvasRenderingContext2D;
     labels: string[];
-    data: number[];
+    p1: number[];
+    p2?: number[];
     gradient: CanvasGradient;
     yMin: number;
     yMax: number;
@@ -93,36 +94,47 @@ interface CreateRatingChartProps {
 export const createRatingChart = ({
     ctx,
     labels,
-    data,
+    p1,
+    p2,
     gradient,
     yMin,
     yMax,
     step,
     daysToShow,
 }: CreateRatingChartProps) => {
+    const colors = [
+        { base: "rgba(220, 38, 38,", name: "red" }, // red
+        { base: "rgba(37, 99, 235,", name: "blue" }, // blue
+    ];
+
+    const datasets = [p1, p2]
+        .filter((p) => !!p)
+        .map((data, index) => {
+            const color = colors[index % colors.length].base;
+            return {
+                label: `Rating ${index + 1}`,
+                data,
+                backgroundColor: gradient,
+                borderColor: `${color} 0.9)`,
+                borderWidth: 2.5,
+                tension: 0,
+                fill: true,
+                pointBackgroundColor: "#ffffff",
+                pointBorderColor: `${color} 1)`,
+                pointBorderWidth: 2,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: "white",
+                pointHoverBorderColor: `${color} 1)`,
+                pointHoverBorderWidth: 3,
+                spanGaps: true,
+            };
+        });
+
     return new Chart(ctx, {
         type: "line",
         data: {
             labels: labels,
-            datasets: [
-                {
-                    label: "Rating",
-                    data: data,
-                    backgroundColor: gradient,
-                    borderColor: "rgba(79, 70, 229, 0.9)",
-                    borderWidth: 2.5,
-                    tension: 0,
-                    fill: true,
-                    pointBackgroundColor: "#ffffff",
-                    pointBorderColor: "rgba(79, 70, 229, 1)",
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 6,
-                    pointHoverBackgroundColor: "white",
-                    pointHoverBorderColor: "rgba(79, 70, 229, 1)",
-                    pointHoverBorderWidth: 3,
-                    spanGaps: true,
-                },
-            ],
+            datasets: datasets,
         },
         options: {
             responsive: true,

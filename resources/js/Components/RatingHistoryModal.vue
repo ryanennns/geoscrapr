@@ -154,6 +154,155 @@
                             </div>
                         </div>
                     </span>
+                    <span class="grow">
+                        <span class="text-xl font-bold flex items-center mb-2">
+                            <span
+                                v-for="countryCode in props.leaderboardRow
+                                    .countryCodes"
+                            >
+                                <Flag
+                                    :country-code="countryCode"
+                                    dimensions="120x90"
+                                    class="mr-1"
+                                    width="20"
+                                    height="15"
+                                />
+                            </span>
+                            <p class="">
+                                {{ croppedName }}
+                            </p>
+                            <p class="font-light ml-1">
+                                - {{ props.leaderboardRow.rating }}
+                            </p>
+                            <div
+                                class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
+                            >
+                                <RatingBadge
+                                    v-show="props.leaderboardRow.moving_rating"
+                                    label="Moving: "
+                                    :text="`${props.leaderboardRow.moving_rating}`"
+                                />
+                                <RatingBadge
+                                    v-show="props.leaderboardRow.no_move_rating"
+                                    label="No Move: "
+                                    :text="`${props.leaderboardRow.no_move_rating}`"
+                                />
+                                <RatingBadge
+                                    v-show="props.leaderboardRow.nmpz_rating"
+                                    label="NMPZ: "
+                                    :text="`${props.leaderboardRow.nmpz_rating}`"
+                                />
+                            </div>
+                        </span>
+
+                        <span
+                            class="flex items-center gap-2"
+                            v-if="!props.leaderboardRow.players"
+                        >
+                            <p>
+                                Overall Rank:
+                                <span class="font-bold"
+                                    >#{{ props.leaderboardRow.rank }}</span
+                                >
+                            </p>
+                            —
+                            <p
+                                v-if="props.leaderboardRow.percentile"
+                                class="font-bold"
+                            >
+                                P{{
+                                    Math.floor(
+                                        props.leaderboardRow.percentile * 100,
+                                    ) / 100
+                                }}
+                            </p>
+                        </span>
+
+                        <span v-if="props.leaderboardRow.players" class="flex">
+                            <a
+                                :href="
+                                    generateProfileUrl(
+                                        props.leaderboardRow.players[0]
+                                            ?.user_id,
+                                    )
+                                "
+                                target="_blank"
+                                class="mr-1"
+                            >
+                                <p
+                                    class="text-gray-600 font-mono underline font-light"
+                                >
+                                    {{ props.leaderboardRow.players[0]?.name }}
+                                </p>
+                            </a>
+                            &
+                            <a
+                                :href="
+                                    generateProfileUrl(
+                                        props.leaderboardRow.players[1]
+                                            ?.user_id,
+                                    )
+                                "
+                                target="_blank"
+                                class="ml-1"
+                            >
+                                <p
+                                    class="text-gray-600 font-mono underline font-light"
+                                >
+                                    {{ props.leaderboardRow.players[1]?.name }}
+                                </p>
+                            </a>
+                        </span>
+                        <div v-else class="flex items-center mb-2 w-full">
+                            <a
+                                :href="
+                                    generateProfileUrl(
+                                        props.leaderboardRow.geoGuessrId,
+                                    )
+                                "
+                                target="_blank"
+                            >
+                                <p
+                                    class="text-gray-600 font-mono underline font-light"
+                                >
+                                    {{ props.leaderboardRow.geoGuessrId }}
+                                </p>
+                            </a>
+
+                            <div
+                                v-if="
+                                    matchHistory.length &&
+                                    !isMobile &&
+                                    !loadingMatchHistory &&
+                                    expanded
+                                "
+                                class="flex gap-1 ml-auto"
+                            >
+                                Recent Matches:
+                                <div v-for="match in matchHistory">
+                                    <a
+                                        :href="`https://geoguessr.com/duels/${match.id}`"
+                                        target="_blank"
+                                    >
+                                        <div
+                                            v-if="
+                                                match.winner ===
+                                                leaderboardRow.id
+                                            "
+                                        >
+                                            🟢
+                                        </div>
+                                        <div v-else>🔴</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </span>
+                    <div class="w-64">
+                        <PlayerTeamSearch
+                            @rowClicked="handleSelectPlayerToCompareWith"
+                        />
+                    </div>
                     <ExpandContractButton
                         v-if="
                             !isMobile &&
@@ -216,6 +365,7 @@ import {
     createRatingChart,
     getRatingHistoryChartData,
 } from "@/modalChartUtils.ts";
+import PlayerTeamSearch from "@/Components/PlayerTeamSearch.vue";
 
 interface Props {
     showModal: boolean;
@@ -225,7 +375,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const { getMatchHistory } = useApiClient();
+const { getMatchHistory, getRateableHistory } = useApiClient();
 const { isMobile } = useBrowserUtils();
 const { generateProfileUrl } = usePlayerUtils();
 const { get, set, clear } = useUrlParams();
@@ -339,17 +489,30 @@ const renderRatingChart = () => {
         ratingChartInstance.value.destroy();
     }
 
-    const { labels, data } = getRatingHistoryChartData({
+    const { labels, data: p1 } = getRatingHistoryChartData({
         daysToShow: daysToShow.value,
         ratingHistory: props.ratingHistory,
         leaderboardRow: props.leaderboardRow,
     });
 
-    if (data.length === 0) {
+    if (p1.length === 0) {
         return;
     }
 
-    const validData = data.filter((value) => value !== null);
+    let p2: number[] = [];
+    if (
+        playerToCompareWith.value &&
+        playerToCompareWithRatingHistory.value.length > 0
+    ) {
+        const { data } = getRatingHistoryChartData({
+            daysToShow: daysToShow.value,
+            ratingHistory: playerToCompareWithRatingHistory.value,
+            leaderboardRow: playerToCompareWith.value,
+        });
+        p2 = data;
+    }
+
+    const validData = p1.filter((value) => value !== null);
     const minRating = Math.min(...validData);
     const maxRating = Math.max(...validData);
 
@@ -370,13 +533,30 @@ const renderRatingChart = () => {
     ratingChartInstance.value = createRatingChart({
         ctx,
         labels,
-        data,
+        p1,
+        p2,
         gradient,
         yMin,
         yMax,
         step,
         daysToShow: daysToShow.value,
     });
+};
+
+const playerToCompareWith = ref<LeaderboardRow | null>(null);
+const playerToCompareWithRatingHistory = ref<RatingChange[]>([]);
+const handleSelectPlayerToCompareWith = async (event: {
+    rateable: LeaderboardRow;
+}) => {
+    playerToCompareWith.value = event.rateable;
+
+    const result = await getRateableHistory(
+        "player",
+        playerToCompareWith.value.id,
+    );
+    playerToCompareWithRatingHistory.value = result.data || [];
+
+    renderRatingChart();
 };
 
 watch(
