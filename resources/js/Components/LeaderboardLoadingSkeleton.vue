@@ -35,12 +35,15 @@
         <tbody class="bg-white divide-y divide-gray-200">
             <tr v-for="i in 10" :key="i">
                 <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                    <div class="h-[18px] bg-gray-200 rounded w-3"></div>
+                    <div class="h-[18px] bg-gray-200 rounded w-5"></div>
                 </td>
                 <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
                     <div
-                        class="h-[18px] bg-gray-200 rounded max-w-full w-2/3"
-                    ></div>
+                        :style="{
+                            width: `${Math.floor(Math.random() * 25) + 10}%`,
+                        }"
+                        class="h-[18px] bg-gray-200 rounded max-w-full"
+                    />
                 </td>
                 <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
                     <div v-if="props.isSolo">
@@ -58,7 +61,7 @@
                     </div>
                 </td>
                 <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                    <div class="h-[14px] bg-gray-300 rounded w-12"></div>
+                    <div class="h-[15px] bg-gray-300 rounded w-9"></div>
                 </td>
             </tr>
         </tbody>
