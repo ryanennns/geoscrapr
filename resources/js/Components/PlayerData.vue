@@ -141,6 +141,7 @@ const croppedName = computed<string>(() => {
 
             <div
                 v-if="
+                    false &&
                     matchHistory.length &&
                     !isMobile &&
                     !loadingMatchHistory &&
