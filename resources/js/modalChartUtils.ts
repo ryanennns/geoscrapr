@@ -103,8 +103,8 @@ export const createRatingChart = ({
     daysToShow,
 }: CreateRatingChartProps) => {
     const colors = [
-        { base: "rgba(220, 38, 38,", name: "red" }, // red
         { base: "rgba(37, 99, 235,", name: "blue" }, // blue
+        { base: "rgba(220, 38, 38,", name: "red" }, // red
     ];
 
     const datasets = [p1, p2]

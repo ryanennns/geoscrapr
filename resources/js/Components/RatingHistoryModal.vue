@@ -11,296 +11,25 @@
             >
                 <div class="flex justify-between items-start">
                     <span class="grow">
-                        <span class="text-xl font-bold flex items-center mb-2">
-                            <span
-                                v-for="countryCode in props.leaderboardRow
-                                    .countryCodes"
-                            >
-                                <Flag
-                                    :country-code="countryCode"
-                                    dimensions="120x90"
-                                    class="mr-1"
-                                    width="20"
-                                    height="15"
-                                />
-                            </span>
-                            <p class="">
-                                {{ croppedName }}
-                            </p>
-                            <p class="font-light ml-1">
-                                - {{ props.leaderboardRow.rating }}
-                            </p>
-                            <div
-                                class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
-                            >
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.moving_rating"
-                                    label="Moving: "
-                                    :text="`${props.leaderboardRow.moving_rating}`"
-                                />
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.no_move_rating"
-                                    label="No Move: "
-                                    :text="`${props.leaderboardRow.no_move_rating}`"
-                                />
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.nmpz_rating"
-                                    label="NMPZ: "
-                                    :text="`${props.leaderboardRow.nmpz_rating}`"
-                                />
-                            </div>
-                        </span>
-
-                        <span
-                            class="flex items-center gap-2"
-                            v-if="!props.leaderboardRow.players"
-                        >
-                            <p>
-                                Overall Rank:
-                                <span class="font-bold"
-                                    >#{{ props.leaderboardRow.rank }}</span
-                                >
-                            </p>
-                            —
-                            <p
-                                v-if="props.leaderboardRow.percentile"
-                                class="font-bold"
-                            >
-                                P{{
-                                    Math.floor(
-                                        props.leaderboardRow.percentile * 100,
-                                    ) / 100
-                                }}
-                            </p>
-                        </span>
-
-                        <span v-if="props.leaderboardRow.players" class="flex">
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.players[0]
-                                            ?.user_id,
-                                    )
-                                "
-                                target="_blank"
-                                class="mr-1"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.players[0]?.name }}
-                                </p>
-                            </a>
-                            &
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.players[1]
-                                            ?.user_id,
-                                    )
-                                "
-                                target="_blank"
-                                class="ml-1"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.players[1]?.name }}
-                                </p>
-                            </a>
-                        </span>
-                        <div v-else class="flex items-center mb-2 w-full">
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.geoGuessrId,
-                                    )
-                                "
-                                target="_blank"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.geoGuessrId }}
-                                </p>
-                            </a>
-
-                            <div
-                                v-if="
-                                    matchHistory.length &&
-                                    !isMobile &&
-                                    !loadingMatchHistory &&
-                                    expanded
-                                "
-                                class="flex gap-1 ml-auto"
-                            >
-                                Recent Matches:
-                                <div v-for="match in matchHistory">
-                                    <a
-                                        :href="`https://geoguessr.com/duels/${match.id}`"
-                                        target="_blank"
-                                    >
-                                        <div
-                                            v-if="
-                                                match.winner ===
-                                                leaderboardRow.id
-                                            "
-                                        >
-                                            🟢
-                                        </div>
-                                        <div v-else>🔴</div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <PlayerData
+                            :leaderboard-row="leaderboardRow"
+                            :loading-match-history="loadingMatchHistory"
+                            :expanded="expanded"
+                            :match-history="matchHistory"
+                        />
                     </span>
-                    <span class="grow">
-                        <span class="text-xl font-bold flex items-center mb-2">
-                            <span
-                                v-for="countryCode in props.leaderboardRow
-                                    .countryCodes"
-                            >
-                                <Flag
-                                    :country-code="countryCode"
-                                    dimensions="120x90"
-                                    class="mr-1"
-                                    width="20"
-                                    height="15"
-                                />
-                            </span>
-                            <p class="">
-                                {{ croppedName }}
-                            </p>
-                            <p class="font-light ml-1">
-                                - {{ props.leaderboardRow.rating }}
-                            </p>
-                            <div
-                                class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
-                            >
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.moving_rating"
-                                    label="Moving: "
-                                    :text="`${props.leaderboardRow.moving_rating}`"
-                                />
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.no_move_rating"
-                                    label="No Move: "
-                                    :text="`${props.leaderboardRow.no_move_rating}`"
-                                />
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.nmpz_rating"
-                                    label="NMPZ: "
-                                    :text="`${props.leaderboardRow.nmpz_rating}`"
-                                />
-                            </div>
-                        </span>
-
-                        <span
-                            class="flex items-center gap-2"
-                            v-if="!props.leaderboardRow.players"
-                        >
-                            <p>
-                                Overall Rank:
-                                <span class="font-bold"
-                                    >#{{ props.leaderboardRow.rank }}</span
-                                >
-                            </p>
-                            —
-                            <p
-                                v-if="props.leaderboardRow.percentile"
-                                class="font-bold"
-                            >
-                                P{{
-                                    Math.floor(
-                                        props.leaderboardRow.percentile * 100,
-                                    ) / 100
-                                }}
-                            </p>
-                        </span>
-
-                        <span v-if="props.leaderboardRow.players" class="flex">
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.players[0]
-                                            ?.user_id,
-                                    )
-                                "
-                                target="_blank"
-                                class="mr-1"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.players[0]?.name }}
-                                </p>
-                            </a>
-                            &
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.players[1]
-                                            ?.user_id,
-                                    )
-                                "
-                                target="_blank"
-                                class="ml-1"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.players[1]?.name }}
-                                </p>
-                            </a>
-                        </span>
-                        <div v-else class="flex items-center mb-2 w-full">
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.geoGuessrId,
-                                    )
-                                "
-                                target="_blank"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.geoGuessrId }}
-                                </p>
-                            </a>
-
-                            <div
-                                v-if="
-                                    matchHistory.length &&
-                                    !isMobile &&
-                                    !loadingMatchHistory &&
-                                    expanded
-                                "
-                                class="flex gap-1 ml-auto"
-                            >
-                                Recent Matches:
-                                <div v-for="match in matchHistory">
-                                    <a
-                                        :href="`https://geoguessr.com/duels/${match.id}`"
-                                        target="_blank"
-                                    >
-                                        <div
-                                            v-if="
-                                                match.winner ===
-                                                leaderboardRow.id
-                                            "
-                                        >
-                                            🟢
-                                        </div>
-                                        <div v-else>🔴</div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                    <span class="grow" v-if="playerToCompareWith">
+                        <PlayerData
+                            :leaderboard-row="playerToCompareWith"
+                            :loading-match-history="false"
+                            :expanded="expanded"
+                            :matchHistory="[]"
+                        />
                     </span>
                     <div class="w-64">
                         <PlayerTeamSearch
                             @rowClicked="handleSelectPlayerToCompareWith"
+                            v-show="expanded"
                         />
                     </div>
                     <ExpandContractButton
@@ -350,12 +79,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { Chart } from "chart.js";
-import Flag from "@/Components/Flag.vue";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
-import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
 import type { LeaderboardRow, RatingChange } from "@/Types/core.ts";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
-import RatingBadge from "@/Components/RatingBadge.vue";
 import ExpandContractButton from "@/Components/ExpandContractButton.vue";
 import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 import CloseButton from "@/Components/CloseButton.vue";
@@ -366,6 +92,7 @@ import {
     getRatingHistoryChartData,
 } from "@/modalChartUtils.ts";
 import PlayerTeamSearch from "@/Components/PlayerTeamSearch.vue";
+import PlayerData from "@/Components/PlayerData.vue";
 
 interface Props {
     showModal: boolean;
@@ -377,43 +104,9 @@ const props = defineProps<Props>();
 
 const { getMatchHistory, getRateableHistory } = useApiClient();
 const { isMobile } = useBrowserUtils();
-const { generateProfileUrl } = usePlayerUtils();
 const { get, set, clear } = useUrlParams();
 
 const emit = defineEmits(["close"]);
-
-const allowedNameLength = computed<number>(() => {
-    let numberOfNullRatings = 0;
-
-    if (!props.leaderboardRow.moving_rating) {
-        numberOfNullRatings += 1;
-    }
-
-    if (!props.leaderboardRow.no_move_rating) {
-        numberOfNullRatings += 1;
-    }
-
-    if (!props.leaderboardRow.nmpz_rating) {
-        numberOfNullRatings += 1;
-    }
-
-    return 13 + numberOfNullRatings * 2;
-});
-
-const croppedName = computed<string>(() => {
-    if (expanded.value) {
-        return props.leaderboardRow.name.trim();
-    }
-
-    if (props.leaderboardRow.name.trim().length <= allowedNameLength.value) {
-        return props.leaderboardRow.name.trim();
-    }
-
-    return (
-        props.leaderboardRow.name.trim().slice(0, allowedNameLength.value - 3) +
-        "..."
-    );
-});
 
 const daysToShow = ref<number>(14);
 
@@ -439,6 +132,9 @@ const toggleExpand = () => {
     expanded.value
         ? set("expanded", String(expanded.value))
         : clear("expanded");
+
+    playerToCompareWith.value = null;
+    playerToCompareWithRatingHistory.value = [];
 
     renderRatingChart();
 };
