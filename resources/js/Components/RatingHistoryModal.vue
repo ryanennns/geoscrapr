@@ -128,8 +128,7 @@ const handleKeydown = (e: KeyboardEvent) => {
 const calculateStepSize = (range: number) => {
     if (range <= 100) return 50;
     if (range <= 200) return 100;
-    if (range <= 400) return 250;
-    return Math.ceil(range / 4 / 25) * 50;
+    return 250;
 };
 
 const expanded = ref<boolean>(false);
