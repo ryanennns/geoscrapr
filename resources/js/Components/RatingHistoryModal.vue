@@ -11,148 +11,34 @@
             >
                 <div class="flex justify-between items-start">
                     <span class="grow">
-                        <span class="text-xl font-bold flex items-center mb-2">
-                            <span
-                                v-for="countryCode in props.leaderboardRow
-                                    .countryCodes"
-                            >
-                                <Flag
-                                    :country-code="countryCode"
-                                    dimensions="120x90"
-                                    class="mr-1"
-                                    width="20"
-                                    height="15"
-                                />
-                            </span>
-                            <p class="">
-                                {{ name }}
-                            </p>
-                            <p class="font-light ml-1">
-                                - {{ props.leaderboardRow.rating }}
-                            </p>
-                            <div
-                                class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
-                            >
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.moving_rating"
-                                    label="Moving: "
-                                    :text="`${props.leaderboardRow.moving_rating}`"
-                                />
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.no_move_rating"
-                                    label="No Move: "
-                                    :text="`${props.leaderboardRow.no_move_rating}`"
-                                />
-                                <RatingBadge
-                                    v-show="props.leaderboardRow.nmpz_rating"
-                                    label="NMPZ: "
-                                    :text="`${props.leaderboardRow.nmpz_rating}`"
-                                />
-                            </div>
-                        </span>
-
-                        <span
-                            class="flex items-center gap-2"
-                            v-if="!props.leaderboardRow.players"
-                        >
-                            <p>
-                                Overall Rank:
-                                <span class="font-bold"
-                                    >#{{ props.leaderboardRow.rank }}</span
-                                >
-                            </p>
-                            —
-                            <p
-                                v-if="props.leaderboardRow.percentile"
-                                class="font-bold"
-                            >
-                                P{{
-                                    Math.floor(
-                                        props.leaderboardRow.percentile * 100,
-                                    ) / 100
-                                }}
-                            </p>
-                        </span>
-
-                        <span v-if="props.leaderboardRow.players" class="flex">
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.players[0]
-                                            ?.user_id,
-                                    )
-                                "
-                                target="_blank"
-                                class="mr-1"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.players[0]?.name }}
-                                </p>
-                            </a>
-                            &
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.players[1]
-                                            ?.user_id,
-                                    )
-                                "
-                                target="_blank"
-                                class="ml-1"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.players[1]?.name }}
-                                </p>
-                            </a>
-                        </span>
-                        <div v-else class="flex items-center mb-2 w-full">
-                            <a
-                                :href="
-                                    generateProfileUrl(
-                                        props.leaderboardRow.geoGuessrId,
-                                    )
-                                "
-                                target="_blank"
-                            >
-                                <p
-                                    class="text-gray-600 font-mono underline font-light"
-                                >
-                                    {{ props.leaderboardRow.geoGuessrId }}
-                                </p>
-                            </a>
-
-                            <div
-                                v-if="
-                                    matchHistory.length &&
-                                    !isMobile &&
-                                    !loadingMatchHistory
-                                "
-                                class="flex gap-1 ml-auto"
-                            >
-                                Recent Matches:
-                                <div v-for="match in matchHistory">
-                                    <a
-                                        :href="`https://geoguessr.com/duels/${match.id}`"
-                                        target="_blank"
-                                    >
-                                        <div
-                                            v-if="
-                                                match.winner ===
-                                                leaderboardRow.id
-                                            "
-                                        >
-                                            🟢
-                                        </div>
-                                        <div v-else>🔴</div>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <PlayerData
+                            :leaderboard-row="leaderboardRow"
+                            :loading-match-history="loadingMatchHistory"
+                            :expanded="expanded"
+                            :match-history="matchHistory"
+                            colour="#2563eb"
+                            :comparing="playerToCompareWith !== null"
+                        />
                     </span>
+                    <span class="grow" v-if="playerToCompareWith">
+                        <PlayerData
+                            :leaderboard-row="playerToCompareWith"
+                            :loading-match-history="false"
+                            :expanded="expanded"
+                            :matchHistory="[]"
+                            colour="#dc2626"
+                            :comparing="true"
+                        />
+                    </span>
+                    <div class="flex h-full items-center mr-8">
+                        <div class="items-center">
+                            <PlayerTeamSearch
+                                placeholder="Compare with player..."
+                                @rowClicked="handleSelectPlayerToCompareWith"
+                                v-show="expanded"
+                            />
+                        </div>
+                    </div>
                     <ExpandContractButton
                         v-if="
                             !isMobile &&
@@ -199,53 +85,21 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
-import { Chart, type TooltipItem } from "chart.js";
-import Flag from "@/Components/Flag.vue";
+import { Chart } from "chart.js";
 import ErrorMessage from "@/Components/ErrorMessage.vue";
-import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
 import type { LeaderboardRow, RatingChange } from "@/Types/core.ts";
 import LoadingSpinner from "@/Components/LoadingSpinner.vue";
-import RatingBadge from "@/Components/RatingBadge.vue";
 import ExpandContractButton from "@/Components/ExpandContractButton.vue";
 import { useBrowserUtils } from "@/Composables/useBrowserUtils.ts";
 import CloseButton from "@/Components/CloseButton.vue";
 import { useUrlParams } from "@/Composables/useUrlParams.ts";
 import { type MatchHistory, useApiClient } from "@/Composables/useApiClient.ts";
-
-const { getMatchHistory } = useApiClient();
-
-const allowedNameLength = computed<number>(() => {
-    let numberOfNullRatings = 0;
-
-    if (!props.leaderboardRow.moving_rating) {
-        numberOfNullRatings += 1;
-    }
-
-    if (!props.leaderboardRow.no_move_rating) {
-        numberOfNullRatings += 1;
-    }
-
-    if (!props.leaderboardRow.nmpz_rating) {
-        numberOfNullRatings += 1;
-    }
-
-    return 13 + numberOfNullRatings * 2;
-});
-
-const name = computed<string>(() => {
-    if (expanded.value) {
-        return props.leaderboardRow.name.trim();
-    }
-
-    if (props.leaderboardRow.name.trim().length <= allowedNameLength.value) {
-        return props.leaderboardRow.name.trim();
-    }
-
-    return (
-        props.leaderboardRow.name.trim().slice(0, allowedNameLength.value - 3) +
-        "..."
-    );
-});
+import {
+    createRatingChart,
+    getRatingHistoryChartData,
+} from "@/modalChartUtils.ts";
+import PlayerTeamSearch from "@/Components/PlayerTeamSearch.vue";
+import PlayerData from "@/Components/PlayerData.vue";
 
 interface Props {
     showModal: boolean;
@@ -253,18 +107,15 @@ interface Props {
     ratingHistory: RatingChange[];
     loading: boolean;
 }
-
-const { isMobile } = useBrowserUtils();
-
 const props = defineProps<Props>();
+
+const { getMatchHistory, getRateableHistory } = useApiClient();
+const { isMobile } = useBrowserUtils();
+const { get, set, clear } = useUrlParams();
 
 const emit = defineEmits(["close"]);
 
-const { generateProfileUrl } = usePlayerUtils();
-const ratingChartCanvas = ref<HTMLCanvasElement>();
-const ratingChartInstance = ref<Chart | null>(null);
-
-const daysToShow = ref(14);
+const daysToShow = ref<number>(14);
 
 const handleKeydown = (e: KeyboardEvent) => {
     if (e.key !== "Escape") {
@@ -274,49 +125,10 @@ const handleKeydown = (e: KeyboardEvent) => {
     onClose();
 };
 
-const onClose = () => {
-    emit("close");
-
-    clear("expanded");
-
-    if (ratingChartInstance.value) {
-        setTimeout(() => {
-            ratingChartInstance.value?.destroy();
-            ratingChartInstance.value = null;
-        }, 100);
-    }
-
-    expanded.value = false;
-    daysToShow.value = 14;
-};
-
-const formatDateString = (date: Date) => {
-    return date.toISOString().split("T")[0];
-};
-
-const getDatesInRange = (startDate: Date, endDate: Date) => {
-    const dates: Date[] = [];
-    const currentDate = new Date(startDate);
-    const endDateCopy = new Date(endDate);
-
-    currentDate.setHours(0, 0, 0, 0);
-    endDateCopy.setHours(0, 0, 0, 0);
-
-    endDateCopy.setDate(endDateCopy.getDate() + 1);
-
-    while (currentDate < endDateCopy) {
-        dates.push(new Date(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return dates;
-};
-
 const calculateStepSize = (range: number) => {
     if (range <= 100) return 50;
     if (range <= 200) return 100;
-    if (range <= 400) return 250;
-    return Math.ceil(range / 4 / 50) * 50;
+    return 250;
 };
 
 const expanded = ref<boolean>(false);
@@ -327,9 +139,10 @@ const toggleExpand = () => {
         ? set("expanded", String(expanded.value))
         : clear("expanded");
 
-    nextTick(() => {
-        renderRatingChart();
-    });
+    playerToCompareWith.value = null;
+    playerToCompareWithRatingHistory.value = [];
+
+    renderRatingChart();
 };
 
 const wrapperClasses = computed<string>(() =>
@@ -343,11 +156,30 @@ const canvasWrapperClasses = computed<string>(() =>
     isMobile.value ? "w-full h-60" : expanded.value ? "h-[65vh]" : "h-60",
 );
 
-const renderRatingChart = () => {
-    if (!ratingChartCanvas.value || props.ratingHistory.length === 0) return;
+const ratingChartInstance = ref<Chart | null>(null);
+const onClose = () => {
+    emit("close");
+
+    clear("expanded");
 
     if (ratingChartInstance.value) {
-        ratingChartInstance.value.destroy();
+        setTimeout(() => {
+            ratingChartInstance.value?.destroy();
+            ratingChartInstance.value = null;
+        }, 300);
+    }
+
+    expanded.value = false;
+    daysToShow.value = 14;
+
+    playerToCompareWith.value = null;
+    playerToCompareWithRatingHistory.value = [];
+};
+
+const ratingChartCanvas = ref<HTMLCanvasElement>();
+const renderRatingChart = () => {
+    if (!ratingChartCanvas.value || props.ratingHistory.length === 0) {
+        return;
     }
 
     const ctx = ratingChartCanvas.value.getContext("2d");
@@ -358,61 +190,37 @@ const renderRatingChart = () => {
         return;
     }
 
-    const processData = () => {
-        const today = new Date();
-        const startDate = new Date(today);
-        startDate.setDate(today.getDate() - daysToShow.value);
+    if (ratingChartInstance.value) {
+        ratingChartInstance.value.destroy();
+    }
 
-        const allDates = getDatesInRange(startDate, today);
+    const { labels, data: p1 } = getRatingHistoryChartData({
+        daysToShow: daysToShow.value,
+        ratingHistory: props.ratingHistory,
+        leaderboardRow: props.leaderboardRow,
+    });
 
-        const ratingsByDate = Object.fromEntries(
-            props.ratingHistory.map((record) => [
-                formatDateString(new Date(record.created_at)),
-                record.rating,
-            ]),
-        );
-
-        const sortedRatingHistory = [...props.ratingHistory].sort(
-            (a, b) =>
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime(),
-        );
-
-        const leftOfStartDate = sortedRatingHistory.find(
-            (r) => new Date(r.created_at) < startDate,
-        );
-        const oldestRating =
-            sortedRatingHistory[sortedRatingHistory.length - 1];
-
-        const labels: string[] = [];
-        const data: number[] = [];
-
-        let mostRecentRating =
-            leftOfStartDate?.rating ??
-            oldestRating.rating ??
-            props.leaderboardRow?.rating;
-
-        allDates.forEach((date) => {
-            const dateString = formatDateString(date);
-            labels.push(date.toLocaleDateString());
-
-            if (ratingsByDate[dateString]) {
-                mostRecentRating = ratingsByDate[dateString];
-            }
-
-            data.push(mostRecentRating);
-        });
-
-        return { labels, data };
-    };
-
-    const { labels, data } = processData();
-
-    if (data.length === 0) {
+    if (p1.length === 0) {
         return;
     }
 
-    const validData = data.filter((value) => value !== null);
+    let p2: number[] = [];
+    if (
+        playerToCompareWith.value &&
+        playerToCompareWithRatingHistory.value.length > 0
+    ) {
+        const { data } = getRatingHistoryChartData({
+            daysToShow: daysToShow.value,
+            ratingHistory: playerToCompareWithRatingHistory.value,
+            leaderboardRow: playerToCompareWith.value,
+        });
+        p2 = data;
+    }
+
+    const validData = [
+        ...p1.filter((v) => v !== null),
+        ...p2.filter((v) => v !== null),
+    ];
     const minRating = Math.min(...validData);
     const maxRating = Math.max(...validData);
 
@@ -430,119 +238,33 @@ const renderRatingChart = () => {
     gradient.addColorStop(0, "rgba(79, 70, 229, 0.4)");
     gradient.addColorStop(1, "rgba(79, 70, 229, 0.05)");
 
-    ratingChartInstance.value = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: "Rating",
-                    data: data,
-                    backgroundColor: gradient,
-                    borderColor: "rgba(79, 70, 229, 0.9)",
-                    borderWidth: 2.5,
-                    tension: 0,
-                    fill: true,
-                    pointBackgroundColor: "#ffffff",
-                    pointBorderColor: "rgba(79, 70, 229, 1)",
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 6,
-                    pointHoverBackgroundColor: "white",
-                    pointHoverBorderColor: "rgba(79, 70, 229, 1)",
-                    pointHoverBorderWidth: 3,
-                    spanGaps: true,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                mode: "index",
-                intersect: false,
-            },
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: yMin,
-                    max: yMax,
-                    ticks: {
-                        stepSize: step,
-                        font: {
-                            size: 11,
-                        },
-                        padding: 8,
-                        color: "#64748b",
-                    },
-                    grid: {
-                        color: "rgba(226, 232, 240, 0.8)",
-                    },
-                    border: {
-                        dash: [4, 4],
-                    },
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: `Rating History (Last ${daysToShow.value / 7} Weeks)`,
-                        font: {
-                            size: 12,
-                        },
-                        padding: {
-                            top: 10,
-                        },
-                        color: "#1e293b",
-                    },
-                    ticks: {
-                        maxTicksLimit: Math.min(10, labels.length),
-                        maxRotation: 45,
-                        minRotation: 45,
-                        font: {
-                            size: 10,
-                        },
-                        padding: 5,
-                        color: "#64748b",
-                    },
-                    grid: {
-                        color: "rgba(226, 232, 240, 0.6)",
-                    },
-                },
-            },
-            plugins: {
-                legend: {
-                    display: false,
-                },
-                tooltip: {
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    titleColor: "#1e293b",
-                    bodyColor: "#334155",
-                    borderColor: "#e2e8f0",
-                    borderWidth: 1,
-                    padding: 12,
-                    cornerRadius: 6,
-                    titleFont: {
-                        size: 13,
-                        weight: "bold",
-                    },
-                    bodyFont: {
-                        size: 12,
-                    },
-                    callbacks: {
-                        title(tooltipItems: TooltipItem<"line">[]) {
-                            return tooltipItems[0].label;
-                        },
-                        label(context: TooltipItem<"line">) {
-                            return `Rating: ${(context.raw as number).toLocaleString()}`;
-                        },
-                    },
-                },
-            },
-            animation: {
-                duration: 1500,
-                easing: "easeOutQuart",
-            },
-        },
+    ratingChartInstance.value = createRatingChart({
+        ctx,
+        labels,
+        p1,
+        p2,
+        gradient,
+        yMin,
+        yMax,
+        step,
+        daysToShow: daysToShow.value,
     });
+};
+
+const playerToCompareWith = ref<LeaderboardRow | null>(null);
+const playerToCompareWithRatingHistory = ref<RatingChange[]>([]);
+const handleSelectPlayerToCompareWith = async (event: {
+    rateable: LeaderboardRow;
+}) => {
+    playerToCompareWith.value = event.rateable;
+
+    const result = await getRateableHistory(
+        "player",
+        playerToCompareWith.value.id,
+    );
+    playerToCompareWithRatingHistory.value = result.data || [];
+
+    renderRatingChart();
 };
 
 watch(
@@ -577,13 +299,6 @@ watch(
     },
 );
 
-watch(
-    () => isMobile,
-    (newValue) => {
-        console.log("Mobile state changed:", newValue.value);
-    },
-);
-const { get, set, clear } = useUrlParams();
 onMounted(async () => {
     await nextTick();
     if (!!get("expanded")) {
@@ -598,15 +313,3 @@ onUnmounted(() => {
     }
 });
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.2s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-</style>
