@@ -61,7 +61,9 @@ export function useApiClient() {
         rateableType: RateableType,
         rateableId: string,
     ): Promise<RateableHistoryApiResponse> => {
-        const response = await fetch(`/${rateableType}s/history/${rateableId}`);
+        const response = await fetch(
+            `/${rateableType}s/${rateableId}/history/`,
+        );
 
         if (!response.ok) {
             return {

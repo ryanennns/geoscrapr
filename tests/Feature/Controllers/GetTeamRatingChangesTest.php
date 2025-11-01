@@ -34,7 +34,7 @@ class GetTeamRatingChangesTest extends TestCase
 
         $oldestRatingChange = $team->ratingChanges()->orderBy('created_at', 'asc')->first();
 
-        $response = $this->get("teams/history/$team->id");
+        $response = $this->get("teams/$team->id/history");
         $response->assertOk();
 
         $json = $response->json();

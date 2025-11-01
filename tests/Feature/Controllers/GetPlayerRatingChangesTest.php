@@ -28,7 +28,7 @@ class GetPlayerRatingChangesTest extends TestCase
 
         $oldestRatingChange = $player->ratingChanges()->orderBy('created_at', 'asc')->first();
 
-        $response = $this->get("players/history/$player->id");
+        $response = $this->get("players/$player->id/history");
         $response->assertOk();
 
         $json = $response->json();

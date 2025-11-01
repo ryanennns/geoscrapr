@@ -33,10 +33,10 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
     ->group(function () {
         Route::prefix('players')->group(function () {
             Route::get('/', GetPlayersController::class);
-            Route::get('search', SearchPlayerController::class);
-            Route::get('history/{id}', GetPlayerRatingChanges::class);
+            Route::get('/search', SearchPlayerController::class);
+            Route::get('/{id}/history', GetPlayerRatingChanges::class);
             Route::get('/{id}/stats', GetInDepthPlayerData::class);
-            Route::get('{id}/matches', GetMatchHistory::class);
+            Route::get('/{id}/matches', GetMatchHistory::class);
         });
 
         Route::get('snapshots', GetSnapshotForDate::class);
@@ -51,7 +51,7 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
     ->group(function () {
         Route::prefix('teams')->group(function () {
             Route::get('/', GetTeamsController::class);
-            Route::get('history/{id}', GetTeamRatingChanges::class);
+            Route::get('/{id}/history', GetTeamRatingChanges::class);
         });
     });
 
