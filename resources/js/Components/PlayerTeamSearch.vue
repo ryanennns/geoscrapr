@@ -24,9 +24,7 @@
                 @input="fetchPlayers"
                 @focus="fetchPlayers"
                 @blur="() => (showDropdown = false)"
-                :placeholder="
-                    placeholder ?? 'Search for a player, team, or ID...'
-                "
+                :placeholder="placeholder"
                 class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
             <transition name="fade">
@@ -72,6 +70,7 @@
                 Players
             </li>
             <PlayerSearchResult
+                v-if="showPlayers"
                 v-for="player in playerSearchResults"
                 :key="player.id"
                 :player="player"
@@ -85,6 +84,7 @@
                 Teams
             </li>
             <TeamSearchResult
+                v-show="showTeams"
                 v-for="team in teamSearchResults"
                 :key="team.id"
                 :team="team"
@@ -103,9 +103,15 @@ import TeamSearchResult from "@/Components/TeamSearchResult.vue";
 
 interface Props {
     placeholder?: string;
+    showPlayers?: boolean;
+    showTeams?: boolean;
 }
 
-defineProps<Props>();
+const {
+    placeholder = "Search for a player, team, or ID...",
+    showPlayers = true,
+    showTeams = true,
+} = defineProps<Props>();
 
 const { rateableToLeaderboardRows } = usePlayerUtils();
 

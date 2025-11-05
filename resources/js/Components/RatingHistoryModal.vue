@@ -33,9 +33,10 @@
                     <div class="flex h-full items-center mr-8">
                         <div class="items-center">
                             <PlayerTeamSearch
-                                placeholder="Compare with player..."
+                                v-if="showSearch"
                                 @rowClicked="handleSelectPlayerToCompareWith"
-                                v-show="expanded"
+                                placeholder="Compare with player..."
+                                :show-teams="false"
                             />
                         </div>
                     </div>
@@ -109,6 +110,10 @@ interface Props {
     loading: boolean;
 }
 const props = defineProps<Props>();
+
+const showSearch = computed<boolean>(() => {
+    return expanded.value === true && props.leaderboardRow.type !== "team";
+});
 
 const { getMatchHistory, getRateableHistory, getRateable } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();
