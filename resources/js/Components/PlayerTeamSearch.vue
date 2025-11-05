@@ -65,7 +65,7 @@
         >
             <li
                 class="pl-3 p-2 bg-gray-300"
-                v-show="playerSearchResults.length > 0"
+                v-show="playerSearchResults.length > 0 && showPlayers"
             >
                 Players
             </li>
@@ -79,7 +79,7 @@
 
             <li
                 class="pl-3 p-2 bg-gray-300"
-                v-show="teamSearchResults.length > 0"
+                v-show="teamSearchResults.length > 0 && showTeams"
             >
                 Teams
             </li>
