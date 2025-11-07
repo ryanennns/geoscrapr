@@ -256,12 +256,14 @@ const selectedCountry = ref<CountryCode | "">("");
 const loading = ref(false);
 const rateablesPage = ref<number>(1);
 
-const getCacheBucket = () => {
-    const gt = selectedGameType.value;
-    const act = isActive.value;
-    const ord = selectedOrder.value;
-    const mode = selectedMode.value;
-    const country = selectedCountry.value || "all";
+interface CacheBucketMap {
+    gt: GameType;
+    act: IsActive;
+    ord: SortOrder;
+    mode: Gamemode;
+    country: CountryCode | "all";
+}
+const getCacheBucket = ({ gt, act, ord, mode, country }: CacheBucketMap) => {
     return {
         bucket: dataCache.value[gt][act][ord][mode],
         country,
@@ -269,22 +271,30 @@ const getCacheBucket = () => {
     };
 };
 
-const readFromCache = (): Rateable[] | undefined => {
-    const { bucket, country, page } = getCacheBucket();
+const readFromCache = (params: CacheBucketMap): Rateable[] | undefined => {
+    const { bucket, country, page } = getCacheBucket(params);
     const countryCache = bucket[country] ?? {};
     return countryCache[page];
 };
 
-const writeToCache = (rows: Rateable[]) => {
-    const { bucket, country, page } = getCacheBucket();
+const writeToCache = (rows: Rateable[], cacheParams: CacheBucketMap) => {
+    const { bucket, country, page } = getCacheBucket(cacheParams);
     if (!bucket[country]) bucket[country] = {};
     bucket[country][page] = rows;
 };
 
 const updateLeaderboard = async () => {
+    const cacheBucketParams: CacheBucketMap = {
+        gt: selectedGameType.value,
+        act: isActive.value,
+        ord: selectedOrder.value,
+        mode: selectedMode.value,
+        country: selectedCountry.value || "all",
+    };
+
     await nextTick();
 
-    const cached = readFromCache();
+    const cached = readFromCache(cacheBucketParams);
     if (cached && cached.length > 0) {
         rateables.value = cached;
         return;
@@ -308,7 +318,7 @@ const updateLeaderboard = async () => {
     }
 
     const data = rateablesResponse.data ?? [];
-    writeToCache(data);
+    writeToCache(data, cacheBucketParams);
     rateables.value = data;
     setTimeout(() => (loading.value = false), 300);
 };
