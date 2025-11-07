@@ -262,12 +262,20 @@ interface CacheBucketMap {
     ord: SortOrder;
     mode: Gamemode;
     country: CountryCode | "all";
+    page: number;
 }
-const getCacheBucket = ({ gt, act, ord, mode, country }: CacheBucketMap) => {
+const getCacheBucket = ({
+    gt,
+    act,
+    ord,
+    mode,
+    country,
+    page,
+}: CacheBucketMap) => {
     return {
         bucket: dataCache.value[gt][act][ord][mode],
         country,
-        page: rateablesPage.value,
+        page,
     };
 };
 
@@ -290,6 +298,7 @@ const updateLeaderboard = async () => {
         ord: selectedOrder.value,
         mode: selectedMode.value,
         country: selectedCountry.value || "all",
+        page: rateablesPage.value,
     };
 
     await nextTick();
