@@ -26,6 +26,7 @@ export function useUrlParams() {
 
     const get = (key: string): unknown => {
         const url = new URL(window.location.href);
+        console.log(window.location.href);
         return url.searchParams.get(key);
     };
 

@@ -128,6 +128,7 @@ import { useApiClient } from "@/Composables/useApiClient.ts";
 import PaginationControls from "@/Components/PaginationControls.vue";
 import Row from "@/Pages/Row.vue";
 import ResetButton from "@/Components/ResetButton.vue";
+import { useUrlParams } from "@/Composables/useUrlParams.ts";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();
@@ -361,7 +362,48 @@ const handlePlayerClick = (playerOrTeam: LeaderboardRow) => {
     emit("playerClick", { rateable: playerOrTeam });
 };
 
-onMounted(() => {
+const GAME_TYPE_URL_PARAM = "game_type";
+const GAME_MODE_URL_PARAM = "mode";
+const ORDER_URL_PARAM = "order";
+const COUNTRY_URL_PARAM = "country";
+const ACTIVE_URL_PARAM = "active";
+onMounted(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 250)); // wait for next tick
+
+    console.log('onMounted - checking URL params for leaderboard filters',
+        {
+            GAME_TYPE_URL_PARAM: get(GAME_TYPE_URL_PARAM),
+            GAME_MODE_URL_PARAM: get(GAME_MODE_URL_PARAM),
+            ORDER_URL_PARAM: get(ORDER_URL_PARAM),
+            COUNTRY_URL_PARAM: get(COUNTRY_URL_PARAM),
+            ACTIVE_URL_PARAM: get(ACTIVE_URL_PARAM),
+        })
+
+    if (get(GAME_TYPE_URL_PARAM)) {
+        console.log(`found GAME_TYPE_URL_PARAM, setting ${get(GAME_TYPE_URL_PARAM)}`)
+        selectedGameType.value = get(GAME_TYPE_URL_PARAM) as GameType;
+    }
+
+    if (get(GAME_MODE_URL_PARAM)) {
+        console.log(`found GAME_MODE_URL_PARAM, setting ${get(GAME_MODE_URL_PARAM)}`)
+        selectedMode.value = get(GAME_MODE_URL_PARAM) as Gamemode;
+    }
+
+    if (get(ORDER_URL_PARAM)) {
+        console.log(`found ORDER_URL_PARAM, setting ${get(ORDER_URL_PARAM)}`)
+        selectedOrder.value = get(ORDER_URL_PARAM) as SortOrder;
+    }
+
+    if (get(COUNTRY_URL_PARAM)) {
+        console.log(`found COUNTRY_URL_PARAM, setting ${get(COUNTRY_URL_PARAM)}`)
+        selectedCountry.value = get(COUNTRY_URL_PARAM) as CountryCode;
+    }
+
+    if (get(ACTIVE_URL_PARAM)) {
+        console.log(`found ACTIVE_URL_PARAM, setting ${get(ACTIVE_URL_PARAM)}`)
+        isActive.value = get(ACTIVE_URL_PARAM) as IsActive;
+    }
+
     if (props.playersOrTeams && props.playersOrTeams.length > 0) {
         const branch =
             dataCache.value[selectedGameType.value][isActive.value][
@@ -374,6 +416,8 @@ onMounted(() => {
     }
 });
 
+const { set, clear, get } = useUrlParams();
+
 watch(
     () => [
         selectedGameType.value,
@@ -384,6 +428,22 @@ watch(
     ],
     () => {
         rateablesPage.value = 1;
+
+        selectedGameType.value && selectedGameType.value !== "all"
+            ? set(GAME_TYPE_URL_PARAM, selectedGameType.value)
+            : clear(GAME_TYPE_URL_PARAM);
+        selectedMode.value && selectedMode.value !== "solo"
+            ? set(GAME_MODE_URL_PARAM, selectedMode.value)
+            : clear(GAME_MODE_URL_PARAM);
+        selectedOrder.value && selectedOrder.value !== "desc"
+            ? set(ORDER_URL_PARAM, selectedOrder.value)
+            : clear(ORDER_URL_PARAM);
+        selectedCountry.value
+            ? set(COUNTRY_URL_PARAM, selectedCountry.value)
+            : clear(COUNTRY_URL_PARAM);
+        isActive.value && isActive.value !== "all"
+            ? set(ACTIVE_URL_PARAM, isActive.value)
+            : clear(ACTIVE_URL_PARAM);
     },
     { immediate: true },
 );
