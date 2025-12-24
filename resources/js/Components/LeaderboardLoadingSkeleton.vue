@@ -37,7 +37,7 @@
                 <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
                     <div class="h-[18px] bg-gray-200 rounded w-5"></div>
                 </td>
-                <td>
+                <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
                     <div
                         :style="{ width: w }"
                         class="h-[18px] bg-gray-200 rounded max-w-full"
