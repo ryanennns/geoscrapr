@@ -10,6 +10,9 @@ class GetCountryAverageRatings extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
+        $gamemode = $request->input('gamemode');
+        $ratingColumnName = $gamemode ? $gamemode . '_rating' : 'rating';
+
         $countryCodes = Player::query()->select('country_code')->distinct()->get();
 
         $averages = [];
@@ -21,7 +24,9 @@ class GetCountryAverageRatings extends Controller
                 continue;
             }
 
-            $averages[$countryCode] = Player::query()->where('country_code', $countryCode)->avg('rating');
+            $averages[$countryCode] = Player::query()
+                ->where('country_code', $countryCode)
+                ->avg($ratingColumnName);
         }
 
         return response()->json([
