@@ -33,15 +33,13 @@
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="i in 10" :key="i">
+            <tr v-for="(w, i) in widths" :key="i">
                 <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
                     <div class="h-[18px] bg-gray-200 rounded w-5"></div>
                 </td>
-                <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                <td>
                     <div
-                        :style="{
-                            width: `${Math.floor(Math.random() * 25) + 10}%`,
-                        }"
+                        :style="{ width: w }"
                         class="h-[18px] bg-gray-200 rounded max-w-full"
                     />
                 </td>
@@ -69,10 +67,22 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from "vue";
+
 interface Props {
+    show: boolean;
     isSolo: boolean;
     ratingHeader: string;
 }
 
 const props = defineProps<Props>();
+
+const getWidths = () =>
+    Array.from({ length: 10 }, () => `${Math.floor(Math.random() * 25) + 10}%`);
+
+const widths = ref<string[]>(getWidths());
+
+watch(props, () => {
+    widths.value = getWidths();
+});
 </script>

@@ -54,6 +54,7 @@
             <div class="overflow-x-auto -mx-4 md:mx-0">
                 <LeaderboardLoadingSkeleton
                     v-show="loading"
+                    :show="loading"
                     :is-solo="isSolo"
                     :rating-header="ratingHeader"
                 />
