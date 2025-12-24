@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Player;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 class GetCountryAverageRatings extends Controller
 {
@@ -20,7 +21,7 @@ class GetCountryAverageRatings extends Controller
         foreach ($countryCodes as $countryCode) {
             $countryCode = $countryCode->country_code;
 
-            if (Player::query()->where('country_code', $countryCode)->count() < 500) {
+            if (Player::query()->where('country_code', $countryCode)->count() < Config::get('geo.minimum_average_country_players')) {
                 continue;
             }
 
