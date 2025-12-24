@@ -27,9 +27,9 @@ class GetPlayersControllerTest extends TestCase
                 ->where('user_id', $player->user_id)
                 ->where('name', $player->name)
                 ->where('rating', $player->rating)
-                ->where('moving_rating', null)
-                ->where('no_move_rating', null)
-                ->where('nmpz_rating', null)
+                ->where('moving_rating', $player->moving_rating)
+                ->where('no_move_rating', $player->no_move_rating)
+                ->where('nmpz_rating', $player->nmpz_rating)
                 ->where('country_code', $player->country_code)
                 ->has('rank')        // only check the key exists
                 ->has('percentile')  // only check the key exists
