@@ -79,18 +79,7 @@ class HomePageController extends Controller
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
-            'solo_percentile_snapshots' => $soloPercentileSnapshots->map(fn($snapshot) => [
-                'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
-                'buckets' => json_decode($snapshot->buckets, true),
-                'n'       => $snapshot->n,
-            ])->toArray(),
-            'team_percentile_snapshots' => $teamPercentileSnapshots->map(fn($snapshot) => [
-                'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
-                'buckets' => json_decode($snapshot->buckets, true),
-                'n'       => $snapshot->n,
-            ])->toArray(),
             'range_dates'               => $rangeDates,
-            'percentile_dates'          => $percentileDates,
             'leaderboard'               => $playerData->toArray(),
         ]);
     }
