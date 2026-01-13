@@ -22,14 +22,7 @@
 
 <script setup lang="ts">
 import Badge from "@/Components/Badge.vue";
-import {
-    computed,
-    onBeforeUnmount,
-    onMounted,
-    type Ref,
-    ref,
-    watch,
-} from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { Snapshot } from "@/Types/core.ts";
 import { useRatingChart } from "@/Composables/useRatingChart";
 import { Chart } from "chart.js";
@@ -41,6 +34,8 @@ const props = defineProps<{
     teamSnapshots: Snapshot[];
     selectedDate: Date;
 }>();
+
+const selectedDateRef = computed(() => props.selectedDate);
 
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
     props.soloSnapshots.find(
@@ -112,7 +107,7 @@ const initializeCharts = () => {
 };
 
 watch(
-    [currentSoloRangeSnapshot, currentTeamRangeSnapshot, props.selectedDate],
+    [currentSoloRangeSnapshot, currentTeamRangeSnapshot, selectedDateRef],
     updateCharts,
 );
 

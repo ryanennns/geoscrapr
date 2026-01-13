@@ -6,12 +6,10 @@ import type { Snapshot } from "@/Types/core.ts";
 import { createPlayer } from "../utils/utils.ts";
 
 const mockRenderRangeChart = vi.fn();
-const mockRenderPercentileChart = vi.fn();
 
 vi.mock("@composables/useRatingChart", () => ({
     useRatingChart: () => ({
         renderRangeChart: mockRenderRangeChart,
-        renderPercentileChart: mockRenderPercentileChart,
     }),
 }));
 
@@ -44,10 +42,7 @@ const mountComponent = (overrides = {}) => {
         props: {
             solo_snapshots: [makeSnapshot("2024-01-01")],
             team_snapshots: [makeSnapshot("2024-01-01")],
-            solo_percentile_snapshots: [makeSnapshot("2024-01-01")],
-            team_percentile_snapshots: [makeSnapshot("2024-01-01")],
             range_dates: ["2024-01-01"],
-            percentile_dates: ["2024-01-01"],
             leaderboard: [],
             ...overrides,
         },
@@ -79,17 +74,6 @@ describe("HomePage.vue", () => {
     it("renders range chart on mount", async () => {
         mountComponent();
         expect(mockRenderRangeChart).toHaveBeenCalledTimes(2);
-    });
-
-    it("renders percentile chart when toggled", async () => {
-        const wrapper = mountComponent();
-
-        await wrapper.vm.$nextTick();
-        (wrapper.vm as unknown as typeof HomePage).selectedGraphType =
-            "percentile";
-        await flushPromises();
-
-        expect(mockRenderPercentileChart).toHaveBeenCalledTimes(2);
     });
 
     it("fetches player history when modal opens", async () => {
