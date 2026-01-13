@@ -9,7 +9,7 @@
                     {{ config.title }}
                 </h2>
                 <Badge
-                    :text="config.badge.text"
+                    :text="config.badgeText"
                     class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
                 />
             </div>
@@ -56,16 +56,12 @@ const currentTeamRangeSnapshot = computed<Snapshot | undefined>(() =>
 const histogramConfigs = computed(() => [
     {
         title: "Solo Rating Distribution",
-        badge: {
-            text: `n = ${currentSoloRangeSnapshot.value?.n.toLocaleString() || 0}`,
-        },
+        badgeText: `n = ${currentSoloRangeSnapshot.value?.n.toLocaleString() || 0}`,
         ref: "soloChartCanvas",
     },
     {
         title: "Team Rating Distribution",
-        badge: {
-            text: `n = ${currentTeamRangeSnapshot.value?.n.toLocaleString() || 0}`,
-        },
+        badgeText: `n = ${currentTeamRangeSnapshot.value?.n.toLocaleString() || 0}`,
         ref: "teamChartCanvas",
     },
 ]);
@@ -76,9 +72,7 @@ const handleResize = () => {
         clearTimeout(resizeTimer.value);
     }
 
-    resizeTimer.value = setTimeout(() => {
-        updateCharts();
-    }, 250);
+    resizeTimer.value = setTimeout(() => updateCharts(), 250);
 };
 
 const dateObjectToYmdString = (date: Date) => date.toISOString().split("T")[0];
@@ -107,7 +101,7 @@ const updateCharts = () => {
 };
 
 const initializeCharts = () => {
-    [soloChartInstance, teamChartInstance].forEach((c: Ref<Chart | null>) => {
+    [soloChartInstance, teamChartInstance].forEach((c) => {
         if (c.value) {
             c.value.destroy();
             c.value = null;
