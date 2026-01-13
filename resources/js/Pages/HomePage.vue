@@ -1,82 +1,27 @@
 <template>
     <div class="p-4 md:p-8 bg-gray-50 min-h-screen">
-        <div class="mb-6 md:mb-8 text-center">
-            <h1 class="text-xl md:text-3xl font-bold text-indigo-800">
-                <div
-                    class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent text-5xl font-bold italic"
-                >
-                    GeoScrapr
-                </div>
-                Competitive GeoGuessr Analytics
-            </h1>
-            <p class="text-sm md:text-base text-gray-600 lg:visible">
-                😎 tracking rating history since 2025-09-10 😎
-            </p>
-        </div>
+        <Header />
 
         <div
             class="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 mb-6 md:mb-10 max-w-3xl mx-auto"
         >
-            <div>
-                <Toggle
-                    :options="graphTypes"
-                    color="orange"
-                    class="ml-auto"
-                    v-model="selectedGraphType"
-                />
-            </div>
-
             <PlayerTeamSearch @row-clicked="onPlayerTeamClick" />
 
             <DateSelector
                 v-model="selectedDate"
                 :availableDates="availableDates"
-                @update:model-value="updateCharts"
             />
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-            <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
-                <div class="flex justify-between items-start mb-3 md:mb-4">
-                    <h2 class="text-lg md:text-2xl font-bold text-gray-800">
-                        Solo Rating Distribution
-                    </h2>
-                    <Badge
-                        :text="`n = ${currentSoloRangeSnapshot?.n.toLocaleString() || 0}`"
-                        class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
-                    />
-                </div>
-                <div class="w-full h-64 md:h-[62vh]">
-                    <canvas
-                        ref="soloChartCanvas"
-                        class="w-full h-full"
-                    ></canvas>
-                </div>
-            </div>
-
-            <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
-                <div class="flex justify-between items-start mb-3 md:mb-4">
-                    <h2 class="text-lg md:text-2xl font-bold text-gray-800">
-                        Team Rating Distribution
-                    </h2>
-                    <Badge
-                        :text="`n = ${currentTeamRangeSnapshot?.n.toLocaleString() || 0}`"
-                        class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
-                    />
-                </div>
-                <div class="w-full h-64 md:h-[62vh]">
-                    <canvas
-                        ref="teamChartCanvas"
-                        class="w-full h-full"
-                    ></canvas>
-                </div>
-            </div>
-        </div>
+        <EloRangeHistograms
+            :solo-snapshots="solo_snapshots"
+            :team-snapshots="team_snapshots"
+            :selected-date="selectedDate"
+        />
 
         <PlayerLeaderboard
             :playersOrTeams="props.leaderboard"
             @player-click="onPlayerTeamClick"
-            class="mt-6"
         />
         <transition name="fade">
             <RatingHistoryModal
@@ -88,11 +33,12 @@
             />
         </transition>
     </div>
+
     <Footer />
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { Chart, registerables } from "chart.js";
 import "@vuepic/vue-datepicker/dist/main.css";
 import PlayerTeamSearch from "../Components/PlayerTeamSearch.vue";
@@ -100,7 +46,6 @@ import Footer from "@/Components/Footer.vue";
 import DateSelector from "../Components/DateSelector.vue";
 import PlayerLeaderboard from "./PlayerLeaderboard.vue";
 import RatingHistoryModal from "../Components/RatingHistoryModal.vue";
-import Badge from "../Components/Badge.vue";
 import {
     EMPTY_LEADERBOARD_ROW,
     type LeaderboardRow,
@@ -108,11 +53,11 @@ import {
     type RatingChange,
     type Snapshot,
 } from "@/Types/core.ts";
-import { useRatingChart } from "@/Composables/useRatingChart";
-import Toggle from "@/Components/Toggle.vue";
 import { useApiClient } from "@/Composables/useApiClient";
 import { useUrlParams } from "@/Composables/useUrlParams";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils";
+import Header from "@/Components/HomePage/Header.vue";
+import EloRangeHistograms from "@/Components/HomePage/EloRangeHistograms.vue";
 
 Chart.defaults.animation = false;
 Chart.register(...registerables);
@@ -120,10 +65,7 @@ Chart.register(...registerables);
 interface Props {
     solo_snapshots: Snapshot[];
     team_snapshots: Snapshot[];
-    solo_percentile_snapshots: Snapshot[];
-    team_percentile_snapshots: Snapshot[];
     range_dates: string[];
-    percentile_dates: string[];
     leaderboard: Player[];
 }
 
@@ -132,15 +74,6 @@ const props = defineProps<Props>();
 const { getRateableHistory, getSnapshotForDate, getRateable } = useApiClient();
 const { getId, setId, clearId } = useUrlParams();
 const { rateableToLeaderboardRows } = usePlayerUtils();
-
-const graphTypes = [
-    { label: "Range", value: "elo_range" },
-    { label: "Percentile", value: "percentile" },
-];
-const selectedGraphType = ref<string>("elo_range");
-watch([selectedGraphType], () => {
-    initializeCharts();
-});
 
 const selectedLeaderboardRow = ref<LeaderboardRow>(EMPTY_LEADERBOARD_ROW);
 const showModal = ref<boolean>(false);
@@ -186,19 +119,7 @@ const getAndSetRateableHistory = async (leaderboardRow: LeaderboardRow) => {
     isLoadingHistory.value = false;
 };
 
-const resizeTimer = ref<ReturnType<typeof setTimeout> | null>(null);
-const handleResize = () => {
-    if (resizeTimer.value) {
-        clearTimeout(resizeTimer.value);
-    }
-
-    resizeTimer.value = setTimeout(() => {
-        updateCharts();
-    }, 250);
-};
 onMounted(async () => {
-    window.addEventListener("resize", handleResize);
-
     const id = getId();
     if (id) {
         const rateable = (await getRateable(id)).data;
@@ -214,56 +135,17 @@ onMounted(async () => {
         showModal.value = true;
     }
 });
-onBeforeUnmount(() => {
-    window.removeEventListener("resize", handleResize);
-    if (resizeTimer.value) {
-        clearTimeout(resizeTimer.value);
-    }
-});
-
-const soloChartCanvas = ref<HTMLCanvasElement>();
-const teamChartCanvas = ref<HTMLCanvasElement>();
-
-const soloChartInstance = ref<Chart | null>(null);
-const teamChartInstance = ref<Chart | null>(null);
-
 const soloSnapshots = ref(props.solo_snapshots);
 const teamSnapshots = ref(props.team_snapshots);
 
 const availableDates = computed<Date[]>(() => {
-    if (selectedGraphType.value === "elo_range") {
-        return [
-            ...new Set([...props.range_dates.map((s) => new Date(s))]),
-        ].sort((a, b) => b.getTime() - a.getTime());
-    }
-
-    return [
-        ...new Set([...props.percentile_dates.map((s) => new Date(s))]),
-    ].sort((a, b) => b.getTime() - a.getTime());
+    return [...new Set([...props.range_dates.map((s) => new Date(s))])].sort(
+        (a, b) => b.getTime() - a.getTime(),
+    );
 });
 
 const selectedDate = ref<Date>(availableDates.value[0] ?? new Date());
 const dateObjectToYmdString = (date: Date) => date.toISOString().split("T")[0];
-const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
-    soloSnapshots.value.find(
-        (s) => s.date === dateObjectToYmdString(selectedDate.value),
-    ),
-);
-const currentTeamRangeSnapshot = computed<Snapshot | undefined>(() =>
-    teamSnapshots.value.find(
-        (s) => s.date === dateObjectToYmdString(selectedDate.value),
-    ),
-);
-const currentSoloPercentileSnapshot = computed<Snapshot | undefined>(() =>
-    props.solo_percentile_snapshots.find(
-        (s) => s.date === dateObjectToYmdString(selectedDate.value),
-    ),
-);
-const currentTeamPercentileSnapshot = computed<Snapshot | undefined>(() =>
-    props.team_percentile_snapshots.find(
-        (s) => s.date === dateObjectToYmdString(selectedDate.value),
-    ),
-);
 watch(selectedDate, async () => {
     if (
         soloSnapshots.value.find(
@@ -287,84 +169,6 @@ watch(selectedDate, async () => {
     soloSnapshots.value.push(snapshots?.data?.solo as Snapshot);
     teamSnapshots.value.push(snapshots?.data?.team as Snapshot);
 });
-
-const { renderRangeChart, renderPercentileChart } = useRatingChart();
-
-const updateCharts = () => {
-    if (selectedGraphType.value === "elo_range") {
-        if (
-            !props.range_dates.includes(
-                dateObjectToYmdString(selectedDate.value),
-            )
-        ) {
-            selectedDate.value = new Date(
-                props.range_dates[props.range_dates.length - 1],
-            );
-        }
-        renderRangeChart(
-            soloChartCanvas,
-            currentSoloRangeSnapshot.value,
-            false,
-            soloChartInstance,
-        );
-
-        renderRangeChart(
-            teamChartCanvas,
-            currentTeamRangeSnapshot.value,
-            true,
-            teamChartInstance,
-        );
-    }
-
-    if (selectedGraphType.value === "percentile") {
-        if (
-            !props.percentile_dates.includes(
-                dateObjectToYmdString(selectedDate.value),
-            )
-        ) {
-            selectedDate.value = new Date(
-                props.percentile_dates[props.percentile_dates.length - 1],
-            );
-        }
-
-        renderPercentileChart(
-            soloChartCanvas,
-            currentSoloPercentileSnapshot.value,
-            false,
-            soloChartInstance,
-        );
-
-        renderPercentileChart(
-            teamChartCanvas,
-            currentTeamPercentileSnapshot.value,
-            true,
-            teamChartInstance,
-        );
-    }
-};
-
-const initializeCharts = () => {
-    if (soloChartInstance.value) {
-        soloChartInstance.value.destroy();
-        soloChartInstance.value = null;
-    }
-
-    if (teamChartInstance.value) {
-        teamChartInstance.value.destroy();
-        teamChartInstance.value = null;
-    }
-
-    updateCharts();
-};
-
-onMounted(() => {
-    initializeCharts();
-});
-
-watch(
-    [currentSoloRangeSnapshot, currentTeamRangeSnapshot, selectedDate],
-    updateCharts,
-);
 </script>
 
 <style scoped>
