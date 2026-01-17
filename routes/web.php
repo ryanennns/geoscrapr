@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DownloadSqliteController;
 use App\Http\Controllers\GetAvailableCountriesController;
+use App\Http\Controllers\GetCountryAverageRatings;
 use App\Http\Controllers\GetInDepthPlayerData;
 use App\Http\Controllers\GetMatchHistory;
 use App\Http\Controllers\GetPlayerRatingChanges;
@@ -47,6 +48,8 @@ Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
         });
 
         Route::get('rateables', GetRateable::class)->name('rateables');
+
+        Route::get('country-average-ratings', GetCountryAverageRatings::class);
     })
     ->group(function () {
         Route::prefix('teams')->group(function () {
