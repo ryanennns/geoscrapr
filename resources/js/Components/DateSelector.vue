@@ -9,13 +9,14 @@
                 placeholder="Pick a date"
                 auto-apply
                 :clearable="false"
+                :dark="isDark"
             />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
@@ -40,4 +41,21 @@ watch(
 const emitUpdate = (val: Date) => {
     emit("update:modelValue", val);
 };
+
+const isDark = ref(document.documentElement.classList.contains("dark"));
+
+const observer = new MutationObserver(() => {
+    isDark.value = document.documentElement.classList.contains("dark");
+});
+
+onMounted(() => {
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class"],
+    });
+});
+
+onBeforeUnmount(() => {
+    observer.disconnect();
+});
 </script>

@@ -115,7 +115,7 @@ const croppedName = computed<string>(() => {
                 target="_blank"
                 class="mr-1"
             >
-                <p class="text-gray-600 font-mono underline font-light">
+                <p class="text-gray-600 dark:text-gray-400 font-mono underline font-light">
                     {{ props.leaderboardRow.players[0]?.name }}
                 </p>
             </a>
@@ -127,7 +127,7 @@ const croppedName = computed<string>(() => {
                 target="_blank"
                 class="ml-1"
             >
-                <p class="text-gray-600 font-mono underline font-light">
+                <p class="text-gray-600 dark:text-gray-400 font-mono underline font-light">
                     {{ props.leaderboardRow.players[1]?.name }}
                 </p>
             </a>
@@ -137,7 +137,7 @@ const croppedName = computed<string>(() => {
                 :href="generateProfileUrl(props.leaderboardRow.geoGuessrId)"
                 target="_blank"
             >
-                <p class="text-gray-600 font-mono underline font-light">
+                <p class="text-gray-600 dark:text-gray-400 font-mono underline font-light">
                     {{ props.leaderboardRow.geoGuessrId }}
                 </p>
             </a>

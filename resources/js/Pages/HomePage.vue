@@ -1,7 +1,10 @@
 <template>
-    <div class="p-4 md:p-8 bg-gray-50 min-h-screen">
+    <DarkModeToggle />
+    <div class="p-4 md:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen">
         <div class="mb-6 md:mb-8 text-center">
-            <h1 class="text-xl md:text-3xl font-bold text-indigo-800">
+            <h1
+                class="text-xl md:text-3xl font-bold text-indigo-800 dark:text-indigo-300"
+            >
                 <div
                     class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent text-5xl font-bold italic"
                 >
@@ -9,7 +12,7 @@
                 </div>
                 Competitive GeoGuessr Analytics
             </h1>
-            <p class="text-sm md:text-base text-gray-600 lg:visible">
+            <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 lg:visible">
                 😎 tracking rating history since 2025-09-10 😎
             </p>
         </div>
@@ -36,14 +39,14 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-            <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+            <div class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-start mb-3 md:mb-4">
-                    <h2 class="text-lg md:text-2xl font-bold text-gray-800">
+                    <h2 class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100">
                         Solo Rating Distribution
                     </h2>
                     <Badge
                         :text="`n = ${currentSoloRangeSnapshot?.n.toLocaleString() || 0}`"
-                        class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
+                        class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs md:text-sm ml-1"
                     />
                 </div>
                 <div class="w-full h-64 md:h-[62vh]">
@@ -54,14 +57,14 @@
                 </div>
             </div>
 
-            <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+            <div class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md">
                 <div class="flex justify-between items-start mb-3 md:mb-4">
-                    <h2 class="text-lg md:text-2xl font-bold text-gray-800">
+                    <h2 class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100">
                         Team Rating Distribution
                     </h2>
                     <Badge
                         :text="`n = ${currentTeamRangeSnapshot?.n.toLocaleString() || 0}`"
-                        class="bg-blue-100 text-blue-800 text-xs md:text-sm ml-1"
+                        class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs md:text-sm ml-1"
                     />
                 </div>
                 <div class="w-full h-64 md:h-[62vh]">
@@ -110,6 +113,7 @@ import {
 } from "@/Types/core.ts";
 import { useRatingChart } from "@/Composables/useRatingChart";
 import Toggle from "@/Components/Toggle.vue";
+import DarkModeToggle from "@/Components/DarkModeToggle.vue";
 import { useApiClient } from "@/Composables/useApiClient";
 import { useUrlParams } from "@/Composables/useUrlParams";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils";

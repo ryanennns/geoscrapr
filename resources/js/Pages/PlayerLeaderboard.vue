@@ -1,10 +1,10 @@
 <template>
     <div class="mt-6 md:mt-10">
-        <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+        <div class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md">
             <div
                 class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3"
             >
-                <h2 class="text-xl md:text-2xl font-bold text-gray-800">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100">
                     Rating Leaderboard
                 </h2>
                 <div class="flex flex-wrap gap-2 sm:gap-4">
@@ -60,38 +60,38 @@
                 />
                 <table
                     v-show="!loading"
-                    class="min-w-full divide-y divide-gray-200 table-fixed"
+                    class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-fixed"
                 >
-                    <thead class="bg-gray-50">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th
                                 scope="col"
-                                class="w-1/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                class="w-1/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                             >
                                 #
                             </th>
                             <th
                                 scope="col"
-                                class="w-5/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                class="w-5/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                             >
                                 {{ isSolo ? "Player" : "Team" }}
                             </th>
                             <th
                                 scope="col"
-                                class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                             >
                                 <span class="hidden sm:inline">Country</span>
                                 <span class="sm:hidden">Flag</span>
                             </th>
                             <th
                                 scope="col"
-                                class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                class="w-3/12 px-2 sm:px-4 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
                             >
                                 {{ ratingHeader }}
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         <Row
                             v-for="(leaderboardRow, index) in leaderboardRows"
                             :key="leaderboardRow.id"

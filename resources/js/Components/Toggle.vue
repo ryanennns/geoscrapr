@@ -43,39 +43,39 @@ defineEmits(["update:modelValue"]);
 
 const colorMap = {
     blue: {
-        bg: "bg-blue-100",
-        active: "bg-blue-500 text-white",
-        inactive: "text-blue-800",
+        bg: "bg-blue-100 dark:bg-blue-900/30",
+        active: "bg-blue-500 dark:bg-blue-400 text-white",
+        inactive: "text-blue-800 dark:text-blue-300",
     },
     green: {
-        bg: "bg-green-100",
-        active: "bg-green-500 text-white",
-        inactive: "text-green-800",
+        bg: "bg-green-100 dark:bg-green-900/30",
+        active: "bg-green-500 dark:bg-green-400 text-white",
+        inactive: "text-green-800 dark:text-green-300",
     },
     indigo: {
-        bg: "bg-indigo-100",
-        active: "bg-indigo-500 text-white",
-        inactive: "text-indigo-800",
+        bg: "bg-indigo-100 dark:bg-indigo-900/30",
+        active: "bg-indigo-500 dark:bg-indigo-400 text-white",
+        inactive: "text-indigo-800 dark:text-indigo-300",
     },
     purple: {
-        bg: "bg-purple-100",
-        active: "bg-purple-500 text-white",
-        inactive: "text-purple-800",
+        bg: "bg-purple-100 dark:bg-purple-900/30",
+        active: "bg-purple-500 dark:bg-purple-400 text-white",
+        inactive: "text-purple-800 dark:text-purple-300",
     },
     red: {
-        bg: "bg-red-100",
-        active: "bg-red-500 text-white",
-        inactive: "text-red-800",
+        bg: "bg-red-100 dark:bg-red-900/30",
+        active: "bg-red-500 dark:bg-red-400 text-white",
+        inactive: "text-red-800 dark:text-red-300",
     },
     gray: {
-        bg: "bg-gray-100",
-        active: "bg-gray-500 text-white",
-        inactive: "text-gray-800",
+        bg: "bg-gray-100 dark:bg-gray-700",
+        active: "bg-gray-500 dark:bg-gray-400 text-white",
+        inactive: "text-gray-800 dark:text-gray-300",
     },
     orange: {
-        bg: "bg-orange-100",
-        active: "bg-orange-500 text-white",
-        inactive: "text-orange-800",
+        bg: "bg-orange-100 dark:bg-orange-900/30",
+        active: "bg-orange-500 dark:bg-orange-400 text-white",
+        inactive: "text-orange-800 dark:text-orange-300",
     },
 };
 

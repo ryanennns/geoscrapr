@@ -1,9 +1,9 @@
 <template>
-    <div class="mt-4 border-t border-gray-300 pt-4">
+    <div class="mt-4 border-t border-gray-300 dark:border-gray-600 pt-4">
         <div class="flex items-center justify-end gap-4">
             <button
                 type="button"
-                class="inline-flex items-center rounded-lg border px-3 py-2 text-sm disabled:opacity-50 outline-none focus:outline-none"
+                class="inline-flex items-center rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 text-sm disabled:opacity-50 outline-none focus:outline-none"
                 aria-label="Previous page"
                 @click="decrement"
             >
@@ -21,13 +21,13 @@
                 </svg>
             </button>
 
-            <div class="text-sm font-medium select-none">
+            <div class="text-sm font-medium select-none text-gray-700 dark:text-gray-300">
                 Page {{ props.modelValue }}
             </div>
 
             <button
                 type="button"
-                class="inline-flex items-center rounded-lg border px-3 py-2 text-sm disabled:opacity-50 outline-none focus:outline-none"
+                class="inline-flex items-center rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-3 py-2 text-sm disabled:opacity-50 outline-none focus:outline-none"
                 aria-label="Next page"
                 @click="increment"
             >

@@ -3,7 +3,7 @@
         :class="
             leaderboardRow.isPlaceholder
                 ? 'opacity-50'
-                : 'hover:bg-indigo-50 transition-colors cursor-pointer'
+                : 'hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors cursor-pointer'
         "
         @click="
             leaderboardRow.isPlaceholder
@@ -13,13 +13,13 @@
         :data-testid="`row-${number}`"
     >
         <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitescpace-nowrap">
-            <div class="text-xs sm:text-sm font-medium">
+            <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
                 {{ number }}
             </div>
         </td>
         <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
             <div
-                class="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-full"
+                class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-full"
             >
                 {{
                     leaderboardRow.name.length > 17 && isMobile
@@ -46,7 +46,7 @@
             </div>
         </td>
         <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
-            <div class="text-xs sm:text-sm font-semibold text-indigo-700">
+            <div class="text-xs sm:text-sm font-semibold text-indigo-700 dark:text-indigo-400">
                 {{ leaderboardRowToRating(leaderboardRow) }}
             </div>
         </td>

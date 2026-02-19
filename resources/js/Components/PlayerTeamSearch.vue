@@ -25,7 +25,7 @@
                 @focus="fetchPlayers"
                 @blur="() => (showDropdown = false)"
                 :placeholder="placeholder"
-                class="pl-10 pr-10 py-3 border border-gray-300 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                class="pl-10 pr-10 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             />
             <transition name="fade">
                 <button
@@ -61,10 +61,10 @@
                 (playerSearchResults.length || teamSearchResults.length) &&
                 showDropdown
             "
-            class="absolute top-full left-0 z-10 bg-gray-50 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
+            class="absolute top-full left-0 z-10 bg-gray-50 dark:bg-gray-800 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
         >
             <li
-                class="pl-3 p-2 bg-gray-300"
+                class="pl-3 p-2 bg-gray-300 dark:bg-gray-700 dark:text-gray-200"
                 v-show="playerSearchResults.length > 0 && showPlayers"
             >
                 Players
@@ -78,7 +78,7 @@
             />
 
             <li
-                class="pl-3 p-2 bg-gray-300"
+                class="pl-3 p-2 bg-gray-300 dark:bg-gray-700 dark:text-gray-200"
                 v-show="teamSearchResults.length > 0 && showTeams"
             >
                 Teams

@@ -1,6 +1,6 @@
 <template>
     <select
-        class="appearance-none bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 pr-8 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500"
+        class="appearance-none bg-purple-100 dark:bg-gray-700 text-purple-800 dark:text-purple-300 text-sm font-medium px-3 py-1 pr-8 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-400"
         @change="handleCountryFilterChange"
         :disabled="props.disabled"
         :class="{
@@ -18,7 +18,7 @@
         </option>
     </select>
     <div
-        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-800"
+        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-800 dark:text-purple-300"
     >
         <svg
             class="h-4 w-4"

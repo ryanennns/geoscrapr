@@ -6,7 +6,7 @@
             @click.self="onClose"
         >
             <div
-                class="flex flex-col bg-white rounded-lg shadow-lg px-6 pt-6 pb-5 w-full max-w-2xl transition-all duration-300"
+                class="flex flex-col bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg shadow-lg px-6 pt-6 pb-5 w-full max-w-2xl transition-all duration-300"
                 :class="wrapperClasses"
             >
                 <div class="flex justify-between items-start">
