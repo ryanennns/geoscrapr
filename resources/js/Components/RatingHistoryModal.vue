@@ -55,17 +55,17 @@
                     <CloseButton v-else @close="() => onClose()" />
                 </div>
 
-                <div>
-                    <LoadingSpinner
-                        v-show="props.loading"
-                        class="mt-12"
-                        text="Loading rating history"
-                    />
+                <div class="relative flex-1 min-h-0">
                     <div
-                        v-show="
-                            props.ratingHistory.length > 0 && !props.loading
-                        "
-                        class="h-full"
+                        class="absolute inset-0 flex items-start justify-center pt-10 z-10 pointer-events-none transition-opacity duration-300"
+                        :class="internalLoading ? 'opacity-100' : 'opacity-0'"
+                    >
+                        <LoadingSpinner />
+                    </div>
+                    <div
+                        v-show="props.ratingHistory.length > 0"
+                        class="transition-opacity duration-300 h-full"
+                        :class="internalLoading ? 'opacity-0' : 'opacity-100'"
                     >
                         <div
                             class="w-full transition-all duration-300"
@@ -82,7 +82,8 @@
                         </div>
                     </div>
                     <ErrorMessage
-                        class="mt-6"
+                        class="mt-6 transition-opacity duration-300"
+                        :class="internalLoading ? 'opacity-0' : 'opacity-100'"
                         heading="We don't have any data for this player!"
                         sub-heading="Check back later or try another player."
                         v-show="
@@ -134,6 +135,10 @@ const { get, set, clear } = useUrlParams();
 const { isDark } = useDarkMode();
 
 const emit = defineEmits(["close"]);
+
+const MIN_SPINNER_MS = 150;
+let openTime = 0;
+const internalLoading = ref<boolean>(true);
 
 const daysToShow = ref<number>(14);
 
@@ -315,16 +320,44 @@ watch(
     { immediate: true },
 );
 
+watch(
+    () => props.loading,
+    (loading) => {
+        if (!loading && props.showModal) {
+            const remaining = MIN_SPINNER_MS - (Date.now() - openTime);
+            setTimeout(
+                () => {
+                    internalLoading.value = false;
+                },
+                Math.max(0, remaining),
+            );
+        }
+    },
+);
+
 const loadingMatchHistory = ref<boolean>(false);
 const matchHistory = ref<MatchHistory[]>([]);
 watch(
     () => props.showModal,
     async (show) => {
         if (show) {
+            openTime = Date.now();
+            internalLoading.value = true;
+            if (!props.loading) {
+                setTimeout(
+                    () => {
+                        internalLoading.value = false;
+                    },
+                    Math.random() * 500 + MIN_SPINNER_MS,
+                );
+            }
+
             loadingMatchHistory.value = true;
             const stuff = await getMatchHistory(props.leaderboardRow.id);
             matchHistory.value = stuff.data?.slice(0, 6) || [];
             loadingMatchHistory.value = false;
+        } else {
+            internalLoading.value = true;
         }
 
         show
