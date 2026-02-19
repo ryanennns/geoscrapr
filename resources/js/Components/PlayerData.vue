@@ -67,19 +67,19 @@ const croppedName = computed<string>(() => {
                     height="15"
                 />
             </span>
-            <p
+            <span
                 :style="{ color: comparing ? colour : 'inherit' }"
                 class="italic"
             >
                 {{ croppedName }}
-            </p>
-            <p class="ml-1 italic font-light">
+            </span>
+            <span class="ml-1 italic font-light">
                 {{ props.leaderboardRow.rating
                 }}<span v-if="!isMobile" class="non-italic"
                     >, #{{ props.leaderboardRow.rank }}</span
                 >
-            </p>
-            <div
+            </span>
+            <span
                 v-if="!comparing"
                 class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
             >
@@ -101,7 +101,7 @@ const croppedName = computed<string>(() => {
                     variant="nmpz"
                     :text="`${props.leaderboardRow.nmpz_rating}`"
                 />
-            </div>
+            </span>
         </span>
 
         <span

@@ -12,11 +12,6 @@
                 </div>
                 Competitive GeoGuessr Analytics
             </h1>
-            <p
-                class="text-sm md:text-base text-gray-600 dark:text-gray-400 lg:visible"
-            >
-                😎 tracking rating history since 2025-09-10 😎
-            </p>
         </div>
 
         <div
