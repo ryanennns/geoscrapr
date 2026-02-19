@@ -57,7 +57,7 @@ const croppedName = computed<string>(() => {
 
 <template>
     <div>
-        <span class="text-xl font-bold flex items-center mb-2">
+        <span class="text-xl font-bold flex items-center mb-2 gap-1">
             <span v-for="countryCode in props.leaderboardRow.countryCodes">
                 <Flag
                     :country-code="countryCode"
@@ -67,10 +67,16 @@ const croppedName = computed<string>(() => {
                     height="15"
                 />
             </span>
-            <p :style="{ color: comparing ? colour : 'inherit' }">
+            <p
+                :style="{ color: comparing ? colour : 'inherit' }"
+                class="italic"
+            >
                 {{ croppedName }}
             </p>
-            <p class="font-light ml-1">- {{ props.leaderboardRow.rating }}</p>
+            <p class="ml-1 italic font-light">
+                {{ props.leaderboardRow.rating }},
+                <span class="non-italic">#{{ props.leaderboardRow.rank }}</span>
+            </p>
             <div
                 v-if="!comparing"
                 class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
@@ -97,14 +103,6 @@ const croppedName = computed<string>(() => {
             class="flex items-center gap-2"
             v-if="!props.leaderboardRow.players"
         >
-            <p>
-                Overall Rank:
-                <span class="font-bold">#{{ props.leaderboardRow.rank }}</span>
-            </p>
-            —
-            <p v-if="props.leaderboardRow.percentile" class="font-bold">
-                P{{ Math.floor(props.leaderboardRow.percentile * 100) / 100 }}
-            </p>
         </span>
 
         <span v-if="props.leaderboardRow.players" class="flex">
