@@ -29,13 +29,6 @@
                             <p
                                 class="text-gray-300 hover:cursor-default text-sm"
                             >
-                                <a href="/world-cup">World Cup 2025</a>
-                            </p>
-                        </li>
-                        <li>
-                            <p
-                                class="text-gray-300 hover:cursor-default text-sm"
-                            >
                                 <s>Player Search</s>
                             </p>
                         </li>
