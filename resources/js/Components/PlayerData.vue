@@ -83,17 +83,20 @@ const croppedName = computed<string>(() => {
             >
                 <RatingBadge
                     v-show="props.leaderboardRow.moving_rating"
-                    label="M: "
+                    tooltip="Moving"
+                    variant="moving"
                     :text="`${props.leaderboardRow.moving_rating}`"
                 />
                 <RatingBadge
                     v-show="props.leaderboardRow.no_move_rating"
-                    label="NM: "
+                    tooltip="No Moving"
+                    variant="no-moving"
                     :text="`${props.leaderboardRow.no_move_rating}`"
                 />
                 <RatingBadge
                     v-show="props.leaderboardRow.nmpz_rating"
-                    label="NMPZ: "
+                    tooltip="NMPZ"
+                    variant="nmpz"
                     :text="`${props.leaderboardRow.nmpz_rating}`"
                 />
             </div>
