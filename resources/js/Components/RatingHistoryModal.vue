@@ -71,7 +71,14 @@
                             class="w-full transition-all duration-300"
                             :class="canvasWrapperClasses"
                         >
-                            <canvas ref="ratingChartCanvas" />
+                            <div
+                                class="transition-opacity duration-150 h-full"
+                                :class="
+                                    chartVisible ? 'opacity-100' : 'opacity-0'
+                                "
+                            >
+                                <canvas ref="ratingChartCanvas" />
+                            </div>
                         </div>
                     </div>
                     <ErrorMessage
@@ -145,7 +152,8 @@ const calculateStepSize = (range: number) => {
 };
 
 const expanded = ref<boolean>(false);
-const toggleExpand = (rerender: boolean = true) => {
+const chartVisible = ref<boolean>(true);
+const toggleExpand = async (rerender: boolean = true) => {
     expanded.value = !expanded.value;
     expanded.value ? (daysToShow.value = 112) : (daysToShow.value = 14);
     expanded.value
@@ -156,7 +164,11 @@ const toggleExpand = (rerender: boolean = true) => {
     playerToCompareWithRatingHistory.value = [];
 
     if (rerender) {
+        chartVisible.value = false;
+        await new Promise<void>((resolve) => setTimeout(resolve, 150));
         renderRatingChart();
+        await nextTick();
+        chartVisible.value = true;
     }
 };
 
