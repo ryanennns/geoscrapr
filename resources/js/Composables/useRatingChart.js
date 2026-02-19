@@ -6,6 +6,7 @@ export function useRatingChart() {
         snapshot,
         isTeamChart = false,
         instanceRef,
+        dark = false,
     ) => {
         if (!snapshot || !canvasRef?.value) {
             return;
@@ -58,6 +59,10 @@ export function useRatingChart() {
             instanceRef.value.destroy();
         }
 
+        const tickColor = dark ? "#94a3b8" : "#64748b";
+        const gridColor = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)";
+        const labelColor = dark ? "#e2e8f0" : "#292929";
+
         instanceRef.value = new Chart(canvasRef.value, {
             type: "bar",
             data: {
@@ -93,8 +98,8 @@ export function useRatingChart() {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: "rgba(0,0,0,0.05)" },
-                        ticks: { font: { size: 12 } },
+                        grid: { color: gridColor },
+                        ticks: { font: { size: 12 }, color: tickColor },
                     },
                     x: {
                         grid: { display: false },
@@ -102,6 +107,7 @@ export function useRatingChart() {
                             font: { size: 11 },
                             maxRotation: 45,
                             minRotation: 45,
+                            color: tickColor,
                         },
                     },
                 },
@@ -124,7 +130,7 @@ export function useRatingChart() {
                         } = chart;
                         ctx.save();
                         chart.data.datasets[0].data.forEach((value, i) => {
-                            ctx.fillStyle = "#292929";
+                            ctx.fillStyle = labelColor;
                             ctx.font = "bold 12px sans-serif";
                             ctx.textAlign = "center";
                             ctx.fillText(
@@ -145,6 +151,7 @@ export function useRatingChart() {
         snapshot,
         isTeamChart = false,
         instanceRef,
+        dark = false,
     ) => {
         if (!snapshot || !canvasRef?.value) {
             return;
@@ -173,6 +180,9 @@ export function useRatingChart() {
         if (instanceRef.value) {
             instanceRef.value.destroy();
         }
+
+        const tickColor = dark ? "#94a3b8" : "#64748b";
+        const gridColor = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)";
 
         instanceRef.value = new Chart(canvasRef.value, {
             type: "bar",
@@ -214,8 +224,8 @@ export function useRatingChart() {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: { color: "rgba(0,0,0,0.05)" },
-                        ticks: { font: { size: 12 } },
+                        grid: { color: gridColor },
+                        ticks: { font: { size: 12 }, color: tickColor },
                     },
                     x: {
                         grid: { display: false },
@@ -223,6 +233,7 @@ export function useRatingChart() {
                             font: { size: 11 },
                             maxRotation: 45,
                             minRotation: 45,
+                            color: tickColor,
                             callback: function (value, index) {
                                 const label = this.getLabelForValue(value);
                                 if (labels.length > 20) {

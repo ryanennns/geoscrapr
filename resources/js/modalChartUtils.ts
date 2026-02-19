@@ -89,6 +89,7 @@ interface CreateRatingChartProps {
     yMax: number;
     step: number;
     daysToShow: number;
+    dark?: boolean;
 }
 
 export const createRatingChart = ({
@@ -101,7 +102,22 @@ export const createRatingChart = ({
     yMax,
     step,
     daysToShow,
+    dark = false,
 }: CreateRatingChartProps) => {
+    const theme = {
+        tickColor: dark ? "#94a3b8" : "#64748b",
+        gridColorY: dark ? "rgba(51, 65, 85, 0.8)" : "rgba(226, 232, 240, 0.8)",
+        gridColorX: dark ? "rgba(51, 65, 85, 0.6)" : "rgba(226, 232, 240, 0.6)",
+        titleColor: dark ? "#e2e8f0" : "#1e293b",
+        tooltipBg: dark
+            ? "rgba(15, 23, 42, 0.95)"
+            : "rgba(255, 255, 255, 0.95)",
+        tooltipTitle: dark ? "#f1f5f9" : "#1e293b",
+        tooltipBody: dark ? "#cbd5e1" : "#334155",
+        tooltipBorder: dark ? "#334155" : "#e2e8f0",
+        pointBg: dark ? "#1e293b" : "#ffffff",
+    };
+
     const colors = [
         { base: "rgba(37, 99, 235,", name: "blue" }, // blue
         { base: "rgba(220, 38, 38,", name: "red" }, // red
@@ -119,11 +135,11 @@ export const createRatingChart = ({
                 borderWidth: 2.5,
                 tension: 0,
                 fill: true,
-                pointBackgroundColor: "#ffffff",
+                pointBackgroundColor: theme.pointBg,
                 pointBorderColor: `${color} 1)`,
                 pointBorderWidth: 2,
                 pointHoverRadius: 6,
-                pointHoverBackgroundColor: "white",
+                pointHoverBackgroundColor: theme.pointBg,
                 pointHoverBorderColor: `${color} 1)`,
                 pointHoverBorderWidth: 3,
                 spanGaps: true,
@@ -154,10 +170,10 @@ export const createRatingChart = ({
                             size: 11,
                         },
                         padding: 8,
-                        color: "#64748b",
+                        color: theme.tickColor,
                     },
                     grid: {
-                        color: "rgba(226, 232, 240, 0.8)",
+                        color: theme.gridColorY,
                     },
                     border: {
                         dash: [4, 4],
@@ -173,7 +189,7 @@ export const createRatingChart = ({
                         padding: {
                             top: 10,
                         },
-                        color: "#1e293b",
+                        color: theme.titleColor,
                     },
                     ticks: {
                         maxTicksLimit: Math.min(10, labels.length),
@@ -183,10 +199,10 @@ export const createRatingChart = ({
                             size: 10,
                         },
                         padding: 5,
-                        color: "#64748b",
+                        color: theme.tickColor,
                     },
                     grid: {
-                        color: "rgba(226, 232, 240, 0.6)",
+                        color: theme.gridColorX,
                     },
                 },
             },
@@ -195,10 +211,10 @@ export const createRatingChart = ({
                     display: false,
                 },
                 tooltip: {
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    titleColor: "#1e293b",
-                    bodyColor: "#334155",
-                    borderColor: "#e2e8f0",
+                    backgroundColor: theme.tooltipBg,
+                    titleColor: theme.tooltipTitle,
+                    bodyColor: theme.tooltipBody,
+                    borderColor: theme.tooltipBorder,
                     borderWidth: 1,
                     padding: 12,
                     cornerRadius: 6,

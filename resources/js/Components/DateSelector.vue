@@ -16,9 +16,10 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
+import { useDarkMode } from "@/Composables/useDarkMode";
 
 interface Props {
     modelValue: Date;
@@ -42,20 +43,5 @@ const emitUpdate = (val: Date) => {
     emit("update:modelValue", val);
 };
 
-const isDark = ref(localStorage.getItem("darkMode") === "true");
-
-const observer = new MutationObserver(() => {
-    isDark.value = document.documentElement.classList.contains("dark");
-});
-
-onMounted(() => {
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ["class"],
-    });
-});
-
-onBeforeUnmount(() => {
-    observer.disconnect();
-});
+const { isDark } = useDarkMode();
 </script>

@@ -102,6 +102,7 @@ import {
 import PlayerTeamSearch from "@/Components/PlayerTeamSearch.vue";
 import PlayerData from "@/Components/PlayerData.vue";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.ts";
+import { useDarkMode } from "@/Composables/useDarkMode";
 
 interface Props {
     showModal: boolean;
@@ -119,6 +120,7 @@ const { getMatchHistory, getRateableHistory, getRateable } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();
 const { isMobile } = useBrowserUtils();
 const { get, set, clear } = useUrlParams();
+const { isDark } = useDarkMode();
 
 const emit = defineEmits(["close"]);
 
@@ -258,6 +260,7 @@ const renderRatingChart = () => {
         yMax,
         step,
         daysToShow: daysToShow.value,
+        dark: isDark.value,
     });
 };
 
@@ -278,6 +281,12 @@ const handleSelectPlayerToCompareWith = async (event: {
 
     renderRatingChart();
 };
+
+watch(isDark, () => {
+    if (props.showModal) {
+        renderRatingChart();
+    }
+});
 
 watch(
     () => [props.ratingHistory, props.showModal, props.leaderboardRow],

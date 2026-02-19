@@ -127,6 +127,7 @@ import DarkModeToggle from "@/Components/DarkModeToggle.vue";
 import { useApiClient } from "@/Composables/useApiClient";
 import { useUrlParams } from "@/Composables/useUrlParams";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils";
+import { useDarkMode } from "@/Composables/useDarkMode";
 
 Chart.defaults.animation = false;
 Chart.register(...registerables);
@@ -303,6 +304,8 @@ watch(selectedDate, async () => {
 });
 
 const { renderRangeChart, renderPercentileChart } = useRatingChart();
+const { isDark } = useDarkMode();
+watch(isDark, () => initializeCharts());
 
 const updateCharts = () => {
     if (selectedGraphType.value === "elo_range") {
@@ -320,6 +323,7 @@ const updateCharts = () => {
             currentSoloRangeSnapshot.value,
             false,
             soloChartInstance,
+            isDark.value,
         );
 
         renderRangeChart(
@@ -327,6 +331,7 @@ const updateCharts = () => {
             currentTeamRangeSnapshot.value,
             true,
             teamChartInstance,
+            isDark.value,
         );
     }
 
@@ -346,6 +351,7 @@ const updateCharts = () => {
             currentSoloPercentileSnapshot.value,
             false,
             soloChartInstance,
+            isDark.value,
         );
 
         renderPercentileChart(
@@ -353,6 +359,7 @@ const updateCharts = () => {
             currentTeamPercentileSnapshot.value,
             true,
             teamChartInstance,
+            isDark.value,
         );
     }
 };
