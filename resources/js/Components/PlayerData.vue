@@ -74,8 +74,8 @@ const croppedName = computed<string>(() => {
                 {{ croppedName }}
             </p>
             <p class="ml-1 italic font-light">
-                {{ props.leaderboardRow.rating }},
-                <span class="non-italic">#{{ props.leaderboardRow.rank }}</span>
+                {{ props.leaderboardRow.rating }}
+                <span v-if="!isMobile" class="non-italic">, #{{ props.leaderboardRow.rank }}</span>
             </p>
             <div
                 v-if="!comparing"
