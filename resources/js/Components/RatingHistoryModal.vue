@@ -30,15 +30,19 @@
                             :comparing="true"
                         />
                     </span>
-                    <div class="flex h-full items-center mr-8">
-                        <div class="items-center">
-                            <PlayerTeamSearch
-                                v-if="showSearch"
-                                @rowClicked="handleSelectPlayerToCompareWith"
-                                placeholder="Compare with player..."
-                                :show-teams="false"
-                            />
-                        </div>
+                    <div
+                        class="overflow-hidden transition-all duration-300"
+                        :class="
+                            showSearch
+                                ? 'max-w-xs opacity-100 mr-8'
+                                : 'max-w-0 opacity-0 mr-0 pointer-events-none'
+                        "
+                    >
+                        <PlayerTeamSearch
+                            @rowClicked="handleSelectPlayerToCompareWith"
+                            placeholder="Compare with player..."
+                            :show-teams="false"
+                        />
                     </div>
                     <ExpandContractButton
                         v-if="

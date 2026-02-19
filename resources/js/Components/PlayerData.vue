@@ -67,12 +67,15 @@ const croppedName = computed<string>(() => {
                     height="15"
                 />
             </span>
-            <span
-                :style="{ color: comparing ? colour : 'inherit' }"
-                class="italic"
-            >
-                {{ croppedName }}
-            </span>
+            <transition name="name-fade" mode="out-in">
+                <span
+                    :key="String(expanded)"
+                    :style="{ color: comparing ? colour : 'inherit' }"
+                    class="italic"
+                >
+                    {{ croppedName }}
+                </span>
+            </transition>
             <span class="ml-1 italic font-light">
                 {{ props.leaderboardRow.rating
                 }}<span v-if="!isMobile" class="non-italic"
@@ -176,4 +179,14 @@ const croppedName = computed<string>(() => {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.name-fade-enter-active,
+.name-fade-leave-active {
+    transition: opacity 0.15s ease;
+}
+
+.name-fade-enter-from,
+.name-fade-leave-to {
+    opacity: 0;
+}
+</style>
