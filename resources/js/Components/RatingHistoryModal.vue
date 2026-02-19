@@ -143,7 +143,7 @@ const calculateStepSize = (range: number) => {
 const expanded = ref<boolean>(false);
 const toggleExpand = (rerender: boolean = true) => {
     expanded.value = !expanded.value;
-    expanded.value ? (daysToShow.value = 56) : (daysToShow.value = 14);
+    expanded.value ? (daysToShow.value = 112) : (daysToShow.value = 14);
     expanded.value
         ? set("expanded", String(expanded.value))
         : clear("expanded") > clear("compare_with");
@@ -160,7 +160,7 @@ const wrapperClasses = computed<string>(() =>
     isMobile.value
         ? "h-360px"
         : expanded.value
-          ? "max-w-7xl h-[80vh]"
+          ? "max-w-[90vw] h-[80vh]"
           : "max-w-2xl h-[40vh]",
 );
 const canvasWrapperClasses = computed<string>(() =>
