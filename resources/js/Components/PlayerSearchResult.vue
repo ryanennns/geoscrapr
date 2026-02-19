@@ -1,15 +1,15 @@
 <template>
     <li
         @mousedown.prevent="handlePlayerClick(props.player)"
-        class="py-3 px-4 hover:bg-indigo-50 cursor-pointer transition-colors"
+        class="py-3 px-4 hover:bg-indigo-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
     >
         <div class="flex justify-between items-center">
-            <span class="font-medium text-gray-800">
+            <span class="font-medium text-gray-800 dark:text-gray-100">
                 {{ getFlagEmoji(props.player.country_code) }}
                 {{ name }}
             </span>
             <span
-                class="flex items-center justify-center bg-indigo-100 text-indigo-800 py-1 px-2 rounded-full text-sm font-semibold w-26 h-full"
+                class="flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 py-1 px-2 rounded-full text-sm font-semibold w-26 h-full"
             >
                 Rating: {{ props.player.rating }}
             </span>
