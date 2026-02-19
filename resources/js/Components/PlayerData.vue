@@ -36,7 +36,7 @@ const allowedNameLength = computed<number>(() => {
         numberOfNullRatings += 1;
     }
 
-    return 13 + numberOfNullRatings * 2;
+    return 25 + numberOfNullRatings * 3;
 });
 
 const croppedName = computed<string>(() => {
