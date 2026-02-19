@@ -161,7 +161,7 @@ const wrapperClasses = computed<string>(() =>
         ? "h-360px"
         : expanded.value
           ? "max-w-[90vw] h-[80vh]"
-          : "max-w-2xl h-[40vh]",
+          : "max-w-2xl h-[36vh]",
 );
 const canvasWrapperClasses = computed<string>(() =>
     isMobile.value ? "w-full h-60" : expanded.value ? "h-[65vh]" : "h-60",
