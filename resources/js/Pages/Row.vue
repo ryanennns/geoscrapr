@@ -13,7 +13,9 @@
         :data-testid="`row-${number}`"
     >
         <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitescpace-nowrap">
-            <div class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
+            <div
+                class="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100"
+            >
                 {{ number }}
             </div>
         </td>
@@ -46,7 +48,9 @@
             </div>
         </td>
         <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
-            <div class="text-xs sm:text-sm font-semibold text-indigo-700 dark:text-indigo-400">
+            <div
+                class="text-xs sm:text-sm font-semibold text-indigo-700 dark:text-indigo-400"
+            >
                 {{ leaderboardRowToRating(leaderboardRow) }}
             </div>
         </td>

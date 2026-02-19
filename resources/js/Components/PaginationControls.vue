@@ -21,7 +21,9 @@
                 </svg>
             </button>
 
-            <div class="text-sm font-medium select-none text-gray-700 dark:text-gray-300">
+            <div
+                class="text-sm font-medium select-none text-gray-700 dark:text-gray-300"
+            >
                 Page {{ props.modelValue }}
             </div>
 

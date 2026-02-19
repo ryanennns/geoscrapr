@@ -2,7 +2,9 @@
     <button
         @click="toggleDarkMode"
         class="fixed top-4 right-4 z-50 p-2 rounded-full bg-white dark:bg-gray-700 shadow-md hover:shadow-lg transition-colors cursor-pointer"
-        :aria-label="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+        :aria-label="
+            isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
+        "
     >
         <svg
             v-if="!isDarkMode"

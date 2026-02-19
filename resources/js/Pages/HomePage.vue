@@ -12,7 +12,9 @@
                 </div>
                 Competitive GeoGuessr Analytics
             </h1>
-            <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 lg:visible">
+            <p
+                class="text-sm md:text-base text-gray-600 dark:text-gray-400 lg:visible"
+            >
                 😎 tracking rating history since 2025-09-10 😎
             </p>
         </div>
@@ -39,9 +41,13 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-            <div class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md">
+            <div
+                class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md"
+            >
                 <div class="flex justify-between items-start mb-3 md:mb-4">
-                    <h2 class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100">
+                    <h2
+                        class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100"
+                    >
                         Solo Rating Distribution
                     </h2>
                     <Badge
@@ -57,9 +63,13 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md">
+            <div
+                class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md"
+            >
                 <div class="flex justify-between items-start mb-3 md:mb-4">
-                    <h2 class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100">
+                    <h2
+                        class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100"
+                    >
                         Team Rating Distribution
                     </h2>
                     <Badge

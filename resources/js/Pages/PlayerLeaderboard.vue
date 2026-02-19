@@ -4,7 +4,9 @@
             <div
                 class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3"
             >
-                <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100">
+                <h2
+                    class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100"
+                >
                     Rating Leaderboard
                 </h2>
                 <div class="flex flex-wrap gap-2 sm:gap-4">
@@ -91,7 +93,9 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody
+                        class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
+                    >
                         <Row
                             v-for="(leaderboardRow, index) in leaderboardRows"
                             :key="leaderboardRow.id"

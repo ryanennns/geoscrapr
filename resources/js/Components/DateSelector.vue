@@ -42,7 +42,7 @@ const emitUpdate = (val: Date) => {
     emit("update:modelValue", val);
 };
 
-const isDark = ref(document.documentElement.classList.contains("dark"));
+const isDark = ref(localStorage.getItem("darkMode") === "true");
 
 const observer = new MutationObserver(() => {
     isDark.value = document.documentElement.classList.contains("dark");
