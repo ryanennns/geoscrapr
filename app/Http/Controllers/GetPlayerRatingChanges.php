@@ -16,7 +16,7 @@ class GetPlayerRatingChanges extends Controller
             ->firstOrFail();
 
         $numberOfRatingChangesFromTheLastTwoWeeks = $player->ratingChanges()
-            ->where('created_at', '>', Carbon::now()->subWeeks(8))
+            ->where('created_at', '>', Carbon::now()->subWeeks(16))
             ->count();
 
         return RatingHistoryResource::collection(
