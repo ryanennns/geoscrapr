@@ -20,16 +20,18 @@
                             :comparing="playerToCompareWith !== null"
                         />
                     </span>
-                    <span class="grow" v-if="playerToCompareWith">
-                        <PlayerData
-                            :leaderboard-row="playerToCompareWith"
-                            :loading-match-history="false"
-                            :expanded="expanded"
-                            :matchHistory="[]"
-                            colour="#dc2626"
-                            :comparing="true"
-                        />
-                    </span>
+                    <transition name="fade">
+                        <span class="grow" v-if="playerToCompareWith">
+                            <PlayerData
+                                :leaderboard-row="playerToCompareWith"
+                                :loading-match-history="false"
+                                :expanded="expanded"
+                                :matchHistory="[]"
+                                colour="#dc2626"
+                                :comparing="true"
+                            />
+                        </span>
+                    </transition>
                     <div
                         class="overflow-hidden transition-all duration-300"
                         :class="
@@ -40,6 +42,7 @@
                     >
                         <PlayerTeamSearch
                             @rowClicked="handleSelectPlayerToCompareWith"
+                            @cleared="handleClearComparison"
                             placeholder="Compare with player..."
                             :show-teams="false"
                         />
@@ -300,7 +303,23 @@ const handleSelectPlayerToCompareWith = async (event: {
 
     set("compare_with", String(playerToCompareWith.value.id));
 
+    chartVisible.value = false;
+    await new Promise<void>((resolve) => setTimeout(resolve, 150));
     renderRatingChart();
+    await nextTick();
+    chartVisible.value = true;
+};
+
+const handleClearComparison = async () => {
+    playerToCompareWith.value = null;
+    playerToCompareWithRatingHistory.value = [];
+    clear("compare_with");
+
+    chartVisible.value = false;
+    await new Promise<void>((resolve) => setTimeout(resolve, 150));
+    renderRatingChart();
+    await nextTick();
+    chartVisible.value = true;
 };
 
 watch(isDark, () => {
@@ -399,3 +418,15 @@ onUnmounted(() => {
     }
 });
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

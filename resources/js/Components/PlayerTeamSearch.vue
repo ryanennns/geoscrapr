@@ -34,6 +34,7 @@
                         () => {
                             searchQuery = '';
                             playerSearchResults = [];
+                            emit('cleared');
                         }
                     "
                     class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
@@ -185,7 +186,7 @@ const fetchPlayers = () => {
     }, 300);
 };
 
-const emit = defineEmits(["rowClicked"]);
+const emit = defineEmits(["rowClicked", "cleared"]);
 const handlePlayerOrTeamClicked = async (rateable: Rateable) => {
     searchInputElement.value?.blur();
     emit("rowClicked", {
