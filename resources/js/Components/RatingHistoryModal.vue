@@ -128,7 +128,7 @@ const showSearch = computed<boolean>(() => {
     return expanded.value === true && props.leaderboardRow.type !== "team";
 });
 
-const { getMatchHistory, getRateableHistory, getRateable } = useApiClient();
+const { getRateableHistory, getRateable } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();
 const { isMobile } = useBrowserUtils();
 const { get, set, clear } = useUrlParams();
@@ -351,11 +351,6 @@ watch(
                     Math.random() * 500 + MIN_SPINNER_MS,
                 );
             }
-
-            loadingMatchHistory.value = true;
-            const stuff = await getMatchHistory(props.leaderboardRow.id);
-            matchHistory.value = stuff.data?.slice(0, 6) || [];
-            loadingMatchHistory.value = false;
         } else {
             internalLoading.value = true;
         }

@@ -1,5 +1,5 @@
 <template>
-    <div class="relative w-full max-w-md">
+    <div class="relative w-full max-w-md" ref="wrapperEl">
         <div class="relative">
             <div
                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -56,46 +56,46 @@
             </transition>
         </div>
 
-        <ul
-            v-if="
-                (playerSearchResults.length || teamSearchResults.length) &&
-                showDropdown
-            "
-            class="absolute top-full left-0 z-10 bg-gray-50 dark:bg-gray-800 w-full shadow-md max-h-64 overflow-y-auto rounded-lg mt-1"
-        >
-            <li
-                class="pl-3 p-2 bg-gray-300 dark:bg-gray-700 dark:text-gray-200"
-                v-show="playerSearchResults.length > 0 && showPlayers"
+        <Teleport to="body">
+            <ul
+                v-if="showResults"
+                :style="dropdownStyle"
+                class="fixed z-50 bg-gray-50 dark:bg-gray-800 shadow-md max-h-64 overflow-y-auto rounded-lg"
             >
-                Players
-            </li>
-            <PlayerSearchResult
-                v-if="showPlayers"
-                v-for="player in playerSearchResults"
-                :key="player.id"
-                :player="player"
-                @player-click="handlePlayerOrTeamClicked"
-            />
+                <li
+                    class="pl-3 p-2 bg-gray-300 dark:bg-gray-700 dark:text-gray-200"
+                    v-show="playerSearchResults.length > 0 && showPlayers"
+                >
+                    Players
+                </li>
+                <PlayerSearchResult
+                    v-if="showPlayers"
+                    v-for="player in playerSearchResults"
+                    :key="player.id"
+                    :player="player"
+                    @player-click="handlePlayerOrTeamClicked"
+                />
 
-            <li
-                class="pl-3 p-2 bg-gray-300 dark:bg-gray-700 dark:text-gray-200"
-                v-show="teamSearchResults.length > 0 && showTeams"
-            >
-                Teams
-            </li>
-            <TeamSearchResult
-                v-show="showTeams"
-                v-for="team in teamSearchResults"
-                :key="team.id"
-                :team="team"
-                @team-click="handlePlayerOrTeamClicked"
-            />
-        </ul>
+                <li
+                    class="pl-3 p-2 bg-gray-300 dark:bg-gray-700 dark:text-gray-200"
+                    v-show="teamSearchResults.length > 0 && showTeams"
+                >
+                    Teams
+                </li>
+                <TeamSearchResult
+                    v-show="showTeams"
+                    v-for="team in teamSearchResults"
+                    :key="team.id"
+                    :team="team"
+                    @team-click="handlePlayerOrTeamClicked"
+                />
+            </ul>
+        </Teleport>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import PlayerSearchResult from "./PlayerSearchResult.vue";
 import type { Player, Rateable, Team } from "@/Types/core.ts";
 import { usePlayerUtils } from "@/Composables/usePlayerUtils.js";
@@ -115,11 +115,23 @@ const {
 
 const { rateableToLeaderboardRows } = usePlayerUtils();
 
+const wrapperEl = ref<HTMLElement>();
 const searchInputElement = ref<HTMLInputElement>();
 const searchQuery = ref<string>("");
 const playerSearchResults = ref<Player[]>([]);
 const teamSearchResults = ref<Team[]>([]);
 const showDropdown = ref<boolean>(true);
+
+const dropdownStyle = ref<Record<string, string>>({});
+const updateDropdownPosition = () => {
+    if (!wrapperEl.value) return;
+    const rect = wrapperEl.value.getBoundingClientRect();
+    dropdownStyle.value = {
+        top: `${rect.bottom + 4}px`,
+        left: `${rect.left}px`,
+        width: `${rect.width}px`,
+    };
+};
 
 const playerSearchCache = ref<Record<string, Player[]>>({});
 const teamSearchCache = ref<Record<string, Team[]>>({});
@@ -180,6 +192,27 @@ const handlePlayerOrTeamClicked = async (rateable: Rateable) => {
         rateable: rateableToLeaderboardRows(rateable),
     });
 };
+
+const showResults = computed<boolean>(() =>
+    Boolean(
+        (playerSearchResults.value.length || teamSearchResults.value.length) &&
+            showDropdown.value,
+    ),
+);
+
+watch(showResults, (visible) => {
+    if (visible) nextTick(updateDropdownPosition);
+});
+
+onMounted(() => {
+    window.addEventListener("resize", updateDropdownPosition);
+    window.addEventListener("scroll", updateDropdownPosition, true);
+});
+
+onUnmounted(() => {
+    window.removeEventListener("resize", updateDropdownPosition);
+    window.removeEventListener("scroll", updateDropdownPosition, true);
+});
 </script>
 
 <style scoped>
