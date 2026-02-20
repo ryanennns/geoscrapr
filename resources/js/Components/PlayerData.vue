@@ -11,6 +11,7 @@ interface Props {
     leaderboardRow: LeaderboardRow;
     loadingMatchHistory: boolean;
     expanded: boolean;
+
     matchHistory: MatchHistory[];
     colour: string;
     comparing: boolean;
@@ -82,10 +83,7 @@ const croppedName = computed<string>(() => {
                     >, #{{ props.leaderboardRow.rank }}</span
                 >
             </span>
-            <span
-                v-if="!comparing"
-                class="hidden sm:flex flex-wrap gap-2 items-center ml-4"
-            >
+            <span class="hidden sm:flex flex-wrap gap-2 items-center ml-4">
                 <RatingBadge
                     v-show="props.leaderboardRow.moving_rating"
                     tooltip="Moving"
