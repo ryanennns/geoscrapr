@@ -55,7 +55,7 @@ describe("PlayerLeaderboard.vue", () => {
         await (toggle as any).vm.$emit("update:modelValue", "team");
         await flushPromises();
         const countryDropdown = wrapper.get('[data-testid="country-dropdown"]');
-        expect((countryDropdown.element as HTMLSelectElement).disabled).toBe(
+        expect((countryDropdown.element as HTMLButtonElement).disabled).toBe(
             true,
         );
     });
