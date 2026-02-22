@@ -116,7 +116,7 @@ export function useApiClient() {
     interface GetRateablesInput {
         playersOrTeams: "players" | "teams";
         active?: string;
-        country?: string;
+        country?: string[] | "all";
         order?: string;
         gameType?: GameType;
         page?: number;
@@ -136,7 +136,9 @@ export function useApiClient() {
         }
 
         if (country && country !== "all") {
-            params.append("country", country);
+            country.forEach((code) => {
+                params.append("country[]", code);
+            });
         }
 
         if (order) {

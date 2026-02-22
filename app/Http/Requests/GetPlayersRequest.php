@@ -17,7 +17,8 @@ class GetPlayersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'country'   => Rule::enum(CountryCode::class),
+            'country'   => 'array|nullable',
+            'country.*' => Rule::enum(CountryCode::class),
             'order'     => Rule::enum(SortOrder::class),
             'active'    => 'boolean|nullable',
             'page'      => 'integer|nullable|min:1',

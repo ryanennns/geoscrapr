@@ -249,14 +249,14 @@ const resetFilters = () => {
     selectedMode.value = "solo";
     selectedOrder.value = "desc";
     isActive.value = "all";
-    selectedCountry.value = "";
+    selectedCountry.value = [];
     rateablesPage.value = 1;
     updateLeaderboard();
 };
 
 const isSolo = computed(() => selectedMode.value === "solo");
 
-const selectedCountry = ref<CountryCode | "">("");
+const selectedCountry = ref<CountryCode[]>([]);
 
 const loading = ref(false);
 const rateablesPage = ref<number>(1);
@@ -266,34 +266,36 @@ interface CacheBucketMap {
     act: IsActive;
     ord: SortOrder;
     mode: Gamemode;
-    country: CountryCode | "all";
+    countryKey: string;
     page: number;
 }
+const getCountryKey = (countries: CountryCode[]) =>
+    countries.length > 0 ? [...countries].sort().join(",") : "all";
 const getCacheBucket = ({
     gt,
     act,
     ord,
     mode,
-    country,
+    countryKey,
     page,
 }: CacheBucketMap) => {
     return {
         bucket: dataCache.value[gt][act][ord][mode],
-        country,
+        countryKey,
         page,
     };
 };
 
 const readFromCache = (params: CacheBucketMap): Rateable[] | undefined => {
-    const { bucket, country, page } = getCacheBucket(params);
-    const countryCache = bucket[country] ?? {};
+    const { bucket, countryKey, page } = getCacheBucket(params);
+    const countryCache = bucket[countryKey] ?? {};
     return countryCache[page];
 };
 
 const writeToCache = (rows: Rateable[], cacheParams: CacheBucketMap) => {
-    const { bucket, country, page } = getCacheBucket(cacheParams);
-    if (!bucket[country]) bucket[country] = {};
-    bucket[country][page] = rows;
+    const { bucket, countryKey, page } = getCacheBucket(cacheParams);
+    if (!bucket[countryKey]) bucket[countryKey] = {};
+    bucket[countryKey][page] = rows;
 };
 
 const updateLeaderboard = async () => {
@@ -302,7 +304,7 @@ const updateLeaderboard = async () => {
         act: isActive.value,
         ord: selectedOrder.value,
         mode: selectedMode.value,
-        country: selectedCountry.value || "all",
+        countryKey: getCountryKey(selectedCountry.value),
         page: rateablesPage.value,
     };
 
@@ -318,7 +320,8 @@ const updateLeaderboard = async () => {
     const rateablesResponse = await getRateables({
         playersOrTeams: selectedMode.value === "solo" ? "players" : "teams",
         active: isActive.value,
-        country: selectedCountry.value || "all",
+        country:
+            selectedCountry.value.length > 0 ? selectedCountry.value : "all",
         order: selectedOrder.value,
         gameType: selectedGameType.value,
         page: rateablesPage.value,
@@ -349,7 +352,10 @@ watch(
             if (!branch.all) branch.all = {};
             branch.all[1] = newPlayers as Player[];
 
-            if (selectedMode.value === "solo" && !selectedCountry.value) {
+            if (
+                selectedMode.value === "solo" &&
+                !selectedCountry.value.length
+            ) {
                 rateables.value = newPlayers;
             }
         }

@@ -204,9 +204,9 @@ describe("PlayerLeaderboard.vue", () => {
 
     it("handles country filter change", async () => {
         const dropdown = wrapper.findComponent({ name: "CountryDropdown" });
-        await dropdown.vm.$emit("update:modelValue", "ca");
+        await dropdown.vm.$emit("update:modelValue", ["ca"]);
         const comp = wrapper.vm as any;
-        expect(comp.selectedCountry).toBe("ca");
+        expect(comp.selectedCountry).toEqual(["ca"]);
     });
 
     it("emits playerClick when row is clicked", async () => {

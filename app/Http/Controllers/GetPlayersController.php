@@ -15,7 +15,7 @@ class GetPlayersController extends Controller
     {
         $validated = $request->validated();
 
-        $country = Arr::get($validated, 'country');
+        $countries = Arr::get($validated, 'country', []);
         $order = Arr::get($validated, 'order');
         $active = Arr::get($validated, 'active');
         $gameType = Arr::get($validated, 'game_type');
@@ -23,8 +23,11 @@ class GetPlayersController extends Controller
 
         $query = Player::query();
 
-        if ($country !== null) {
-            $query->where('country_code', $country);
+        if (!empty($countries)) {
+            $countries = is_array($countries) ? $countries : [$countries];
+            if (count($countries) > 0) {
+                $query->whereIn('country_code', $countries);
+            }
         }
 
         if ($active) {
