@@ -47,7 +47,7 @@
             leave-to-class="opacity-0"
         >
             <div
-                v-if="isOpen"
+                v-if="isDropdownVisible"
                 class="absolute z-20 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg"
             >
                 <div class="p-2">
@@ -87,7 +87,10 @@
                             No countries match that search.
                         </div>
                     </li>
-                    <li v-for="country in filteredCountries" :key="country.code">
+                    <li
+                        v-for="country in filteredCountries"
+                        :key="country.code"
+                    >
                         <button
                             type="button"
                             class="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -154,9 +157,11 @@ const labelSpan = ref<HTMLSpanElement | null>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
 const searchQuery = ref("");
 const isOpen = ref(false);
+const isDropdownVisible = ref(false);
 const listboxId = "country-listbox";
 const buttonWidth = ref<number | null>(null);
 const dropdownOpenMinWidth = 288;
+const closeTimeoutId = ref<number | null>(null);
 
 const selectedCountries = computed(() => {
     if (!props.modelValue.length) return [];
@@ -200,13 +205,26 @@ const filteredCountries = computed(() => {
 const openAndFocus = async () => {
     if (props.disabled) return;
     isOpen.value = true;
+    isDropdownVisible.value = true;
+    if (closeTimeoutId.value !== null) {
+        window.clearTimeout(closeTimeoutId.value);
+        closeTimeoutId.value = null;
+    }
     await nextTick();
     searchInput.value?.focus();
 };
 
 const close = () => {
-    isOpen.value = false;
+    if (!isOpen.value && !isDropdownVisible.value) return;
+    isDropdownVisible.value = false;
     searchQuery.value = "";
+    if (closeTimeoutId.value !== null) {
+        window.clearTimeout(closeTimeoutId.value);
+    }
+    closeTimeoutId.value = window.setTimeout(() => {
+        isOpen.value = false;
+        closeTimeoutId.value = null;
+    }, 100);
 };
 
 const toggle = () => {
@@ -273,6 +291,9 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener("resize", updateButtonWidth);
+    if (closeTimeoutId.value !== null) {
+        window.clearTimeout(closeTimeoutId.value);
+    }
 });
 
 watch([selectedLabel, isOpen], async () => {
