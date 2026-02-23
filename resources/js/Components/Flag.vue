@@ -4,11 +4,11 @@
         :alt="countryMap[props.countryCode]"
         :title="countryMap[props.countryCode]"
         @error="
-            (e) =>
-                ((e.target as HTMLImageElement).src = getFlagImg(
-                    'white',
-                    props.dimensions,
-                ))
+            (e) => {
+                const el = e.target as HTMLImageElement;
+                el.onerror = null;
+                el.src = getFlagImg('aq', props.dimensions);
+            }
         "
     />
 </template>
