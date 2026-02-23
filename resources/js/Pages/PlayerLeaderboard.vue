@@ -109,7 +109,7 @@
             </div>
 
             <div
-                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                class="flex flex-row items-center justify-between gap-2 border-t border-gray-300 dark:border-gray-600 pt-4 mt-4"
             >
                 <Badge
                     :text="`n = ${(rateablesCount ?? 0).toLocaleString()}`"

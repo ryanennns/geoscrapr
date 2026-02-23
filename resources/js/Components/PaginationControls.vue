@@ -1,5 +1,5 @@
 <template>
-    <div class="mt-4 border-t border-gray-300 dark:border-gray-600 pt-4">
+    <div>
         <div class="flex items-center justify-end gap-4">
             <button
                 type="button"
