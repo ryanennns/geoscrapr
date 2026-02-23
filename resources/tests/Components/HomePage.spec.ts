@@ -49,6 +49,7 @@ const mountComponent = (overrides = {}) => {
             range_dates: ["2024-01-01"],
             percentile_dates: ["2024-01-01"],
             leaderboard: [],
+            leaderboard_count: 0,
             ...overrides,
         },
     });

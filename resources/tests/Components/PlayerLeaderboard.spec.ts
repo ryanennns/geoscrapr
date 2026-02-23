@@ -26,6 +26,7 @@ const mountComponent = () => {
             playersOrTeams: Array.from({ length: 5 }).map(() =>
                 createRateable(),
             ),
+            leaderboardCount: 5,
         },
     });
 };
@@ -66,6 +67,7 @@ describe("PlayerLeaderboard.vue", () => {
         );
         mockGetRateables.mockResolvedValue({
             data: mockRateables,
+            count: mockRateables.length,
         });
 
         expect(wrapper.text()).toContain("some-player");
@@ -89,7 +91,10 @@ describe("PlayerLeaderboard.vue", () => {
 
         expect(
             (wrapper.vm as any).dataCache.all.all.desc.team.all["1"],
-        ).toEqual(mockRateables);
+        ).toEqual({
+            rows: mockRateables,
+            count: mockRateables.length,
+        });
         expect(wrapper.text()).toContain("some-team");
         expect(wrapper.text()).not.toContain("some-player");
     });
@@ -101,6 +106,7 @@ describe("PlayerLeaderboard.vue", () => {
         );
         mockGetRateables.mockResolvedValue({
             data: mockRateables,
+            count: mockRateables.length,
         });
 
         expect(wrapper.text()).toContain("some-player");
@@ -121,7 +127,10 @@ describe("PlayerLeaderboard.vue", () => {
         });
 
         expect((wrapper.vm as any).dataCache.all.all.asc.solo.all["1"]).toEqual(
-            mockRateables,
+            {
+                rows: mockRateables,
+                count: mockRateables.length,
+            },
         );
         expect(wrapper.text()).not.toContain("some-player");
     });
@@ -132,6 +141,7 @@ describe("PlayerLeaderboard.vue", () => {
         );
         mockGetRateables.mockResolvedValue({
             data: mockRateables,
+            count: mockRateables.length,
         });
 
         expect(wrapper.text()).toContain("some-player");
@@ -153,7 +163,10 @@ describe("PlayerLeaderboard.vue", () => {
 
         expect(
             (wrapper.vm as any).dataCache.all.active.desc.solo.all["1"],
-        ).toEqual(mockRateables);
+        ).toEqual({
+            rows: mockRateables,
+            count: mockRateables.length,
+        });
     });
 
     it("changes game type filter and updates leaderboard", async () => {
@@ -184,6 +197,7 @@ describe("PlayerLeaderboard.vue", () => {
         );
         mockGetRateables.mockResolvedValue({
             data: mockRateables,
+            count: mockRateables.length,
         });
 
         const toggle = wrapper.findComponent('[data-testid="mode-toggle"]');
@@ -194,7 +208,10 @@ describe("PlayerLeaderboard.vue", () => {
 
         expect(
             (wrapper.vm as any).dataCache.all.all.desc.team.all["1"],
-        ).toEqual(mockRateables);
+        ).toEqual({
+            rows: mockRateables,
+            count: mockRateables.length,
+        });
 
         await (toggle as any).vm.$emit("update:modelValue", "solo");
         await flushPromises();
