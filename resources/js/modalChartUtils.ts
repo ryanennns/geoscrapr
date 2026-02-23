@@ -1,4 +1,4 @@
-import type { LeaderboardRow, RatingChange } from "@/Types/core.ts";
+import type { RatingChange } from "@/Types/core.ts";
 import { Chart, type TooltipItem } from "chart.js";
 
 const getDatesInRange = (startDate: Date, endDate: Date) => {
@@ -26,13 +26,11 @@ const formatDateString = (date: Date) => {
 interface GetRatingHistoryChartDataProps {
     daysToShow: number;
     ratingHistory: RatingChange[];
-    leaderboardRow: LeaderboardRow;
 }
 
 export const getRatingHistoryChartData = ({
     daysToShow,
     ratingHistory,
-    leaderboardRow,
 }: GetRatingHistoryChartDataProps) => {
     const today = new Date();
     const startDate = new Date(today);
@@ -55,21 +53,20 @@ export const getRatingHistoryChartData = ({
     const leftOfStartDate = sortedRatingHistory.find(
         (r) => new Date(r.created_at) < startDate,
     );
-    const oldestRating = sortedRatingHistory[sortedRatingHistory.length - 1];
 
     const labels: string[] = [];
-    const data: number[] = [];
+    const data: Array<number | null> = [];
 
-    let mostRecentRating =
-        leftOfStartDate?.rating ??
-        oldestRating.rating ??
-        leaderboardRow?.rating;
+    let mostRecentRating: number | null = null;
+    if (leftOfStartDate?.rating !== undefined) {
+        mostRecentRating = leftOfStartDate.rating;
+    }
 
     allDates.forEach((date) => {
         const dateString = formatDateString(date);
         labels.push(date.toLocaleDateString());
 
-        if (ratingsByDate[dateString]) {
+        if (ratingsByDate[dateString] !== undefined) {
             mostRecentRating = ratingsByDate[dateString];
         }
 
@@ -82,8 +79,8 @@ export const getRatingHistoryChartData = ({
 interface CreateRatingChartProps {
     ctx: CanvasRenderingContext2D;
     labels: string[];
-    p1: number[];
-    p2?: number[];
+    p1: Array<number | null>;
+    p2?: Array<number | null>;
     gradient: CanvasGradient;
     yMin: number;
     yMax: number;

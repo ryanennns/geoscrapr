@@ -70,14 +70,19 @@
                         class="transition-opacity duration-300 h-full"
                         :class="internalLoading ? 'opacity-0' : 'opacity-100'"
                     >
-                        <div class="w-full h-full min-h-0 transition-all duration-300">
+                        <div
+                            class="w-full h-full min-h-0 transition-all duration-300"
+                        >
                             <div
                                 class="transition-opacity duration-150 h-full"
                                 :class="
                                     chartVisible ? 'opacity-100' : 'opacity-0'
                                 "
                             >
-                                <canvas ref="ratingChartCanvas" class="w-full h-full" />
+                                <canvas
+                                    ref="ratingChartCanvas"
+                                    class="w-full h-full"
+                                />
                             </div>
                         </div>
                     </div>
@@ -227,14 +232,13 @@ const renderRatingChart = () => {
     const { labels, data: p1 } = getRatingHistoryChartData({
         daysToShow: daysToShow.value,
         ratingHistory: props.ratingHistory,
-        leaderboardRow: props.leaderboardRow,
     });
 
     if (p1.length === 0) {
         return;
     }
 
-    let p2: number[] = [];
+    let p2: Array<number | null> = [];
     if (
         playerToCompareWith.value &&
         playerToCompareWithRatingHistory.value.length > 0
@@ -242,15 +246,17 @@ const renderRatingChart = () => {
         const { data } = getRatingHistoryChartData({
             daysToShow: daysToShow.value,
             ratingHistory: playerToCompareWithRatingHistory.value,
-            leaderboardRow: playerToCompareWith.value,
         });
         p2 = data;
     }
 
     const validData = [
-        ...p1.filter((v) => v !== null),
-        ...p2.filter((v) => v !== null),
+        ...p1.filter((v): v is number => v !== null),
+        ...p2.filter((v): v is number => v !== null),
     ];
+    if (validData.length === 0) {
+        return;
+    }
     const minRating = Math.min(...validData);
     const maxRating = Math.max(...validData);
 
