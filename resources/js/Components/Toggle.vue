@@ -1,22 +1,24 @@
 <template>
-    <div
-        class="flex items-center rounded-full"
-        :class="`${disabled ? 'opacity-50' : ''} ${backgroundColorClass}`"
-    >
-        <button
-            :disabled="disabled ?? true"
-            v-for="option in options"
-            :key="option.value"
-            class="px-3 py-1 text-sm font-medium rounded-full focus:outline-none transition-colors"
-            :class="
-                modelValue === option.value && !disabled
-                    ? activeClasses
-                    : inactiveClasses
-            "
-            @click="$emit('update:modelValue', option.value)"
+    <div class="items-center">
+        <div
+            class="flex items-center rounded-full"
+            :class="`${disabled ? 'opacity-50' : ''} ${backgroundColorClass}`"
         >
-            {{ option.label }}
-        </button>
+            <button
+                :disabled="disabled ?? true"
+                v-for="option in options"
+                :key="option.value"
+                class="px-3 py-1 text-sm font-medium rounded-full focus:outline-none transition-colors"
+                :class="
+                    modelValue === option.value && !disabled
+                        ? activeClasses
+                        : inactiveClasses
+                "
+                @click="$emit('update:modelValue', option.value)"
+            >
+                {{ option.label }}
+            </button>
+        </div>
     </div>
 </template>
 
