@@ -25,7 +25,9 @@ export type GetSnapshotByDateApiResponse = ApiResponse<{
 
 export type GetAvailableCountriesApiResponse = ApiResponse<CountryCode[]>;
 
-export type GetRateablesApiResponse = ApiResponse<Rateable[]>;
+export type GetRateablesApiResponse = ApiResponse<Rateable[]> & {
+    count?: number;
+};
 
 interface GeoGuessrNumericType {
     amount: number;
@@ -173,6 +175,7 @@ export function useApiClient() {
 
         return {
             data: json.data || [],
+            count: json.count,
         };
     };
 

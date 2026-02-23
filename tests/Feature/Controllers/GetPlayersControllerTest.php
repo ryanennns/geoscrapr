@@ -21,19 +21,22 @@ class GetPlayersControllerTest extends TestCase
 
         $response->assertSuccessful();
 
-        $response->assertJson(fn($json) => $json->has(
-            'data.0',
-            fn($json) => $json->where('id', $player->id)
-                ->where('user_id', $player->user_id)
-                ->where('name', $player->name)
-                ->where('rating', $player->rating)
-                ->where('moving_rating', null)
-                ->where('no_move_rating', null)
-                ->where('nmpz_rating', null)
-                ->where('country_code', $player->country_code)
-                ->has('rank')        // only check the key exists
-                ->has('percentile')  // only check the key exists
-        ));
+        $response->assertJson(
+            fn($json) => $json
+                ->has('data.0',
+                    fn($json) => $json->where('id', $player->id)
+                        ->where('user_id', $player->user_id)
+                        ->where('name', $player->name)
+                        ->where('rating', $player->rating)
+                        ->where('moving_rating', null)
+                        ->where('no_move_rating', null)
+                        ->where('nmpz_rating', null)
+                        ->where('country_code', $player->country_code)
+                        ->has('rank')        // only check the key exists
+                        ->has('percentile')  // only check the key exists
+                )
+                ->has('count')
+        );
     }
 
     /**

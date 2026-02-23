@@ -92,6 +92,7 @@ class HomePageController extends Controller
             'range_dates'               => $rangeDates,
             'percentile_dates'          => $percentileDates,
             'leaderboard'               => $playerData->toArray(),
+            'leaderboard_count'         => $totalCount,
         ]);
     }
 }

@@ -108,10 +108,18 @@
                 </table>
             </div>
 
-            <PaginationControls
-                @page-changed="updateLeaderboard"
-                v-model="rateablesPage"
-            />
+            <div
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-4"
+            >
+                <Badge
+                    :text="`n = ${(rateablesCount ?? 0).toLocaleString()}`"
+                    class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs md:text-sm"
+                />
+                <PaginationControls
+                    @page-changed="updateLeaderboard"
+                    v-model="rateablesPage"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -133,6 +141,7 @@ import { useApiClient } from "@/Composables/useApiClient.ts";
 import PaginationControls from "@/Components/PaginationControls.vue";
 import Row from "@/Pages/Row.vue";
 import ResetButton from "@/Components/ResetButton.vue";
+import Badge from "@/Components/Badge.vue";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();
@@ -155,13 +164,14 @@ type SortOrder = (typeof sortOrders)[number];
 
 interface Props {
     playersOrTeams: Rateable[];
+    leaderboardCount: number;
 }
 
 const props = defineProps<Props>();
 
 type IsActive = "active" | "all";
 
-type PageCache = Record<number, Rateable[]>;
+type PageCache = Record<number, { rows: Rateable[]; count: number }>;
 type CountryCache = Record<string, PageCache>;
 
 type PlayerTeamBranch = {
@@ -206,6 +216,7 @@ const dataCache = ref<PlayerTeamCache>({
 });
 
 const rateables = ref<Rateable[]>(props.playersOrTeams);
+const rateablesCount = ref<number>(props.leaderboardCount ?? 0);
 
 type Gamemode = "solo" | "team";
 const selectedMode = ref<Gamemode>("solo");
@@ -286,16 +297,22 @@ const getCacheBucket = ({
     };
 };
 
-const readFromCache = (params: CacheBucketMap): Rateable[] | undefined => {
+const readFromCache = (
+    params: CacheBucketMap,
+): { rows: Rateable[]; count: number } | undefined => {
     const { bucket, countryKey, page } = getCacheBucket(params);
     const countryCache = bucket[countryKey] ?? {};
     return countryCache[page];
 };
 
-const writeToCache = (rows: Rateable[], cacheParams: CacheBucketMap) => {
+const writeToCache = (
+    rows: Rateable[],
+    count: number,
+    cacheParams: CacheBucketMap,
+) => {
     const { bucket, countryKey, page } = getCacheBucket(cacheParams);
     if (!bucket[countryKey]) bucket[countryKey] = {};
-    bucket[countryKey][page] = rows;
+    bucket[countryKey][page] = { rows, count };
 };
 
 const updateLeaderboard = async () => {
@@ -311,8 +328,9 @@ const updateLeaderboard = async () => {
     await nextTick();
 
     const cached = readFromCache(cacheBucketParams);
-    if (cached && cached.length > 0) {
-        rateables.value = cached;
+    if (cached) {
+        rateables.value = cached.rows;
+        rateablesCount.value = cached.count;
         return;
     }
 
@@ -335,8 +353,11 @@ const updateLeaderboard = async () => {
     }
 
     const data = rateablesResponse.data ?? [];
-    writeToCache(data, cacheBucketParams);
+    const count =
+        rateablesResponse.count ?? rateablesCount.value ?? data.length;
+    writeToCache(data, count, cacheBucketParams);
     rateables.value = data;
+    rateablesCount.value = count;
     setTimeout(() => (loading.value = false), 300);
 };
 
@@ -350,13 +371,18 @@ watch(
                     selectedOrder.value
                 ].solo;
             if (!branch.all) branch.all = {};
-            branch.all[1] = newPlayers as Player[];
+            branch.all[1] = {
+                rows: newPlayers as Player[],
+                count: props.leaderboardCount ?? newPlayers.length,
+            };
 
             if (
                 selectedMode.value === "solo" &&
                 !selectedCountry.value.length
             ) {
                 rateables.value = newPlayers;
+                rateablesCount.value =
+                    props.leaderboardCount ?? newPlayers.length;
             }
         }
     },
@@ -400,7 +426,10 @@ onMounted(() => {
         if (!branch.all) {
             branch.all = {};
         }
-        branch.all[1] = props.playersOrTeams as Player[];
+        branch.all[1] = {
+            rows: props.playersOrTeams as Player[],
+            count: props.leaderboardCount ?? props.playersOrTeams.length,
+        };
     }
 });
 

@@ -83,6 +83,7 @@
 
         <PlayerLeaderboard
             :playersOrTeams="props.leaderboard"
+            :leaderboard-count="props.leaderboard_count"
             @player-click="onPlayerTeamClick"
             class="mt-6"
         />
@@ -135,6 +136,7 @@ interface Props {
     range_dates: string[];
     percentile_dates: string[];
     leaderboard: Player[];
+    leaderboard_count: number;
 }
 
 const props = defineProps<Props>();

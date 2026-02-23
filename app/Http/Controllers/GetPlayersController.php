@@ -47,8 +47,12 @@ class GetPlayersController extends Controller
             $query->orderBy('rating', $order ?? 'desc');
         }
 
+        $totalCount = (clone $query)->count();
+
         return PlayerResource::collection(
             $query->forPage($page, 10)->limit(10)->get()
-        );
+        )->additional([
+            'count' => $totalCount,
+        ]);
     }
 }

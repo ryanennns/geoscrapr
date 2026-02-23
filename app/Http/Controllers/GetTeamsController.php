@@ -35,11 +35,15 @@ class GetTeamsController extends Controller
             $query->where('updated_at', '>=', Carbon::now()->subWeek());
         }
 
+        $totalCount = (clone $query)->count();
+
         return TeamResource::collection(
             $query->with(['playerA', 'playerB'])
                 ->forPage($page, 10)
                 ->limit(10)
                 ->get()
-        );
+        )->additional([
+            'count' => $totalCount,
+        ]);
     }
 }
