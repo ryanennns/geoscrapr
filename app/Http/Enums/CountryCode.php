@@ -14,6 +14,7 @@ enum CountryCode: string
     case Angola = "ao";
     case Argentina = "ar";
     case AmericanSamoa = "as";
+    case NetherlandsAntilles = "an";
     case Austria = "at";
     case Australia = "au";
     case Aruba = "aw";
