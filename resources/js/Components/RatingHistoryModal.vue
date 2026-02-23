@@ -70,17 +70,14 @@
                         class="transition-opacity duration-300 h-full"
                         :class="internalLoading ? 'opacity-0' : 'opacity-100'"
                     >
-                        <div
-                            class="w-full transition-all duration-300"
-                            :class="canvasWrapperClasses"
-                        >
+                        <div class="w-full h-full min-h-0 transition-all duration-300">
                             <div
                                 class="transition-opacity duration-150 h-full"
                                 :class="
                                     chartVisible ? 'opacity-100' : 'opacity-0'
                                 "
                             >
-                                <canvas ref="ratingChartCanvas" />
+                                <canvas ref="ratingChartCanvas" class="w-full h-full" />
                             </div>
                         </div>
                     </div>
@@ -186,9 +183,6 @@ const wrapperClasses = computed<string>(() =>
         : expanded.value
           ? "max-w-[90vw] h-[77vh]"
           : "max-w-2xl h-[37vh]",
-);
-const canvasWrapperClasses = computed<string>(() =>
-    isMobile.value ? "w-full h-60" : expanded.value ? "h-[65vh]" : "h-60",
 );
 
 const ratingChartInstance = ref<Chart | null>(null);
