@@ -1,5 +1,5 @@
 <template>
-    <div class="items-center">
+    <div class="flex items-center">
         <div
             class="flex items-center rounded-full"
             :class="`${disabled ? 'opacity-50' : ''} ${backgroundColorClass}`"
