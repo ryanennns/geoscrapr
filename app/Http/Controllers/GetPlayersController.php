@@ -23,6 +23,8 @@ class GetPlayersController extends Controller
 
         $query = Player::query();
 
+        $query->whereNotIn('user_id', Player::BLACKLIST);
+
         if (!empty($countries)) {
             $countries = is_array($countries) ? $countries : [$countries];
             if (count($countries) > 0) {

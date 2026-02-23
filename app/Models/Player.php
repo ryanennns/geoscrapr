@@ -16,6 +16,10 @@ class Player extends Model
     use HasFactory;
     use HasUuids;
 
+    public const BLACKLIST = [
+        "5759d0d2c3eb4f349c4974fa"
+    ];
+
     protected $guarded = [];
 
     public function teamAsA(): HasOne
