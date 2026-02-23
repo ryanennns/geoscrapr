@@ -3,6 +3,13 @@
         :src="getFlagImg(props.countryCode, props.dimensions)"
         :alt="countryMap[props.countryCode]"
         :title="countryMap[props.countryCode]"
+        @error="
+            (e) =>
+                ((e.target as HTMLImageElement).src = getFlagImg(
+                    'white',
+                    props.dimensions,
+                ))
+        "
     />
 </template>
 
