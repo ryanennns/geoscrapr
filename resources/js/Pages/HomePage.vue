@@ -10,8 +10,20 @@
                 >
                     GeoScrapr
                 </div>
-                Competitive GeoGuessr Analytics
             </h1>
+            <div class="text-gray-800 dark:text-gray-100">
+                <p>want to try my geoguessr duels clone?</p>
+                <p>
+                    find a friend and head to
+                    <a
+                        target="_blank"
+                        href="https://nmpz.dev"
+                        class="text-blue-700 dark:text-blue-400"
+                        >nmpz.dev</a
+                    >
+                    :)
+                </p>
+            </div>
         </div>
 
         <div
