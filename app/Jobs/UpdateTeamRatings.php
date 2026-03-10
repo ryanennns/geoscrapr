@@ -18,6 +18,8 @@ class UpdateTeamRatings implements ShouldQueue
     private const LIMIT = 100;
     private const ENDPOINT = 'api/v4/ranked-team-duels/ratings';
 
+    public int $timeout = 900;
+
     public function handle(): void
     {
         $keepFetching = true;

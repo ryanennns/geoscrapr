@@ -28,6 +28,8 @@ class UpdatePlayerRatings implements ShouldQueue
         self::NMPZ_GAMETYPE    => 'nmpz_rating',
     ];
 
+    public int $timeout = 900;
+
     public function handle(): void
     {
         $initPlayersCount = Player::query()->count();

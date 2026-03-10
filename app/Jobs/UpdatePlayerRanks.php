@@ -11,6 +11,8 @@ class UpdatePlayerRanks implements ShouldQueue
 {
     use Queueable;
 
+    public int $timeout = 900;
+
     public function handle(): void
     {
         DB::transaction(function () {

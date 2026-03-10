@@ -13,6 +13,8 @@ class CreateEloPercentileSnapshot implements ShouldQueue
 {
     use Queueable;
 
+    public int $timeout = 900;
+
     private function determinePlayerPercentile($i, $k, &$ratingMap): void
     {
         $multiple = $i / 100;

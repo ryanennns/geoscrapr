@@ -15,6 +15,8 @@ class CreateEloDistributionSnapshot implements ShouldQueue
 
     public const INTERVAL_SIZE = 100;
 
+    public int $timeout = 900;
+
     public function handle(): void
     {
         $maxElo = 3000;
