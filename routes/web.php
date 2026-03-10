@@ -29,31 +29,26 @@ Route::get('/world-cup', function () {
 Route::get('/', HomePageController::class);
 
 
-Route::middleware([VerifyRequestReferer::class, 'throttle:60,1'])
-    ->group(function () {
-        Route::prefix('players')->group(function () {
-            Route::get('/', GetPlayersController::class);
-            Route::get('/search', SearchPlayerController::class);
-            Route::get('/{id}/history', GetPlayerRatingChanges::class);
-            Route::get('/{id}/stats', GetInDepthPlayerData::class);
-            Route::get('/{id}/matches', GetMatchHistory::class);
-        });
+Route::prefix('players')->group(function () {
+    Route::get('/', GetPlayersController::class);
+    Route::get('/search', SearchPlayerController::class);
+    Route::get('/{id}/history', GetPlayerRatingChanges::class);
+    Route::get('/{id}/stats', GetInDepthPlayerData::class);
+    Route::get('/{id}/matches', GetMatchHistory::class);
+});
 
-        Route::get('snapshots', GetSnapshotForDate::class);
-        Route::get('countries', GetAvailableCountriesController::class);
+Route::get('snapshots', GetSnapshotForDate::class);
+Route::get('countries', GetAvailableCountriesController::class);
 
-        Route::get('last-updated', function () {
-            return ['date' => EloSnapshot::query()->select('created_at')->latest()->first()->created_at];
-        });
+Route::get('last-updated', function () {
+    return ['date' => EloSnapshot::query()->select('created_at')->latest()->first()->created_at];
+});
 
-        Route::get('rateables', GetRateable::class)->name('rateables');
-    })
-    ->group(function () {
-        Route::prefix('teams')->group(function () {
-            Route::get('/', GetTeamsController::class);
-            Route::get('/{id}/history', GetTeamRatingChanges::class);
-        });
-    });
+Route::get('rateables', GetRateable::class)->name('rateables');
+Route::prefix('teams')->group(function () {
+    Route::get('/', GetTeamsController::class);
+    Route::get('/{id}/history', GetTeamRatingChanges::class);
+});
 
 Route::post('/download-sqlite', DownloadSqliteController::class);
 
