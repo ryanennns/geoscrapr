@@ -60,8 +60,8 @@ class GetLatestPlayerRatings extends Command
                 ]);
 
                 if (!$response->successful()) {
-                    $this->error("Responded with $response->status");
-                    throw new \Exception("Request to GeoGuessr API failed with status {${$response->status}}");
+                    $this->error("Responded with {$response->status()} - " . $response->body());
+                    throw new \Exception("Request to GeoGuessr API failed with status {${$response->status()}}");
                 }
 
                 $players = collect(json_decode($response->body()));
