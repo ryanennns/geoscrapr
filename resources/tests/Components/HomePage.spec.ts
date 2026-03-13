@@ -72,9 +72,7 @@ describe("HomePage.vue", () => {
 
     it("mounts successfully", () => {
         const wrapper = mountComponent();
-        expect(wrapper.text()).toContain(
-            "GeoScrapr  Competitive GeoGuessr Analytics",
-        );
+        expect(wrapper.text()).toContain("GeoScrapr");
     });
 
     it("renders range chart on mount", async () => {

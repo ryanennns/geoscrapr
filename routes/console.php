@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('app:daily-tasks')->daily();
+Schedule::command('app:daily-tasks')->dailyAt('04:00');
 
 // Schedule::command('elo:singleplayer')->dailyAt('04:00');
 // Schedule::command('elo:teams')->dailyAt('04:15');

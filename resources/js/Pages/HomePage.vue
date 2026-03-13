@@ -221,6 +221,10 @@ const handleResize = () => {
     }, 250);
 };
 onMounted(async () => {
+    console.log(
+        JSON.parse(JSON.stringify({ availableDates: availableDates.value })),
+    );
+
     window.addEventListener("resize", handleResize);
 
     const id = getId();
@@ -254,54 +258,66 @@ const teamChartInstance = ref<Chart | null>(null);
 const soloSnapshots = ref(props.solo_snapshots);
 const teamSnapshots = ref(props.team_snapshots);
 
+const parseYmdAsLocalDate = (ymd: string): Date => {
+    const [year, month, day] = ymd.split("-").map(Number);
+    return new Date(year, month - 1, day);
+};
+
+const formatLocalDateAsYmd = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+};
+
 const availableDates = computed<Date[]>(() => {
     if (selectedGraphType.value === "elo_range") {
         return [
-            ...new Set([...props.range_dates.map((s) => new Date(s))]),
+            ...new Set([...props.range_dates.map(parseYmdAsLocalDate)]),
         ].sort((a, b) => b.getTime() - a.getTime());
     }
 
     return [
-        ...new Set([...props.percentile_dates.map((s) => new Date(s))]),
+        ...new Set([...props.percentile_dates.map(parseYmdAsLocalDate)]),
     ].sort((a, b) => b.getTime() - a.getTime());
 });
 
 const selectedDate = ref<Date>(availableDates.value[0] ?? new Date());
-const dateObjectToYmdString = (date: Date) => date.toISOString().split("T")[0];
 const currentSoloRangeSnapshot = computed<Snapshot | undefined>(() =>
     soloSnapshots.value.find(
-        (s) => s.date === dateObjectToYmdString(selectedDate.value),
+        (s) => s.date === formatLocalDateAsYmd(selectedDate.value),
     ),
 );
 const currentTeamRangeSnapshot = computed<Snapshot | undefined>(() =>
     teamSnapshots.value.find(
-        (s) => s.date === dateObjectToYmdString(selectedDate.value),
+        (s) => s.date === formatLocalDateAsYmd(selectedDate.value),
     ),
 );
 const currentSoloPercentileSnapshot = computed<Snapshot | undefined>(() =>
     props.solo_percentile_snapshots.find(
-        (s) => s.date === dateObjectToYmdString(selectedDate.value),
+        (s) => s.date === formatLocalDateAsYmd(selectedDate.value),
     ),
 );
 const currentTeamPercentileSnapshot = computed<Snapshot | undefined>(() =>
     props.team_percentile_snapshots.find(
-        (s) => s.date === dateObjectToYmdString(selectedDate.value),
+        (s) => s.date === formatLocalDateAsYmd(selectedDate.value),
     ),
 );
 watch(selectedDate, async () => {
     if (
         soloSnapshots.value.find(
-            (s) => s.date === dateObjectToYmdString(selectedDate.value),
+            (s) => s.date === formatLocalDateAsYmd(selectedDate.value),
         ) &&
         teamSnapshots.value.find(
-            (s) => s.date === dateObjectToYmdString(selectedDate.value),
+            (s) => s.date === formatLocalDateAsYmd(selectedDate.value),
         )
     ) {
         return;
     }
 
     const snapshots = await getSnapshotForDate(
-        dateObjectToYmdString(selectedDate.value),
+        formatLocalDateAsYmd(selectedDate.value),
     );
 
     if (snapshots.error !== undefined) {
@@ -320,7 +336,7 @@ const updateCharts = () => {
     if (selectedGraphType.value === "elo_range") {
         if (
             !props.range_dates.includes(
-                dateObjectToYmdString(selectedDate.value),
+                formatLocalDateAsYmd(selectedDate.value),
             )
         ) {
             selectedDate.value = new Date(
@@ -347,7 +363,7 @@ const updateCharts = () => {
     if (selectedGraphType.value === "percentile") {
         if (
             !props.percentile_dates.includes(
-                dateObjectToYmdString(selectedDate.value),
+                formatLocalDateAsYmd(selectedDate.value),
             )
         ) {
             selectedDate.value = new Date(
