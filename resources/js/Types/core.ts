@@ -1,6 +1,7 @@
 import type { CountryCode } from "@/Composables/usePlayerUtils.ts";
 
 export type GameType = "all" | "moving" | "no_move" | "nmpz";
+export type RatingType = "overall" | "moving" | "no_move" | "nmpz";
 
 export interface Player {
     id: string;
@@ -63,6 +64,13 @@ export interface RatingChange {
     id: string;
     rating: number;
     created_at: string;
+}
+
+export interface RateableHistoryByType {
+    overall: RatingChange[];
+    moving: RatingChange[];
+    no_move: RatingChange[];
+    nmpz: RatingChange[];
 }
 
 export interface Snapshot {

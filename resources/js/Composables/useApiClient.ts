@@ -2,6 +2,7 @@ import type {
     GameType,
     Player,
     Rateable,
+    RatingType,
     RateableType,
     RatingChange,
     Snapshot,
@@ -62,9 +63,16 @@ export function useApiClient() {
     const getRateableHistory = async (
         rateableType: RateableType,
         rateableId: string,
+        ratingType: RatingType = "overall",
     ): Promise<RateableHistoryApiResponse> => {
+        const params = new URLSearchParams();
+
+        if (ratingType !== "overall") {
+            params.append("type", ratingType);
+        }
+
         const response = await fetch(
-            `/${rateableType}s/${rateableId}/history/`,
+            `/${rateableType}s/${rateableId}/history/${params.size > 0 ? `?${params.toString()}` : ""}`,
         );
 
         if (!response.ok) {
