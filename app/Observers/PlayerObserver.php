@@ -18,15 +18,15 @@ class PlayerObserver
         }
 
         if ($player->isDirty('moving_rating')) {
-            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'moving']);
+            $player->ratingChanges()->create(['rating' => $player->moving_rating, 'type' => 'moving']);
         }
 
         if ($player->isDirty('no_move_rating')) {
-            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'no_move']);
+            $player->ratingChanges()->create(['rating' => $player->no_move_rating, 'type' => 'no_move']);
         }
 
         if ($player->isDirty('nmpz_rating')) {
-            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'nmpz']);
+            $player->ratingChanges()->create(['rating' => $player->nmpz_rating, 'type' => 'nmpz']);
         }
     }
 
@@ -39,15 +39,15 @@ class PlayerObserver
         $player->ratingChanges()->create(['rating' => $player->rating]);
 
         if ($player->moving_rating) {
-            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'moving']);
+            $player->ratingChanges()->create(['rating' => $player->moving_rating, 'type' => 'moving']);
         }
 
         if ($player->no_move_rating) {
-            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'no_move']);
+            $player->ratingChanges()->create(['rating' => $player->no_move_rating, 'type' => 'no_move']);
         }
 
         if ($player->nmpz_rating) {
-            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'nmpz']);
+            $player->ratingChanges()->create(['rating' => $player->nmpz_rating, 'type' => 'nmpz']);
         }
     }
 }
