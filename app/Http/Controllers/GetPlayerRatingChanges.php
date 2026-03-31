@@ -24,14 +24,9 @@ class GetPlayerRatingChanges extends Controller
             ->where('created_at', '>', Carbon::now()->subWeeks(16))
             ->count();
 
-        $query = $player->ratingChanges();
-
-        if ($type !== RatingChange::TYPE_OVERALL) {
-            $query->where('type', $type);
-        }
-
         return RatingHistoryResource::collection(
-            $query->orderBy('created_at', 'desc')
+            $player->ratingChanges()->orderBy('created_at', 'desc')
+                ->where('type', $type)
                 ->limit($numberOfRatingChangesFromTheLastTwoWeeks + 1)
                 ->get()
         );
