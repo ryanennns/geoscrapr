@@ -79,26 +79,25 @@ export const getRatingHistoryChartData = ({
 interface CreateRatingChartProps {
     ctx: CanvasRenderingContext2D;
     labels: string[];
-    p1: Array<number | null>;
-    p2?: Array<number | null>;
-    gradient: CanvasGradient;
+    datasets: Array<{
+        label: string;
+        data: Array<number | null>;
+        borderColor: string;
+        backgroundColor: string | CanvasGradient;
+    }>;
     yMin: number;
     yMax: number;
     step: number;
-    daysToShow: number;
     dark?: boolean;
 }
 
 export const createRatingChart = ({
     ctx,
     labels,
-    p1,
-    p2,
-    gradient,
+    datasets,
     yMin,
     yMax,
     step,
-    daysToShow,
     dark = false,
 }: CreateRatingChartProps) => {
     const theme = {
@@ -115,45 +114,34 @@ export const createRatingChart = ({
         pointBg: dark ? "#1e293b" : "#ffffff",
     };
 
-    const colors = [
-        { base: "rgba(37, 99, 235,", name: "blue" }, // blue
-        { base: "rgba(220, 38, 38,", name: "red" }, // red
-    ];
-
-    const datasets = [p1, p2]
-        .filter((p) => !!p)
-        .map((data, index) => {
-            const color = colors[index % colors.length].base;
-            return {
-                label: `Rating ${index + 1}`,
-                data,
-                backgroundColor: gradient,
-                borderColor: `${color} 0.9)`,
-                borderWidth: 2.5,
-                tension: 0,
-                fill: true,
-                pointBackgroundColor: theme.pointBg,
-                pointBorderColor: `${color} 1)`,
-                pointBorderWidth: 2,
-                pointHoverRadius: 6,
-                pointHoverBackgroundColor: theme.pointBg,
-                pointHoverBorderColor: `${color} 1)`,
-                pointHoverBorderWidth: 3,
-                spanGaps: true,
-            };
-        });
-
     return new Chart(ctx, {
         type: "line",
         data: {
             labels: labels,
-            datasets: datasets,
+            datasets: datasets.map((dataset, index) => ({
+                label: dataset.label,
+                data: dataset.data,
+                backgroundColor: dataset.backgroundColor,
+                borderColor: dataset.borderColor,
+                borderWidth: 2.5,
+                tension: 0,
+                fill: index === 0,
+                pointBackgroundColor: theme.pointBg,
+                pointBorderColor: dataset.borderColor,
+                pointBorderWidth: 2,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: theme.pointBg,
+                pointHoverBorderColor: dataset.borderColor,
+                pointHoverBorderWidth: 3,
+                spanGaps: true,
+            })),
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             interaction: {
-                mode: "index",
+                mode: "nearest",
+                axis: "xy",
                 intersect: false,
             },
             scales: {
@@ -177,17 +165,6 @@ export const createRatingChart = ({
                     },
                 },
                 x: {
-                    title: {
-                        display: true,
-                        text: `Rating History (Last ${daysToShow / 7} Weeks)`,
-                        font: {
-                            size: 12,
-                        },
-                        padding: {
-                            top: 10,
-                        },
-                        color: theme.titleColor,
-                    },
                     ticks: {
                         maxTicksLimit: Math.min(10, labels.length),
                         maxRotation: 45,
@@ -208,6 +185,8 @@ export const createRatingChart = ({
                     display: false,
                 },
                 tooltip: {
+                    mode: "nearest",
+                    intersect: false,
                     backgroundColor: theme.tooltipBg,
                     titleColor: theme.tooltipTitle,
                     bodyColor: theme.tooltipBody,
@@ -227,7 +206,7 @@ export const createRatingChart = ({
                             return tooltipItems[0].label;
                         },
                         label(context: TooltipItem<"line">) {
-                            return `Rating: ${(context.raw as number).toLocaleString()}`;
+                            return `${context.dataset.label}: ${(context.raw as number).toLocaleString()}`;
                         },
                     },
                 },

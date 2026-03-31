@@ -19,6 +19,24 @@ class DatabaseSeeder extends Seeder
                         'created_at' => now()->subDays($i),
                     ])
                 );
+                $player->ratingChanges()->create(
+                    RatingChange::factory()->raw([
+                        'created_at' => now()->subDays($i),
+                        'type' => 'moving',
+                    ])
+                );
+                $player->ratingChanges()->create(
+                    RatingChange::factory()->raw([
+                        'created_at' => now()->subDays($i),
+                        'type' => 'no_move',
+                    ])
+                );
+                $player->ratingChanges()->create(
+                    RatingChange::factory()->raw([
+                        'created_at' => now()->subDays($i),
+                        'type' => 'nmpz',
+                    ])
+                );
             }
         });
         Artisan::call('snapshot:generate');

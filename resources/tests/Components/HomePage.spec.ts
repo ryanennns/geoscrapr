@@ -106,6 +106,7 @@ describe("HomePage.vue", () => {
         expect(mockGetRateableHistory).toHaveBeenCalledWith(
             "player",
             "player_1",
+            "overall",
         );
         expect((wrapper.vm as any).playerRatingHistory.length).toBe(0);
     });

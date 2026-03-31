@@ -197,6 +197,7 @@ const getAndSetRateableHistory = async (leaderboardRow: LeaderboardRow) => {
     const history = await getRateableHistory(
         leaderboardRow.type,
         leaderboardRow.id,
+        "overall",
     );
 
     const ratingChanges = history.data ?? [];

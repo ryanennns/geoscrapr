@@ -5,6 +5,11 @@ import RatingHistoryModal from "../../js/Components/RatingHistoryModal.vue";
 import { CountryCode } from "@/Composables/usePlayerUtils.ts";
 
 const mockGetRateableHistory = vi.fn();
+const { mockCreateRatingChart } = vi.hoisted(() => ({
+    mockCreateRatingChart: vi.fn(() => ({
+        destroy: vi.fn(),
+    })),
+}));
 
 vi.mock("@/Composables/useApiClient.ts", () => ({
     useApiClient: () => ({
@@ -35,9 +40,10 @@ vi.mock("@/Composables/useDarkMode", () => ({
 }));
 
 vi.mock("@/Composables/usePlayerUtils.ts", async (importOriginal) => {
-    const actual = await importOriginal<
-        typeof import("@/Composables/usePlayerUtils.ts")
-    >();
+    const actual =
+        await importOriginal<
+            typeof import("@/Composables/usePlayerUtils.ts")
+        >();
 
     return {
         ...actual,
@@ -49,9 +55,7 @@ vi.mock("@/Composables/usePlayerUtils.ts", async (importOriginal) => {
 });
 
 vi.mock("@/modalChartUtils.ts", () => ({
-    createRatingChart: vi.fn(() => ({
-        destroy: vi.fn(),
-    })),
+    createRatingChart: mockCreateRatingChart,
     getRatingHistoryChartData: vi.fn(() => ({
         labels: ["Mar 1"],
         data: [1000],
@@ -73,16 +77,53 @@ const leaderboardRow = {
 
 const ratingHistory = [
     {
-        id: "history_1",
+        id: "history_overall",
         rating: 1000,
         created_at: "2026-03-20T12:00:00.000000Z",
+        type: "overall" as const,
+    },
+    {
+        id: "history_moving",
+        rating: 990,
+        created_at: "2026-03-20T12:00:00.000000Z",
+        type: "moving" as const,
+    },
+    {
+        id: "history_no_move",
+        rating: 980,
+        created_at: "2026-03-20T12:00:00.000000Z",
+        type: "no_move" as const,
+    },
+    {
+        id: "history_nmpz",
+        rating: 970,
+        created_at: "2026-03-20T12:00:00.000000Z",
+        type: "nmpz" as const,
     },
 ];
+
+const overallHistory = [ratingHistory[0]];
+const movingHistory = [ratingHistory[1]];
+const noMoveHistory = [ratingHistory[2]];
+const nmpzHistory = [ratingHistory[3]];
 
 describe("RatingHistoryModal.vue", () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        mockGetRateableHistory.mockResolvedValue({ data: [] });
+        mockGetRateableHistory.mockImplementation(
+            async (_rateableType, _rateableId, ratingType) => {
+                switch (ratingType) {
+                    case "moving":
+                        return { data: movingHistory };
+                    case "no_move":
+                        return { data: noMoveHistory };
+                    case "nmpz":
+                        return { data: nmpzHistory };
+                    default:
+                        return { data: overallHistory };
+                }
+            },
+        );
         vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
             canvas: { height: 300 },
             createLinearGradient: vi.fn(() => ({
@@ -91,12 +132,12 @@ describe("RatingHistoryModal.vue", () => {
         } as unknown as CanvasRenderingContext2D);
     });
 
-    it("fetches moving, no_move, and nmpz history when expanded", async () => {
+    it("fetches typed histories on expand and plots them", async () => {
         const wrapper = mount(RatingHistoryModal, {
             props: {
                 showModal: true,
                 leaderboardRow,
-                ratingHistory,
+                ratingHistory: overallHistory,
                 loading: false,
             },
             global: {
@@ -131,6 +172,28 @@ describe("RatingHistoryModal.vue", () => {
             "player",
             "player_1",
             "nmpz",
+        );
+        expect(mockCreateRatingChart).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                datasets: expect.arrayContaining([
+                    expect.objectContaining({
+                        label: "Overall",
+                        borderColor: "rgba(37, 99, 235, 0.9)",
+                    }),
+                    expect.objectContaining({
+                        label: "Moving",
+                        borderColor: "rgba(21, 128, 61, 0.9)",
+                    }),
+                    expect.objectContaining({
+                        label: "No Move",
+                        borderColor: "rgba(180, 83, 9, 0.9)",
+                    }),
+                    expect.objectContaining({
+                        label: "NMPZ",
+                        borderColor: "rgba(126, 34, 206, 0.9)",
+                    }),
+                ]),
+            }),
         );
     });
 });

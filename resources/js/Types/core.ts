@@ -64,6 +64,7 @@ export interface RatingChange {
     id: string;
     rating: number;
     created_at: string;
+    type: RatingType;
 }
 
 export interface RateableHistoryByType {
