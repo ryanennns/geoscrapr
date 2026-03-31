@@ -16,6 +16,18 @@ class PlayerObserver
         if ($player->isDirty('rating')) {
             $player->ratingChanges()->create(['rating' => $player->rating]);
         }
+
+        if ($player->isDirty('moving_rating')) {
+            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'moving']);
+        }
+
+        if ($player->isDirty('no_move_rating')) {
+            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'no_move']);
+        }
+
+        if ($player->isDirty('nmpz_rating')) {
+            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'nmpz']);
+        }
     }
 
     public function created(Player $player): void
@@ -25,5 +37,17 @@ class PlayerObserver
         }
 
         $player->ratingChanges()->create(['rating' => $player->rating]);
+
+        if ($player->moving_rating) {
+            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'moving']);
+        }
+
+        if ($player->no_move_rating) {
+            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'no_move']);
+        }
+
+        if ($player->nmpz_rating) {
+            $player->ratingChanges()->create(['rating' => $player->rating, 'type' => 'nmpz']);
+        }
     }
 }
