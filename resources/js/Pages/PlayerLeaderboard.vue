@@ -111,10 +111,7 @@
             <div
                 class="flex flex-row items-center justify-between gap-2 border-t border-gray-300 dark:border-gray-600 pt-4 mt-4"
             >
-                <Badge
-                    :text="`n = ${(rateablesCount ?? 0).toLocaleString()}`"
-                    class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs md:text-sm"
-                />
+                <div></div>
                 <PaginationControls
                     @page-changed="updateLeaderboard"
                     v-model="rateablesPage"
@@ -141,7 +138,6 @@ import { useApiClient } from "@/Composables/useApiClient.ts";
 import PaginationControls from "@/Components/PaginationControls.vue";
 import Row from "@/Pages/Row.vue";
 import ResetButton from "@/Components/ResetButton.vue";
-import Badge from "@/Components/Badge.vue";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();
