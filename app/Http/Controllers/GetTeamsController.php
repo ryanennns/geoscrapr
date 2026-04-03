@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 
 class GetTeamsController extends Controller
@@ -25,25 +26,37 @@ class GetTeamsController extends Controller
         $active = Arr::get($validated, 'active');
         $page = Arr::get($validated, 'page', 1);
 
-        $query = Team::query();
+        $cached = Cache::remember(
+            $this->cacheKey($order, $active, $page),
+            now()->addDay(),
+            function () use ($order, $active, $page) {
+                $query = Team::query();
 
-        if ($order) {
-            $query->orderBy('rating', $order);
-        }
+                if ($order) {
+                    $query->orderBy('rating', $order);
+                }
 
-        if ($active) {
-            $query->where('updated_at', '>=', Carbon::now()->subWeek());
-        }
+                if ($active) {
+                    $query->where('updated_at', '>=', Carbon::now()->subWeek());
+                }
 
-        $totalCount = (clone $query)->count();
+                return $query->with(['playerA', 'playerB'])
+                    ->forPage($page, 10)
+                    ->limit(10)
+                    ->get();
+            }
+        );
 
-        return TeamResource::collection(
-            $query->with(['playerA', 'playerB'])
-                ->forPage($page, 10)
-                ->limit(10)
-                ->get()
-        )->additional([
-            'count' => $totalCount,
-        ]);
+        return TeamResource::collection($cached);
+    }
+
+    private function cacheKey(?string $order, mixed $active, int $page): string
+    {
+        return 'teams.index:' . http_build_query([
+            'active' => (bool) $active,
+            'date' => now()->toDateString(),
+            'order' => $order ?? 'desc',
+            'page' => $page,
+        ], '', '&', PHP_QUERY_RFC3986);
     }
 }

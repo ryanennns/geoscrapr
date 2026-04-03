@@ -14,7 +14,7 @@ class GetPlayerRatingChanges extends Controller
     public function __invoke(Request $request): AnonymousResourceCollection
     {
         $id = $request->route('id');
-        $type = $request->query('type', RatingChange::TYPE_OVERALL);
+        $type = $request->query('type');
 
         $player = Player::query()
             ->where('id', $id)
@@ -24,11 +24,14 @@ class GetPlayerRatingChanges extends Controller
             ->where('created_at', '>', Carbon::now()->subWeeks(16))
             ->count();
 
+        $query = $player->ratingChanges()->orderBy('created_at', 'desc');
+
+        if ($type !== null) {
+            $query->where('type', $type);
+        }
+
         return RatingHistoryResource::collection(
-            $player->ratingChanges()->orderBy('created_at', 'desc')
-                ->where('type', $type)
-                ->limit($numberOfRatingChangesFromTheLastTwoWeeks + 1)
-                ->get()
+            $query->limit($numberOfRatingChangesFromTheLastTwoWeeks + 1)->get()
         );
     }
 }
