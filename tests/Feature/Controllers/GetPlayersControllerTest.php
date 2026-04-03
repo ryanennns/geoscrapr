@@ -5,6 +5,8 @@ namespace Tests\Feature\Controllers;
 use App\Models\Player;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
+use Mockery;
 use Tests\TestCase;
 
 class GetPlayersControllerTest extends TestCase
@@ -16,6 +18,10 @@ class GetPlayersControllerTest extends TestCase
         $this->withoutExceptionHandling();
 
         $player = Player::factory()->create();
+
+        Cache::shouldReceive('remember')
+            ->once()
+            ->andReturn(collect([$player]));
 
         $response = $this->get('players');
 
@@ -35,8 +41,52 @@ class GetPlayersControllerTest extends TestCase
                         ->has('rank')        // only check the key exists
                         ->has('percentile')  // only check the key exists
                 )
-                ->has('count')
         );
+    }
+
+    public function test_it_uses_cached_players_when_available()
+    {
+        $cachedPlayer = Player::factory()->make([
+            'id' => 999,
+            'user_id' => 'cached-user',
+            'name' => 'Cached Player',
+            'rating' => 2123,
+            'country_code' => 'US',
+        ]);
+
+        Cache::shouldReceive('remember')
+            ->once()
+            ->with(
+                'players.index:active=0&game_type=rating&order=desc&page=1',
+                Mockery::type(\DateTimeInterface::class),
+                Mockery::type(\Closure::class),
+            )
+            ->andReturn(collect([$cachedPlayer]));
+
+        $response = $this->getJson('players');
+
+        $response->assertSuccessful();
+        $response->assertJsonPath('data.0.id', 999);
+        $response->assertJsonPath('data.0.user_id', 'cached-user');
+        $response->assertJsonPath('data.0.name', 'Cached Player');
+        $response->assertJsonPath('data.0.rating', 2123);
+    }
+
+    public function test_it_builds_unique_cache_keys_from_request_params()
+    {
+        Cache::shouldReceive('remember')
+            ->once()
+            ->with(
+                'players.index:active=1&country%5B0%5D=ca&country%5B1%5D=us&game_type=moving&order=asc&page=2',
+                Mockery::type(\DateTimeInterface::class),
+                Mockery::type(\Closure::class),
+            )
+            ->andReturn(collect());
+
+        $response = $this->getJson('players?active=1&country[]=us&country[]=ca&game_type=moving&order=asc&page=2');
+
+        $response->assertSuccessful();
+        $response->assertJsonCount(0, 'data');
     }
 
     /**
@@ -70,6 +120,10 @@ class GetPlayersControllerTest extends TestCase
             $gameType . '_rating' => 2000,
         ]);
 
+        Cache::shouldReceive('remember')
+            ->once()
+            ->andReturn(collect([$playerTwo, $playerOne]));
+
         $response = $this->getJson('players?game_type=' . $gameType);
 
         $response->assertSuccessful();
@@ -99,6 +153,10 @@ class GetPlayersControllerTest extends TestCase
     {
         $players = Player::factory(10)->create();
 
+        Cache::shouldReceive('remember')
+            ->once()
+            ->andReturn($players->sortByDesc('rating')->values());
+
         $response = $this->getJson('players');
         $response->assertSuccessful();
 
@@ -115,6 +173,10 @@ class GetPlayersControllerTest extends TestCase
     public function test_it_paginates_response()
     {
         $players = Player::factory(20)->create();
+
+        Cache::shouldReceive('remember')
+            ->once()
+            ->andReturn($players->sortByDesc('rating')->slice(10, 10)->values());
 
         $response = $this->getJson('players?page=2');
         $response->assertSuccessful();

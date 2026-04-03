@@ -8,6 +8,7 @@ use App\Models\Player;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 
 class GetPlayersController extends Controller
 {
@@ -21,40 +22,56 @@ class GetPlayersController extends Controller
         $gameType = Arr::get($validated, 'game_type');
         $page = Arr::get($validated, 'page', 1);
 
-        $query = Player::query();
+        $players = Cache::remember(
+            $this->cacheKey($countries, $order, $active, $gameType, $page),
+            now()->addMinutes(5),
+            function () use ($countries, $order, $active, $gameType, $page) {
+                $query = Player::query();
 
-        $query->whereNotIn('user_id', Player::BLACKLIST);
+                $query->whereNotIn('user_id', Player::BLACKLIST);
 
-        if (!empty($countries)) {
-            $countries = is_array($countries) ? $countries : [$countries];
-            if (count($countries) > 0) {
-                $query->whereIn('country_code', $countries);
+                if (!empty($countries)) {
+                    $countries = is_array($countries) ? $countries : [$countries];
+                    if (count($countries) > 0) {
+                        $query->whereIn('country_code', $countries);
+                    }
+                }
+
+                if ($active) {
+                    $query->whereHas('ratingChanges', function ($q) {
+                        $q->where('created_at', '>=', Carbon::now()->subWeek());
+                    });
+                }
+
+                if ($gameType !== null) {
+                    $column = $gameType . '_rating';
+                    $query->whereNotNull($column);
+                    $query->orderBy($column, $order ?? 'desc');
+                }
+
+                if ($gameType === null) {
+                    $query->whereNotNull('rating');
+                    $query->orderBy('rating', $order ?? 'desc');
+                }
+
+                return $query->forPage($page, 10)->limit(10)->get();
             }
-        }
-
-        if ($active) {
-            $query->whereHas('ratingChanges', function ($q) {
-                $q->where('created_at', '>=', Carbon::now()->subWeek());
-            });
-        }
-
-        if ($gameType !== null) {
-            $column = $gameType . '_rating';
-            $query->whereNotNull($column);
-            $query->orderBy($column, $order ?? 'desc');
-        }
-
-        if ($gameType === null) {
-            $query->whereNotNull('rating');
-            $query->orderBy('rating', $order ?? 'desc');
-        }
-
-        return PlayerResource::collection(
-            $query->forPage($page, 10)->limit(10)->get()
         );
 
-//         ->additional([
-//             'count' => $totalCount,
-//         ]);
+        return PlayerResource::collection($players);
+    }
+
+    private function cacheKey(array|string|null $countries, ?string $order, mixed $active, ?string $gameType, int $page): string
+    {
+        $countries = is_array($countries) ? $countries : Arr::wrap($countries);
+        sort($countries);
+
+        return 'players.index:' . http_build_query([
+            'active' => (bool) $active,
+            'country' => $countries,
+            'game_type' => $gameType ?? 'rating',
+            'order' => $order ?? 'desc',
+            'page' => $page,
+        ], '', '&', PHP_QUERY_RFC3986);
     }
 }
