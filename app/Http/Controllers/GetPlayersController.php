@@ -24,7 +24,7 @@ class GetPlayersController extends Controller
 
         $players = Cache::remember(
             $this->cacheKey($countries, $order, $active, $gameType, $page),
-            now()->addMinutes(5),
+            now()->addDay(),
             function () use ($countries, $order, $active, $gameType, $page) {
                 $query = Player::query();
 
@@ -69,6 +69,7 @@ class GetPlayersController extends Controller
         return 'players.index:' . http_build_query([
             'active' => (bool) $active,
             'country' => $countries,
+            'date' => now()->toDateString(),
             'game_type' => $gameType ?? 'rating',
             'order' => $order ?? 'desc',
             'page' => $page,

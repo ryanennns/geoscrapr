@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Player;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
@@ -12,6 +13,13 @@ use Tests\TestCase;
 class GetPlayersControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
+    }
 
     public function test_it_returns_players()
     {
@@ -46,6 +54,8 @@ class GetPlayersControllerTest extends TestCase
 
     public function test_it_uses_cached_players_when_available()
     {
+        Carbon::setTestNow('2026-04-03 12:00:00');
+
         $cachedPlayer = Player::factory()->make([
             'id' => 999,
             'user_id' => 'cached-user',
@@ -57,8 +67,8 @@ class GetPlayersControllerTest extends TestCase
         Cache::shouldReceive('remember')
             ->once()
             ->with(
-                'players.index:active=0&game_type=rating&order=desc&page=1',
-                Mockery::type(\DateTimeInterface::class),
+                'players.index:active=0&date=2026-04-03&game_type=rating&order=desc&page=1',
+                Mockery::on(fn ($ttl) => $ttl instanceof \DateTimeInterface && $ttl->format('Y-m-d H:i:s') === '2026-04-04 12:00:00'),
                 Mockery::type(\Closure::class),
             )
             ->andReturn(collect([$cachedPlayer]));
@@ -74,11 +84,13 @@ class GetPlayersControllerTest extends TestCase
 
     public function test_it_builds_unique_cache_keys_from_request_params()
     {
+        Carbon::setTestNow('2026-04-03 12:00:00');
+
         Cache::shouldReceive('remember')
             ->once()
             ->with(
-                'players.index:active=1&country%5B0%5D=ca&country%5B1%5D=us&game_type=moving&order=asc&page=2',
-                Mockery::type(\DateTimeInterface::class),
+                'players.index:active=1&country%5B0%5D=ca&country%5B1%5D=us&date=2026-04-03&game_type=moving&order=asc&page=2',
+                Mockery::on(fn ($ttl) => $ttl instanceof \DateTimeInterface && $ttl->format('Y-m-d H:i:s') === '2026-04-04 12:00:00'),
                 Mockery::type(\Closure::class),
             )
             ->andReturn(collect());
