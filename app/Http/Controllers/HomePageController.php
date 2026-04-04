@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EloSnapshot;
 use App\Models\Player;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,47 +16,73 @@ class HomePageController extends Controller
 
     public function __invoke(): Response
     {
-        $rangeDates = EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
-            ->where('type', EloSnapshot::TYPE_ELO_RANGE)
-            ->distinct()
-            ->orderBy('date')
-            ->pluck('date')
-            ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
+        $today = now()->toDateString();
 
-        $percentileDates = EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
-            ->where('type', EloSnapshot::TYPE_PERCENTILE)
-            ->distinct()
-            ->orderBy('date')
-            ->pluck('date')
-            ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'));
+        $rangeDates = Cache::remember(
+            "{$today}_range_dates",
+            now()->addDay(),
+            fn() => EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
+                ->where('type', EloSnapshot::TYPE_ELO_RANGE)
+                ->distinct()
+                ->orderBy('date')
+                ->pluck('date')
+                ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
+        );
 
-        $soloRangeSnapshots = EloSnapshot::query()
-            ->where('gamemode', 'solo')
-            ->where('type', EloSnapshot::TYPE_ELO_RANGE)
-            ->orderByDesc('date')
-            ->limit(self::MAX_SNAPSHOTS)
-            ->get();
+        $percentileDates = Cache::remember(
+            "{$today}_percentile_dates",
+            now()->addDay(),
+            fn() => EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
+                ->where('type', EloSnapshot::TYPE_PERCENTILE)
+                ->distinct()
+                ->orderBy('date')
+                ->pluck('date')
+                ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
+        );
 
-        $teamRangeSnapshots = EloSnapshot::query()
-            ->where('gamemode', 'team')
-            ->where('type', EloSnapshot::TYPE_ELO_RANGE)
-            ->orderByDesc('date')
-            ->limit(self::MAX_SNAPSHOTS)
-            ->get();
+        $soloRangeSnapshots = Cache::remember(
+            "{$today}_solo_range_snapshots",
+            now()->addDay(),
+            fn() => EloSnapshot::query()
+                ->where('gamemode', 'solo')
+                ->where('type', EloSnapshot::TYPE_ELO_RANGE)
+                ->orderByDesc('date')
+                ->limit(self::MAX_SNAPSHOTS)
+                ->get()
+        );
 
-        $soloPercentileSnapshots = EloSnapshot::query()
-            ->where('gamemode', 'solo')
-            ->where('type', EloSnapshot::TYPE_PERCENTILE)
-            ->orderByDesc('date')
-            ->limit(self::MAX_SNAPSHOTS)
-            ->get();
+        $teamRangeSnapshots = Cache::remember(
+            "{$today}_team_range_snapshots",
+            now()->addDay(),
+            fn() => EloSnapshot::query()
+                ->where('gamemode', 'team')
+                ->where('type', EloSnapshot::TYPE_ELO_RANGE)
+                ->orderByDesc('date')
+                ->limit(self::MAX_SNAPSHOTS)
+                ->get()
+        );
 
-        $teamPercentileSnapshots = EloSnapshot::query()
-            ->where('gamemode', 'team')
-            ->where('type', EloSnapshot::TYPE_PERCENTILE)
-            ->orderByDesc('date')
-            ->limit(self::MAX_SNAPSHOTS)
-            ->get();
+        $soloPercentileSnapshots = Cache::remember(
+            "{$today}_solo_percentile_snapshots",
+            now()->addDay(),
+            fn() => EloSnapshot::query()
+                ->where('gamemode', 'solo')
+                ->where('type', EloSnapshot::TYPE_PERCENTILE)
+                ->orderByDesc('date')
+                ->limit(self::MAX_SNAPSHOTS)
+                ->get()
+        );
+
+        $teamPercentileSnapshots = Cache::remember(
+            "{$today}_team_percentile_snapshots",
+            now()->addDay(),
+            fn() => EloSnapshot::query()
+                ->where('gamemode', 'team')
+                ->where('type', EloSnapshot::TYPE_PERCENTILE)
+                ->orderByDesc('date')
+                ->limit(self::MAX_SNAPSHOTS)
+                ->get()
+        );
 
         $playerQuery = Player::query()
             ->whereNotNull('rating')
