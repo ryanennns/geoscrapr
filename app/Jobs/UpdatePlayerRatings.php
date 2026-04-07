@@ -32,6 +32,16 @@ class UpdatePlayerRatings implements ShouldQueue
 
     public int $timeout = 900;
 
+    public function geoGuessrKeyToTableKey(string|null $key)
+    {
+        return match ($key) {
+            self::MOVING_GAMETYPE => 'moving',
+            self::NO_MOVE_GAMETYPE => 'no_move',
+            self::NMPZ_GAMETYPE => 'nmpz',
+            null => 'overall',
+        };
+    }
+
     public function handle(): void
     {
         collect([null, self::MOVING_GAMETYPE, self::NO_MOVE_GAMETYPE, self::NMPZ_GAMETYPE])
@@ -88,7 +98,7 @@ class UpdatePlayerRatings implements ShouldQueue
                             'rateable_type' => User::class,
                             'rateable_id'   => $existing[$userId]->id,
                             'rating'        => $newRating,
-                            'type'          => $gameMode ?? 'overall',
+                            'type'          => $this->geoGuessrKeyToTableKey($gameMode),
                             'created_at'    => now(),
                             'updated_at'    => now(),
                         ];
