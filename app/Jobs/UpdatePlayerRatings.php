@@ -5,16 +5,18 @@ namespace App\Jobs;
 use App\GeoGuessrHttp;
 use App\Models\Player;
 use App\Models\RatingChange;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class UpdatePlayerRatings implements ShouldQueue
 {
     use Queueable;
 
-    private const ENDPOINT = 'api/v4/ranked-system/ratings';
+    public const ENDPOINT = 'api/v4/ranked-system/ratings';
     private const LIMIT = 100;
 
     private const MOVING_GAMETYPE = 'StandardDuels';
@@ -32,18 +34,10 @@ class UpdatePlayerRatings implements ShouldQueue
 
     public function handle(): void
     {
-        $initPlayersCount = Player::query()->count();
-        $initRatingChangeCount = RatingChange::query()->where('rateable_type', Player::class)->count();
-
         collect([null, self::MOVING_GAMETYPE, self::NO_MOVE_GAMETYPE, self::NMPZ_GAMETYPE])
             ->each(function ($gameMode) {
                 $this->fetchPaginatedPlayerData($gameMode);
             });
-
-        $diff = Player::query()->count() - $initPlayersCount;
-        $diffInRatingChanges = RatingChange::query()->where('rateable_type', Player::class)->count() - $initRatingChangeCount;
-
-        Log::info("Added $diff users, and $diffInRatingChanges ratings changed.");
     }
 
     public function fetchPaginatedPlayerData(?string $gameMode): void
@@ -70,14 +64,52 @@ class UpdatePlayerRatings implements ShouldQueue
                     break;
                 }
 
-                $players->each(function ($player) use ($gameMode) {
-                    $properties = array_merge(
-                        ['name' => $player->nick, 'country_code' => $player->countryCode],
-                        [self::GAMETYPE_COLUMN_MAP[$gameMode] => $player->rating]
-                    );
+                $ids = $players->pluck('userId')->all();
+                $existing = Player::query()
+                    ->whereIn('user_id', $ids)
+                    ->get([
+                        'id',
+                        'user_id',
+                        self::GAMETYPE_COLUMN_MAP[$gameMode],
+                    ])
+                    ->keyBy('user_id');
 
-                    Player::query()->updateOrCreate(['user_id' => $player->userId], $properties);
-                });
+                $ratingColumn = self::GAMETYPE_COLUMN_MAP[$gameMode];
+
+                $ratingChanges = [];
+                $upsertRows = [];
+                foreach ($players as $player) {
+                    $userId = $player->userId;
+                    $newRating = $player->rating;
+
+                    if (($existing[$userId]->$ratingColumn) !== $newRating) {
+                        $ratingChanges[] = [
+                            'id'            => Str::uuid()->toString(),
+                            'rateable_type' => User::class,
+                            'rateable_id'   => $existing[$userId]->id,
+                            'rating'        => $newRating,
+                            'type'          => $gameMode ?? 'overall',
+                            'created_at'    => now(),
+                            'updated_at'    => now(),
+                        ];
+                    }
+
+                    $upsertRows[] = [
+                        'user_id'      => $userId,
+                        'name'         => $player->nick,
+                        'country_code' => $player->countryCode,
+                        $ratingColumn  => $newRating,
+                        'updated_at'   => now(),
+                    ];
+                }
+
+                Player::query()->upsert(
+                    $upsertRows,
+                    ['user_id'],
+                    ['name', 'country_code', $ratingColumn, 'updated_at']
+                );
+
+                RatingChange::query()->insert($ratingChanges);
             } catch (\Exception $e) {
                 $keepFetching = false;
 
