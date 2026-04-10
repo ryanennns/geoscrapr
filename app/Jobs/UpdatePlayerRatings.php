@@ -8,6 +8,7 @@ use App\Models\RatingChange;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -92,11 +93,12 @@ class UpdatePlayerRatings implements ShouldQueue
                     $userId = $player->userId;
                     $newRating = $player->rating;
 
-                    if (($existing[$userId]->$ratingColumn) !== $newRating) {
+                    if ((Arr::get($existing, $userId)?->$ratingColumn) !== $newRating) {
                         $ratingChanges[] = [
+                            'user_id' => $userId,
                             'id'            => Str::uuid()->toString(),
                             'rateable_type' => User::class,
-                            'rateable_id'   => $existing[$userId]->id,
+                            'rateable_id'   => Arr::get($existing, $userId)?->id,
                             'rating'        => $newRating,
                             'type'          => $this->geoGuessrKeyToTableKey($gameMode),
                             'created_at'    => now(),
@@ -118,6 +120,21 @@ class UpdatePlayerRatings implements ShouldQueue
                     ['user_id'],
                     ['name', 'country_code', $ratingColumn, 'updated_at']
                 );
+
+                $ratingChanges = collect($ratingChanges)
+                    ->map(function ($item) {
+                        if (!is_null($item['rateable_id'])) {
+                            unset($item['user_id']);
+
+                            return $item;
+                        }
+
+                        $rateable = Player::query()->where('user_id', $item['user_id'])->first();
+
+                        unset($item['user_id']);
+
+                        return [...$item, 'rateable_id' => $rateable->getKey()];
+                    })->toArray();
 
                 RatingChange::query()->insert($ratingChanges);
             } catch (\Exception $e) {
