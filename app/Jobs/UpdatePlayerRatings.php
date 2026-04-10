@@ -97,7 +97,7 @@ class UpdatePlayerRatings implements ShouldQueue
                         $ratingChanges[] = [
                             'user_id' => $userId,
                             'id'            => Str::uuid()->toString(),
-                            'rateable_type' => User::class,
+                            'rateable_type' => Player::class,
                             'rateable_id'   => Arr::get($existing, $userId)?->id,
                             'rating'        => $newRating,
                             'type'          => $this->geoGuessrKeyToTableKey($gameMode),
