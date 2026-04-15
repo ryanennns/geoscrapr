@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\CreateEloDistributionSnapshot;
 use App\Jobs\CreateEloPercentileSnapshot;
+use App\Jobs\ClearApplicationCache;
 use App\Jobs\UpdatePlayerRanks;
 use App\Jobs\UpdatePlayerRatings;
 use App\Jobs\UpdateTeamRatings;
@@ -23,7 +24,8 @@ class DailyTask extends Command
             new UpdateTeamRatings(),
             new CreateEloDistributionSnapshot(),
             new CreateEloPercentileSnapshot(),
-            new UpdatePlayerRanks()
+            new UpdatePlayerRanks(),
+            new ClearApplicationCache(),
         ])->dispatch();
     }
 }
