@@ -4,28 +4,44 @@ namespace App\Jobs;
 
 use App\GeoGuessrHttp;
 use App\Models\Player;
+use App\Models\RankedGamesScannedUserIds;
 use DOMDocument;
 use DOMXPath;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GetGamesPlayed implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(private readonly int $cursor)
-    {
-        //
-    }
-
+    /**
+     * @throws ConnectionException
+     */
     public function handle(): void
     {
+        $rankedGameScannedUserIds = RankedGamesScannedUserIds::query()->latest()->first();
+        $ids = $rankedGameScannedUserIds?->user_ids ?? [];
+
+        $count = Player::query()
+            ->where('players.updated_at', '>=', now()->subWeek())
+            ->whereNotIn('players.user_id', $ids)
+            ->count();
+
+        if ($count === 0) {
+            Log::info("Wrapped around on duels played tracking");
+
+            $rankedGameScannedUserIds = null;
+            $ids = [];
+        }
+
         $player = Player::query()
             ->select('players.id', 'players.user_id')
             ->where('players.updated_at', '>=', now()->subWeek())
-            ->orderBy('players.user_id', 'desc')
-            ->offset($this->cursor)
+            ->whereNotIn('players.user_id', $ids)
+            ->orderBy('players.created_at', 'desc')
             ->limit(1)
             ->first();
 
@@ -34,10 +50,19 @@ class GetGamesPlayed implements ShouldQueue
 
         $body = $response->body();
 
-        // <label style="--fs:var(--font-size-18);--lh:var(--line-height-18)" class="label_label__LA0MZ shared_boldWeight__VXL2d label_italic__RNYlk label_uppercase__7GXBt">219</label>
         $rankedDuelsGamesPlayed = $this->getStatValue($body, 'Ranked Duels', 'games');
 
-        $player->update(['ranked_duels_played' => $rankedDuelsGamesPlayed]);
+        if (!$rankedGameScannedUserIds) {
+            $rankedGameScannedUserIds = RankedGamesScannedUserIds::query()->create([
+                'user_ids' => [],
+            ]);
+        }
+
+        $player->update(['ranked_duels_played' => $rankedDuelsGamesPlayed ?? 0]);
+        $rankedGameScannedUserIds
+            ->update(['user_ids' => [...$rankedGameScannedUserIds->user_ids, $player->user_id]]);
+
+        GetGamesPlayed::dispatch()->delay(now()->addSeconds(5));
     }
 
     private function getStatValue(string $body, string $heading, string $stat): ?string

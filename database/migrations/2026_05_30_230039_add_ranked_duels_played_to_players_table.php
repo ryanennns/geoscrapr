@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('players', function (Blueprint $table) {
-            $table->integer('ranked_duels_played')->default(0);
+            $table->integer('ranked_duels_played')
+                ->nullable()
+                ->default(null);
         });
     }
 
