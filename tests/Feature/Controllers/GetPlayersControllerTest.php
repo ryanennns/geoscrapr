@@ -2,12 +2,13 @@
 
 namespace Tests\Feature\Controllers;
 
-use Carbon\Carbon;
 use App\Models\Player;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class GetPlayersControllerTest extends TestCase
@@ -36,9 +37,9 @@ class GetPlayersControllerTest extends TestCase
         $response->assertSuccessful();
 
         $response->assertJson(
-            fn($json) => $json
+            fn ($json) => $json
                 ->has('data.0',
-                    fn($json) => $json->where('id', $player->id)
+                    fn ($json) => $json->where('id', $player->id)
                         ->where('user_id', $player->user_id)
                         ->where('name', $player->name)
                         ->where('rating', $player->rating)
@@ -101,63 +102,59 @@ class GetPlayersControllerTest extends TestCase
         $response->assertJsonCount(0, 'data');
     }
 
-    /**
-     * @dataProvider provideValidationCases
-     */
+    #[DataProvider('provideValidationCases')]
     public function test_it_returns_unprocessable_if_validation_fails($key, $value)
     {
-        $this->getJson('players?' . $key . '=' . $value)->assertStatus(422);
+        $this->getJson('players?'.$key.'='.$value)->assertStatus(422);
     }
 
     public static function provideValidationCases(): array
     {
         return [
-            'invalid order'   => ['order', 'asdf'],
+            'invalid order' => ['order', 'asdf'],
             'invalid country' => ['country', 'not a country'],
         ];
     }
 
-    /**
-     * @dataProvider provideRatingOptions
-     */
+    #[DataProvider('provideRatingOptions')]
     public function test_it_orders_by_ratings($gameType)
     {
         $playerOne = Player::factory()->create([
-            'rating'              => 1000,
-            $gameType . '_rating' => 1000,
+            'rating' => 1000,
+            $gameType.'_rating' => 1000,
         ]);
 
         $playerTwo = Player::factory()->create([
-            'rating'              => 1000,
-            $gameType . '_rating' => 2000,
+            'rating' => 1000,
+            $gameType.'_rating' => 2000,
         ]);
 
         Cache::shouldReceive('remember')
             ->once()
             ->andReturn(collect([$playerTwo, $playerOne]));
 
-        $response = $this->getJson('players?game_type=' . $gameType);
+        $response = $this->getJson('players?game_type='.$gameType);
 
         $response->assertSuccessful();
 
         $response->assertJson([
             'data' => [
                 [
-                    'id'                  => $playerTwo->id,
-                    'user_id'             => $playerTwo->user_id,
-                    'name'                => $playerTwo->name,
-                    'rating'              => $playerTwo->rating,
-                    $gameType . '_rating' => $playerTwo->{$gameType . '_rating'},
-                    'country_code'        => $playerTwo->country_code,
+                    'id' => $playerTwo->id,
+                    'user_id' => $playerTwo->user_id,
+                    'name' => $playerTwo->name,
+                    'rating' => $playerTwo->rating,
+                    $gameType.'_rating' => $playerTwo->{$gameType.'_rating'},
+                    'country_code' => $playerTwo->country_code,
                 ],
                 [
-                    'id'                  => $playerOne->id,
-                    'user_id'             => $playerOne->user_id,
-                    'name'                => $playerOne->name,
-                    'rating'              => $playerOne->rating,
-                    $gameType . '_rating' => $playerOne->{$gameType . '_rating'},
-                    'country_code'        => $playerOne->country_code,],
-            ]
+                    'id' => $playerOne->id,
+                    'user_id' => $playerOne->user_id,
+                    'name' => $playerOne->name,
+                    'rating' => $playerOne->rating,
+                    $gameType.'_rating' => $playerOne->{$gameType.'_rating'},
+                    'country_code' => $playerOne->country_code, ],
+            ],
         ]);
     }
 
@@ -176,7 +173,7 @@ class GetPlayersControllerTest extends TestCase
             function ($player, $index) use ($players) {
                 $this->assertEquals(
                     Arr::get($players->sortByDesc('rating')
-                        ->values(), $index . '.id'), Arr::get($player, 'id')
+                        ->values(), $index.'.id'), Arr::get($player, 'id')
                 );
             }
         );
@@ -205,9 +202,9 @@ class GetPlayersControllerTest extends TestCase
     public static function provideRatingOptions(): array
     {
         return [
-            'moving'  => ['moving'],
+            'moving' => ['moving'],
             'no_move' => ['no_move'],
-            'nmpz'    => ['nmpz'],
+            'nmpz' => ['nmpz'],
         ];
     }
 }
