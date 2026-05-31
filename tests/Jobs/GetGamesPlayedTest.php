@@ -15,7 +15,7 @@ class GetGamesPlayedTest extends TestCase
 {
     use RefreshDatabase;
 
-    const string ID =  '6a00ef51505faf23e3cc420d';
+    const string ID = '6a00ef51505faf23e3cc420d';
 
     protected function setUp(): void
     {
@@ -43,6 +43,10 @@ class GetGamesPlayedTest extends TestCase
         $this->assertDatabaseHas('players', [
             'user_id' => $player->user_id,
             'ranked_duels_played' => 219,
+            'total_single_player_games_played' => 3,
+            'unranked_duels_played' => 2,
+            'ranked_team_duels_played' => 8,
+            'unranked_team_duels_played' => 0,
         ]);
     }
 

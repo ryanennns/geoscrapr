@@ -33,7 +33,7 @@ class GetGamesPlayed implements ShouldQueue
                 ->count();
 
             if ($count === 0) {
-                Log::info("Wrapped around on duels played tracking");
+                Log::info('Wrapped around on duels played tracking');
 
                 $rankedGameScannedUserIds = null;
                 $ids = [];
@@ -48,22 +48,31 @@ class GetGamesPlayed implements ShouldQueue
                 ->first();
 
             $response = Http::withHeaders(GeoGuessrHttp::HEADERS)
-                ->get(GeoGuessrHttp::BASE_URL . 'user/' . $player->user_id);
+                ->get(GeoGuessrHttp::BASE_URL.'user/'.$player->user_id);
 
             $body = $response->body();
 
             $rankedDuelsGamesPlayed = $this->getStatValue($body, 'Ranked Duels', 'games');
+            $totalSinglePlayerGamesPlayed = $this->getStatValue($body, 'Classic', 'games');
+            $unrankedDuelsGamesPlayed = $this->getStatValue($body, 'Unranked Duels', 'games');
+            $teamDuelsGamesPlayed = $this->getStatValue($body, 'Ranked Team Duels', 'games');
+            $unrankedTeamDuelsGamesPlayed = $this->getStatValue($body, 'Unranked Team Duels', 'games');
 
-            if (!$rankedGameScannedUserIds) {
+            if (! $rankedGameScannedUserIds) {
                 $rankedGameScannedUserIds = RankedGamesScannedUserIds::query()->create([
                     'user_ids' => [],
                 ]);
             }
 
-            $player->update(['ranked_duels_played' => $rankedDuelsGamesPlayed ?? 0]);
+            $player->update([
+                'ranked_duels_played' => $rankedDuelsGamesPlayed ?? 0,
+                'total_single_player_games_played' => $totalSinglePlayerGamesPlayed ?? 0,
+                'unranked_duels_played' => $unrankedDuelsGamesPlayed ?? 0,
+                'ranked_team_duels_played' => $teamDuelsGamesPlayed ?? 0,
+                'unranked_team_duels_played' => $unrankedTeamDuelsGamesPlayed ?? 0,
+            ]);
             $rankedGameScannedUserIds
                 ->update(['user_ids' => [...$rankedGameScannedUserIds->user_ids, $player->user_id]]);
-
 
         } catch (Exception $e) {
             Log::error($e->getMessage(), $e->getTrace());
@@ -82,9 +91,9 @@ class GetGamesPlayed implements ShouldQueue
 
         $xpath = new DOMXPath($document);
         $nodes = $xpath->query(
-            '//h2[normalize-space() = "' . $heading . '"]'
-            . '/ancestor::div[contains(@class, "widget_widgetInner")][1]'
-            . '//div[span[normalize-space() = "' . $stat . '"]]/label'
+            '//h2[normalize-space() = "'.$heading.'"]'
+            .'/ancestor::div[contains(@class, "widget_widgetInner")][1]'
+            .'//div[span[normalize-space() = "'.$stat.'"]]/label'
         );
 
         if ($nodes === false || $nodes->length === 0) {
