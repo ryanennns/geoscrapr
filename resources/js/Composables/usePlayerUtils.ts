@@ -554,32 +554,32 @@ export function usePlayerUtils() {
         isTeam(playerOrTeam)
             ? {
                   id: playerOrTeam.id,
-                  geoGuessrId: playerOrTeam.team_id,
+                  geoguessr_id: playerOrTeam.team_id,
                   name: playerOrTeam.name,
                   rating: playerOrTeam.rating,
                   moving_rating: null,
                   no_move_rating: null,
                   nmpz_rating: null,
-                  countryCodes: [
+                  country_codes: [
                       playerOrTeam.player_a.country_code,
                       playerOrTeam.player_b.country_code,
                   ],
                   players: [playerOrTeam.player_a, playerOrTeam.player_b],
-                  isPlaceholder: false,
+                  is_placeholder: false,
                   type: "team",
                   percentile: playerOrTeam.percentile,
                   rank: playerOrTeam.rank,
               }
             : {
                   id: playerOrTeam.id,
-                  geoGuessrId: playerOrTeam.user_id,
+                  geoguessr_id: playerOrTeam.user_id,
                   name: playerOrTeam.name,
                   rating: playerOrTeam.rating,
                   moving_rating: playerOrTeam.moving_rating,
                   no_move_rating: playerOrTeam.no_move_rating,
                   nmpz_rating: playerOrTeam.nmpz_rating,
-                  countryCodes: [playerOrTeam.country_code],
-                  isPlaceholder: false,
+                  country_codes: [playerOrTeam.country_code],
+                  is_placeholder: false,
                   type: "player",
                   percentile: playerOrTeam.percentile,
                   rank: playerOrTeam.rank,

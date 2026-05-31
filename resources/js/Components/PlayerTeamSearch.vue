@@ -197,7 +197,7 @@ const handlePlayerOrTeamClicked = async (rateable: Rateable) => {
 const showResults = computed<boolean>(() =>
     Boolean(
         (playerSearchResults.value.length || teamSearchResults.value.length) &&
-            showDropdown.value,
+        showDropdown.value,
     ),
 );
 

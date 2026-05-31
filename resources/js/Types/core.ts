@@ -14,6 +14,11 @@ export interface Player {
     country_code: CountryCode;
     percentile?: number;
     rank?: number;
+    ranked_duels_played?: number;
+    single_player_games_played?: number;
+    unranked_duels_played?: number;
+    ranked_team_duels_played?: number;
+    unranked_team_duels_played?: number;
 }
 
 export interface Team {
@@ -33,15 +38,15 @@ export type RateableType = "player" | "team";
 
 export interface LeaderboardRow {
     id: string;
-    geoGuessrId: string;
+    geoguessr_id: string;
     name: string;
     rating: number | null;
     moving_rating: number | null;
     no_move_rating: number | null;
     nmpz_rating: number | null;
-    countryCodes: CountryCode[];
+    country_codes: CountryCode[];
     players?: Player[];
-    isPlaceholder: boolean;
+    is_placeholder: boolean;
     type: RateableType;
     percentile?: number | undefined;
     rank?: number | undefined;
@@ -49,14 +54,14 @@ export interface LeaderboardRow {
 
 export const EMPTY_LEADERBOARD_ROW: LeaderboardRow = {
     id: "",
-    geoGuessrId: "",
+    geoguessr_id: "",
     name: "",
     rating: 0,
     moving_rating: null,
     no_move_rating: null,
     nmpz_rating: null,
-    countryCodes: [],
-    isPlaceholder: true,
+    country_codes: [],
+    is_placeholder: true,
     type: "player",
 };
 

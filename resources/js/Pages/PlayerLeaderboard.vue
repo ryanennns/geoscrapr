@@ -389,19 +389,19 @@ const leaderboardRows = computed<LeaderboardRow[]>(() => {
     const rows: LeaderboardRow[] = [
         ...rateables.value.map(rateableToLeaderboardRows),
     ];
-    const maybeCountryCode = rows[0]?.countryCodes[0] ?? "";
+    const maybeCountryCode = rows[0]?.country_codes[0] ?? "";
     const placeholderCount = Math.max(0, 10 - rows.length);
     for (let i = 0; i < placeholderCount; i++) {
         rows.push({
             id: `placeholder-${i}`,
-            geoGuessrId: `placeholder-${i}`,
+            geoguessr_id: `placeholder-${i}`,
             name: "",
             rating: 0,
             moving_rating: null,
             no_move_rating: null,
             nmpz_rating: null,
-            countryCodes: [maybeCountryCode],
-            isPlaceholder: true,
+            country_codes: [maybeCountryCode],
+            is_placeholder: true,
             type: "player",
         });
     }

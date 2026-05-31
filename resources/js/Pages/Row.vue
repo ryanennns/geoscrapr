@@ -1,12 +1,12 @@
 <template>
     <tr
         :class="
-            leaderboardRow.isPlaceholder
+            leaderboardRow.is_placeholder
                 ? 'opacity-50'
                 : 'hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors cursor-pointer'
         "
         @click="
-            leaderboardRow.isPlaceholder
+            leaderboardRow.is_placeholder
                 ? null
                 : emit('player-click', leaderboardRow)
         "
@@ -33,7 +33,7 @@
         <td class="px-2 sm:px-4 md:px-6 py-2 md:py-4 whitespace-nowrap">
             <div class="flex items-center">
                 <div
-                    v-for="countryCode in leaderboardRow.countryCodes"
+                    v-for="countryCode in leaderboardRow.country_codes"
                     class="flex"
                 >
                     <Flag
@@ -74,7 +74,7 @@ const emit = defineEmits(["player-click"]);
 const { isMobile } = useBrowserUtils();
 
 const leaderboardRowToRating = (row: LeaderboardRow) => {
-    if (row.isPlaceholder) {
+    if (row.is_placeholder) {
         return "-";
     }
 

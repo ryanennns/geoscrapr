@@ -59,7 +59,7 @@ const croppedName = computed<string>(() => {
 <template>
     <div>
         <span class="text-xl font-bold flex items-center mb-2 gap-1">
-            <span v-for="countryCode in props.leaderboardRow.countryCodes">
+            <span v-for="countryCode in props.leaderboardRow.country_codes">
                 <Flag
                     :country-code="countryCode"
                     dimensions="120x90"
@@ -142,13 +142,13 @@ const croppedName = computed<string>(() => {
         </span>
         <div v-else class="flex items-center mb-2 w-full">
             <a
-                :href="generateProfileUrl(props.leaderboardRow.geoGuessrId)"
+                :href="generateProfileUrl(props.leaderboardRow.geoguessr_id)"
                 target="_blank"
             >
                 <p
                     class="text-gray-600 dark:text-gray-400 font-mono underline font-light"
                 >
-                    {{ props.leaderboardRow.geoGuessrId }}
+                    {{ props.leaderboardRow.geoguessr_id }}
                 </p>
             </a>
 
