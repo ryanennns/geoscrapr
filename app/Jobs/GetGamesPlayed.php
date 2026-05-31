@@ -53,7 +53,7 @@ class GetGamesPlayed implements ShouldQueue
             $body = $response->body();
 
             $rankedDuelsGamesPlayed = $this->getStatValue($body, 'Ranked Duels', 'games');
-            $totalSinglePlayerGamesPlayed = $this->getStatValue($body, 'Classic', 'games');
+            $singlePlayerGamesPlayed = $this->getStatValue($body, 'Classic', 'games');
             $unrankedDuelsGamesPlayed = $this->getStatValue($body, 'Unranked Duels', 'games');
             $teamDuelsGamesPlayed = $this->getStatValue($body, 'Ranked Team Duels', 'games');
             $unrankedTeamDuelsGamesPlayed = $this->getStatValue($body, 'Unranked Team Duels', 'games');
@@ -65,11 +65,11 @@ class GetGamesPlayed implements ShouldQueue
             }
 
             $player->update([
-                'ranked_duels_played' => $rankedDuelsGamesPlayed ?? 0,
-                'total_single_player_games_played' => $totalSinglePlayerGamesPlayed ?? 0,
-                'unranked_duels_played' => $unrankedDuelsGamesPlayed ?? 0,
-                'ranked_team_duels_played' => $teamDuelsGamesPlayed ?? 0,
-                'unranked_team_duels_played' => $unrankedTeamDuelsGamesPlayed ?? 0,
+                'ranked_duels_played' => (float) str_replace(',', '', $rankedDuelsGamesPlayed ?? 0),
+                'single_player_games_played' => (float) str_replace(',', '', $singlePlayerGamesPlayed ?? 0),
+                'unranked_duels_played' => (float) str_replace(',', '', $unrankedDuelsGamesPlayed ?? 0),
+                'ranked_team_duels_played' => (float) str_replace(',', '', $teamDuelsGamesPlayed ?? 0),
+                'unranked_team_duels_played' => (float) str_replace(',', '', $unrankedTeamDuelsGamesPlayed ?? 0),
             ]);
             $rankedGameScannedUserIds
                 ->update(['user_ids' => [...$rankedGameScannedUserIds->user_ids, $player->user_id]]);

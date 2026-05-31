@@ -12,7 +12,7 @@ return new class extends Migration
             $table->integer('ranked_duels_played')
                 ->nullable()
                 ->default(null);
-            $table->integer('total_single_player_games_played')
+            $table->integer('single_player_games_played')
                 ->nullable()
                 ->default(null);
             $table->integer('unranked_duels_played')
@@ -32,7 +32,7 @@ return new class extends Migration
         Schema::table('players', function (Blueprint $table) {
             $table->dropColumn([
                 'ranked_duels_played',
-                'total_single_player_games_played',
+                'single_player_games_played',
                 'unranked_duels_played',
                 'ranked_team_duels_played',
                 'unranked_team_duels_played',
