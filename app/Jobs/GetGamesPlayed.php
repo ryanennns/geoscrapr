@@ -28,7 +28,9 @@ class GetGamesPlayed implements ShouldQueue
             $ids = $rankedGameScannedUserIds?->user_ids ?? [];
 
             $count = Player::query()
-                ->where('players.updated_at', '>=', now()->subWeek())
+                ->whereHas('ratingChanges', function ($query) {
+                    $query->where('created_at', '>=', now()->subWeek());
+                })
                 ->whereNotIn('players.user_id', $ids)
                 ->count();
 
@@ -41,7 +43,9 @@ class GetGamesPlayed implements ShouldQueue
 
             $player = Player::query()
                 ->select('players.id', 'players.user_id')
-                ->where('players.updated_at', '>=', now()->subWeek())
+                ->whereHas('ratingChanges', function ($query) {
+                    $query->where('created_at', '>=', now()->subWeek());
+                })
                 ->whereNotIn('players.user_id', $ids)
                 ->orderBy('players.created_at', 'desc')
                 ->limit(1)
