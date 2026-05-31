@@ -13,6 +13,7 @@ class PlayerFactory extends Factory
             'name' => $this->faker->userName(),
             'rating' => $this->faker->numberBetween(200, 2300),
             'country_code' => strtolower($this->faker->countryCode()),
+            'ranked_duels_played' => 0,
         ];
     }
 }
