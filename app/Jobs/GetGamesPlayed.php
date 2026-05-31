@@ -69,11 +69,11 @@ class GetGamesPlayed implements ShouldQueue
             }
 
             $player->update([
-                'ranked_duels_played' => (float) str_replace(',', '', $rankedDuelsGamesPlayed),
-                'single_player_games_played' => (float) str_replace(',', '', $singlePlayerGamesPlayed),
-                'unranked_duels_played' => (float) str_replace(',', '', $unrankedDuelsGamesPlayed),
-                'ranked_team_duels_played' => (float) str_replace(',', '', $teamDuelsGamesPlayed),
-                'unranked_team_duels_played' => (float) str_replace(',', '', $unrankedTeamDuelsGamesPlayed),
+                'ranked_duels_played' => $this->normalizeStatValue($rankedDuelsGamesPlayed),
+                'single_player_games_played' => $this->normalizeStatValue($singlePlayerGamesPlayed),
+                'unranked_duels_played' => $this->normalizeStatValue($unrankedDuelsGamesPlayed),
+                'ranked_team_duels_played' => $this->normalizeStatValue($teamDuelsGamesPlayed),
+                'unranked_team_duels_played' => $this->normalizeStatValue($unrankedTeamDuelsGamesPlayed),
             ]);
             $rankedGameScannedUserIds
                 ->update(['user_ids' => [...$rankedGameScannedUserIds->user_ids, $player->user_id]]);
@@ -105,5 +105,14 @@ class GetGamesPlayed implements ShouldQueue
         }
 
         return trim($nodes->item(0)->textContent);
+    }
+
+    private function normalizeStatValue(?string $value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return (int) str_replace(',', '', $value);
     }
 }
