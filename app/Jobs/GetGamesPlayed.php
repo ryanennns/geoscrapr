@@ -69,11 +69,11 @@ class GetGamesPlayed implements ShouldQueue
             }
 
             $player->update([
-                'ranked_duels_played' => (float) str_replace(',', '', $rankedDuelsGamesPlayed ?? 0),
-                'single_player_games_played' => (float) str_replace(',', '', $singlePlayerGamesPlayed ?? 0),
-                'unranked_duels_played' => (float) str_replace(',', '', $unrankedDuelsGamesPlayed ?? 0),
-                'ranked_team_duels_played' => (float) str_replace(',', '', $teamDuelsGamesPlayed ?? 0),
-                'unranked_team_duels_played' => (float) str_replace(',', '', $unrankedTeamDuelsGamesPlayed ?? 0),
+                'ranked_duels_played' => (float) str_replace(',', '', $rankedDuelsGamesPlayed),
+                'single_player_games_played' => (float) str_replace(',', '', $singlePlayerGamesPlayed),
+                'unranked_duels_played' => (float) str_replace(',', '', $unrankedDuelsGamesPlayed),
+                'ranked_team_duels_played' => (float) str_replace(',', '', $teamDuelsGamesPlayed),
+                'unranked_team_duels_played' => (float) str_replace(',', '', $unrankedTeamDuelsGamesPlayed),
             ]);
             $rankedGameScannedUserIds
                 ->update(['user_ids' => [...$rankedGameScannedUserIds->user_ids, $player->user_id]]);
