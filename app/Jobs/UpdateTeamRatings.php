@@ -29,17 +29,7 @@ class UpdateTeamRatings implements ShouldQueue
 
         for ($i = 0; $keepFetching < 25; $i += 100) {
             try {
-                $response = Http::withHeaders([
-                    ...GeoGuessrHttp::HEADERS,
-                    "cookie" => GeoGuessrHttp::cookieString(),
-                ])->get(GeoGuessrHttp::BASE_URL . self::ENDPOINT, [
-                    'offset' => $i,
-                    'limit'  => self::LIMIT
-                ]);
-
-                if (!$response->successful()) {
-                    throw new \Exception("Request to GeoGuessr API failed with status {${$response->status()}}");
-                }
+                $response = GeoGuessrHttp::rankedTeamRatings($i, self::LIMIT);
 
                 $teams = collect(json_decode($response->body()));
 
