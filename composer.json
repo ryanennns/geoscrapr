@@ -7,12 +7,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
+        "ext-dom": "*",
+        "ext-libxml": "*",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
+        "laravel/nightwatch": "^1.27",
         "laravel/tinker": "^2.10.1",
-        "pusher/pusher-php-server": "^7.2",
-        "ext-dom": "*",
-        "ext-libxml": "*"
+        "pusher/pusher-php-server": "^7.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
