@@ -56,18 +56,7 @@ class UpdatePlayerRatings implements ShouldQueue
         $keepFetching = 0;
         for ($i = 0; $keepFetching < 25; $i += 100) {
             try {
-                $response = Http::withHeaders([
-                    ...GeoGuessrHttp::HEADERS,
-                    "cookie" => GeoGuessrHttp::cookieString()
-                ])->get(GeoGuessrHttp::BASE_URL . self::ENDPOINT, [
-                    'offset'   => $i,
-                    'limit'    => self::LIMIT,
-                    'gameMode' => $gameMode,
-                ]);
-
-                if (!$response->successful()) {
-                    throw new \Exception("Request to GeoGuessr API failed with status {${$response->status()}}");
-                }
+                $response = GeoGuessrHttp::rankedSystemRatings($i, self::LIMIT, $gameMode);
 
                 $players = collect(json_decode($response->body()));
 
