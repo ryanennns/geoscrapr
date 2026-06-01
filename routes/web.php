@@ -53,3 +53,5 @@ Route::prefix('teams')->group(function () {
 Route::post('/download-sqlite', DownloadSqliteController::class);
 
 Route::get('/search', \App\Http\Controllers\SearchController::class);
+
+Route::get('/games-played-distribution', \App\Http\Controllers\GamesPlayedDistributionController::class);
