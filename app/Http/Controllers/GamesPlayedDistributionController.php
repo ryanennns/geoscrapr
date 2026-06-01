@@ -46,7 +46,8 @@ class GamesPlayedDistributionController extends Controller
 
         $ratingBuckets = range($ratingMin, $ratingMax, $bucketSize);
 
-        $datasets = [];
+        $rawDatasets = [];
+        $smoothedDatasets = [];
         $summary = [];
 
         foreach ($bands as $label => [$minGames, $maxGames]) {
@@ -98,10 +99,27 @@ class GamesPlayedDistributionController extends Controller
                 ->values()
                 ->all();
 
+            $rawDatasets[] = [
+                'label' => $label,
+                'data'  => collect($ratingBuckets)
+                    ->values()
+                    ->map(function ($ratingBucket, $index) use ($percentages) {
+                        return [
+                            'x' => $ratingBucket,
+                            'y' => round($percentages[$index], 4),
+                        ];
+                    })
+                    ->all(),
+                'tension'     => 0.35,
+                'borderWidth' => 2.5,
+                'pointRadius' => 0,
+                'fill'        => false,
+            ];
+
             $smoothedPercentages = $this->rollingAverage($percentages, $smoothingWindow);
             $smoothedPercentages = $this->renormalizeToHundred($smoothedPercentages);
 
-            $datasets[] = [
+            $smoothedDatasets[] = [
                 'label' => $label,
                 'data'  => collect($ratingBuckets)
                     ->values()
@@ -122,7 +140,10 @@ class GamesPlayedDistributionController extends Controller
         return Inertia::render('GamesPlayedDistribution', [
             'chartData' => [
                 'labels'   => $ratingBuckets,
-                'datasets' => $datasets,
+                'datasets' => [
+                    'raw'      => $rawDatasets,
+                    'smoothed' => $smoothedDatasets,
+                ],
                 'summary'  => $summary,
                 'meta'     => [
                     'rows'             => $rows->count(),

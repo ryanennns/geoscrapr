@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import Toggle from "../Components/Toggle.vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
     Chart,
     LineController,
@@ -43,7 +44,10 @@ type ChartDataset = {
 
 type RatingDistributionResponse = {
     labels: number[];
-    datasets: ChartDataset[];
+    datasets: {
+        raw: ChartDataset[];
+        smoothed: ChartDataset[];
+    };
     summary: {
         bucket: string;
         mean_rating: number | null;
@@ -70,8 +74,24 @@ const lineColors = [
     "#7c3aed",
 ];
 
+const datasetMode = ref("smoothed");
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let chart: Chart | null = null;
+
+const toggleOptions = [
+    { label: "Smoothed", value: "smoothed" },
+    { label: "Raw", value: "raw" },
+];
+
+const activeDatasets = computed(() =>
+    props.chartData.datasets[
+        datasetMode.value as keyof RatingDistributionResponse["datasets"]
+    ].map((dataset, index) => ({
+        ...dataset,
+        borderColor: lineColors[index % lineColors.length],
+        backgroundColor: lineColors[index % lineColors.length],
+    })),
+);
 
 onMounted(() => {
     if (!canvasRef.value) {
@@ -81,11 +101,7 @@ onMounted(() => {
     chart = new Chart(canvasRef.value, {
         type: "line",
         data: {
-            datasets: props.chartData.datasets.map((dataset, index) => ({
-                ...dataset,
-                borderColor: lineColors[index % lineColors.length],
-                backgroundColor: lineColors[index % lineColors.length],
-            })),
+            datasets: activeDatasets.value,
         },
         options: {
             parsing: false,
@@ -149,6 +165,15 @@ onMounted(() => {
     });
 });
 
+watch(datasetMode, () => {
+    if (!chart) {
+        return;
+    }
+
+    chart.data.datasets = activeDatasets.value;
+    chart.update();
+});
+
 onBeforeUnmount(() => {
     chart?.destroy();
     chart = null;
@@ -168,6 +193,13 @@ onBeforeUnmount(() => {
                 · smoothing window
                 {{ props.chartData.meta.smoothing_window }}
             </p>
+
+            <Toggle
+                v-model="datasetMode"
+                :options="toggleOptions"
+                color="orange"
+                :disabled="false"
+            />
         </header>
 
         <div class="rating-distribution__chart">
