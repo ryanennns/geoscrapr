@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Log;
 
 class GetLatestPlayerRatings extends Command
 {
-    private const ENDPOINT = 'api/v4/ranked-system/ratings';
-    private const LIMIT = 100;
+    private const string ENDPOINT = 'api/v4/ranked-system/ratings';
+    private const int LIMIT = 100;
 
-    private const MOVING_GAMETYPE = 'StandardDuels';
-    private const NO_MOVE_GAMETYPE = 'NoMoveDuels';
-    private const NMPZ_GAMETYPE = 'NmpzDuels';
+    private const string MOVING_GAMETYPE = 'StandardDuels';
+    private const string NO_MOVE_GAMETYPE = 'NoMoveDuels';
+    private const string NMPZ_GAMETYPE = 'NmpzDuels';
 
-    private const GAMETYPE_COLUMN_MAP = [
+    private const array GAMETYPE_COLUMN_MAP = [
         null                   => 'rating',
         self::MOVING_GAMETYPE  => 'moving_rating',
         self::NO_MOVE_GAMETYPE => 'no_move_rating',
@@ -47,8 +47,8 @@ class GetLatestPlayerRatings extends Command
 
     public function fetchPaginatedPlayerData(?string $gameMode): void
     {
-        $keepFetching = true;
-        for ($i = 0; $keepFetching; $i += 100) {
+        $keepFetching = 0;
+        for ($i = 0; $keepFetching < 25; $i += 100) {
             try {
                 $response = Http::withHeaders([
                     ...GeoGuessrHttp::HEADERS,
@@ -81,8 +81,8 @@ class GetLatestPlayerRatings extends Command
 
                 $this->info('Players: ' . Player::query()->count() . ' $i = ' . $i . ' gameMode = ' . $gameMode ?? 'all');
             } catch (\Exception $e) {
-                $this->error('An error occurred - ' . $e->getMessage());
-                $keepFetching = false;
+                $this->error("{${GetLatestPlayerRatings::class}} error - " . $e->getMessage(), $e->getTrace());
+                $keepFetching++;
 
                 Log::error($e->getMessage());
             }

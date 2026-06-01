@@ -17,14 +17,14 @@ class UpdatePlayerRatings implements ShouldQueue
 {
     use Queueable;
 
-    public const ENDPOINT = 'api/v4/ranked-system/ratings';
-    private const LIMIT = 100;
+    public const string ENDPOINT = 'api/v4/ranked-system/ratings';
+    private const int LIMIT = 100;
 
-    private const MOVING_GAMETYPE = 'StandardDuels';
-    private const NO_MOVE_GAMETYPE = 'NoMoveDuels';
-    private const NMPZ_GAMETYPE = 'NmpzDuels';
+    private const string MOVING_GAMETYPE = 'StandardDuels';
+    private const string NO_MOVE_GAMETYPE = 'NoMoveDuels';
+    private const string NMPZ_GAMETYPE = 'NmpzDuels';
 
-    private const GAMETYPE_COLUMN_MAP = [
+    private const array GAMETYPE_COLUMN_MAP = [
         null                   => 'rating',
         self::MOVING_GAMETYPE  => 'moving_rating',
         self::NO_MOVE_GAMETYPE => 'no_move_rating',
@@ -33,7 +33,7 @@ class UpdatePlayerRatings implements ShouldQueue
 
     public int $timeout = 900;
 
-    public function geoGuessrKeyToTableKey(string|null $key)
+    public function geoGuessrKeyToTableKey(string|null $key): string
     {
         return match ($key) {
             self::MOVING_GAMETYPE => 'moving',
@@ -53,8 +53,8 @@ class UpdatePlayerRatings implements ShouldQueue
 
     public function fetchPaginatedPlayerData(?string $gameMode): void
     {
-        $keepFetching = true;
-        for ($i = 0; $keepFetching; $i += 100) {
+        $keepFetching = 0;
+        for ($i = 0; $keepFetching < 25; $i += 100) {
             try {
                 $response = Http::withHeaders([
                     ...GeoGuessrHttp::HEADERS,
@@ -95,7 +95,7 @@ class UpdatePlayerRatings implements ShouldQueue
 
                     if ((Arr::get($existing, $userId)?->$ratingColumn) !== $newRating) {
                         $ratingChanges[] = [
-                            'user_id' => $userId,
+                            'user_id'       => $userId,
                             'id'            => Str::uuid()->toString(),
                             'rateable_type' => Player::class,
                             'rateable_id'   => Arr::get($existing, $userId)?->id,
@@ -138,9 +138,9 @@ class UpdatePlayerRatings implements ShouldQueue
 
                 RatingChange::query()->insert($ratingChanges);
             } catch (\Exception $e) {
-                $keepFetching = false;
+                $keepFetching++;
 
-                Log::error($e->getMessage());
+                Log::error("{${UpdatePlayerRatings::class}} error - " . $e->getMessage(), $e->getTrace());
             }
         }
     }

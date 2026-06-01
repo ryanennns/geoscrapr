@@ -26,7 +26,8 @@ class UpdateTeamRatings implements ShouldQueue
         $initPlayersCount = Player::query()->count();
         $initTeamsCount = Team::query()->count();
         $initRatingChangeCount = RatingChange::query()->where('rateable_type', Team::class)->count();
-        for ($i = 0; $keepFetching; $i += 100) {
+
+        for ($i = 0; $keepFetching < 25; $i += 100) {
             try {
                 $response = Http::withHeaders([
                     ...GeoGuessrHttp::HEADERS,
@@ -64,7 +65,9 @@ class UpdateTeamRatings implements ShouldQueue
                     ]);
                 });
             } catch (\Exception $e) {
-                $keepFetching = false;
+                $keepFetching++;
+
+                Log::error("{${UpdateTeamRatings::class}} error - " . $e->getMessage(), $e->getTrace());
             }
         }
 

@@ -6,6 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class UpdatePlayerRanks implements ShouldQueue
 {
@@ -13,6 +14,9 @@ class UpdatePlayerRanks implements ShouldQueue
 
     public int $timeout = 900;
 
+    /**
+     * @throws Throwable
+     */
     public function handle(): void
     {
         DB::transaction(function () {
