@@ -68,6 +68,7 @@ class GamesPlayedDistributionController extends Controller
 
             $summary[] = [
                 'bucket'      => $label,
+                'sample_size' => $ratings->count(),
                 'mean_rating' => $ratings->count()
                     ? round($ratings->avg(), 2)
                     : null,

@@ -50,6 +50,7 @@ type RatingDistributionResponse = {
     };
     summary: {
         bucket: string;
+        sample_size: number;
         mean_rating: number | null;
         median_rating: number | null;
     }[];
@@ -210,6 +211,7 @@ onBeforeUnmount(() => {
             <thead>
                 <tr>
                     <th>Bucket</th>
+                    <th>Sample Size</th>
                     <th>Mean</th>
                     <th>Median</th>
                 </tr>
@@ -218,6 +220,7 @@ onBeforeUnmount(() => {
             <tbody>
                 <tr v-for="row in props.chartData.summary" :key="row.bucket">
                     <td>{{ row.bucket }}</td>
+                    <td>{{ row.sample_size.toLocaleString() }}</td>
                     <td>{{ row.mean_rating ?? "—" }}</td>
                     <td>{{ row.median_rating ?? "—" }}</td>
                 </tr>
