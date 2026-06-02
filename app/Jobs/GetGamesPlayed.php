@@ -81,7 +81,7 @@ class GetGamesPlayed implements ShouldQueue
         } catch (Exception $e) {
             Log::error($e->getMessage(), $e->getTrace());
         } finally {
-            GetGamesPlayed::dispatch()->delay(now()->addSeconds(5));
+            GetGamesPlayed::dispatch()->delay(now()->addSeconds(3));
         }
     }
 
