@@ -67,13 +67,7 @@ const props = defineProps<{
     chartData: RatingDistributionResponse;
 }>();
 
-const lineColors = [
-    "#0f766e",
-    "#dc2626",
-    "#2563eb",
-    "#ca8a04",
-    "#7c3aed",
-];
+const lineColors = ["#0f766e", "#dc2626", "#2563eb", "#ca8a04", "#7c3aed"];
 
 const datasetMode = ref("smoothed");
 const canvasRef = ref<HTMLCanvasElement | null>(null);
