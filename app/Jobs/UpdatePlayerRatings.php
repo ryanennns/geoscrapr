@@ -4,12 +4,11 @@ namespace App\Jobs;
 
 use App\GeoGuessrHttp;
 use App\Models\Player;
+use App\Models\RankedGamesScannedUserIds;
 use App\Models\RatingChange;
-use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -18,10 +17,13 @@ class UpdatePlayerRatings implements ShouldQueue
     use Queueable;
 
     public const string ENDPOINT = 'api/v4/ranked-system/ratings';
+
     private const int LIMIT = 100;
 
     private const string MOVING_GAMETYPE = 'StandardDuels';
+
     private const string NO_MOVE_GAMETYPE = 'NoMoveDuels';
+
     private const string NMPZ_GAMETYPE = 'NmpzDuels';
 
     private const array GAMETYPE_COLUMN_MAP = [
@@ -33,13 +35,13 @@ class UpdatePlayerRatings implements ShouldQueue
 
     public int $timeout = 900;
 
-    public function geoGuessrKeyToTableKey(string|null $key): string
+    public function geoGuessrKeyToTableKey(?string $key): string
     {
         return match ($key) {
-            self::MOVING_GAMETYPE => 'moving',
+            self::MOVING_GAMETYPE  => 'moving',
             self::NO_MOVE_GAMETYPE => 'no_move',
-            self::NMPZ_GAMETYPE => 'nmpz',
-            null => 'overall',
+            self::NMPZ_GAMETYPE    => 'nmpz',
+            null                   => 'overall',
         };
     }
 
@@ -77,12 +79,14 @@ class UpdatePlayerRatings implements ShouldQueue
                 $ratingColumn = self::GAMETYPE_COLUMN_MAP[$gameMode];
 
                 $ratingChanges = [];
+                $changedUserIds = [];
                 $upsertRows = [];
                 foreach ($players as $player) {
                     $userId = $player->userId;
                     $newRating = $player->rating;
 
                     if ((Arr::get($existing, $userId)?->$ratingColumn) !== $newRating) {
+                        $changedUserIds[] = $userId;
                         $ratingChanges[] = [
                             'user_id'       => $userId,
                             'id'            => Str::uuid()->toString(),
@@ -112,7 +116,7 @@ class UpdatePlayerRatings implements ShouldQueue
 
                 $ratingChanges = collect($ratingChanges)
                     ->map(function ($item) {
-                        if (!is_null($item['rateable_id'])) {
+                        if (! is_null($item['rateable_id'])) {
                             unset($item['user_id']);
 
                             return $item;
@@ -126,6 +130,8 @@ class UpdatePlayerRatings implements ShouldQueue
                     })->toArray();
 
                 RatingChange::query()->insert($ratingChanges);
+
+                RankedGamesScannedUserIds::removeUserIds($changedUserIds);
             } catch (\Exception $e) {
                 $keepFetching++;
 

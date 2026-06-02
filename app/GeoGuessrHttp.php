@@ -14,6 +14,7 @@ class GeoGuessrHttp
     public const string BASE_URL = 'https://www.geoguessr.com/';
 
     public const string RATINGS_ENDPOINT = 'api/v4/ranked-system/ratings';
+
     public const string TEAM_RATINGS_ENDPOINT = 'api/v4/ranked-team-duels/ratings';
 
     public const array HEADERS = [
@@ -38,7 +39,7 @@ class GeoGuessrHttp
      * @throws ConnectionException
      * @throws Exception
      */
-    public static function rankedSystemRatings(int $offset, int $limit, string $gameMode): PromiseInterface|Response
+    public static function rankedSystemRatings(int $offset, int $limit, ?string $gameMode): PromiseInterface|Response
     {
         $response = Http::withHeaders([
             ...self::HEADERS,
@@ -63,10 +64,10 @@ class GeoGuessrHttp
     {
         $response = Http::withHeaders([
             ...GeoGuessrHttp::HEADERS,
-            "cookie" => GeoGuessrHttp::cookieString(),
+            'cookie' => GeoGuessrHttp::cookieString(),
         ])->get(GeoGuessrHttp::BASE_URL . self::TEAM_RATINGS_ENDPOINT, [
             'offset' => $offset,
-            'limit'  => $limit
+            'limit'  => $limit,
         ]);
 
         if (! $response->successful()) {
