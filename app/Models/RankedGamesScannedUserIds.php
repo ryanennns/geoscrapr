@@ -15,14 +15,13 @@ class RankedGamesScannedUserIds extends Model
     public static function removeUserIds(array $userIds): void
     {
         $userIds = array_flip($userIds);
+        $scannedUserIds = static::query()->latest()->first();
 
-        static::query()->each(function (self $scannedUserIds) use ($userIds) {
-            $scannedUserIds->update([
-                'user_ids' => array_values(array_filter(
-                    $scannedUserIds->user_ids,
-                    fn (string $userId) => ! isset($userIds[$userId])
-                )),
-            ]);
-        });
+        $scannedUserIds?->update([
+            'user_ids' => array_values(array_filter(
+                $scannedUserIds->user_ids,
+                fn (string $userId) => ! isset($userIds[$userId])
+            )),
+        ]);
     }
 }

@@ -64,8 +64,15 @@ class UpdatePlayerRatingsTest extends TestCase
         ]);
         $otherUserId = Str::uuid()->toString();
 
+        $previousScannedUserIds = RankedGamesScannedUserIds::query()->create([
+            'user_ids'   => [$changedPlayer->user_id],
+            'created_at' => now()->subMinute(),
+            'updated_at' => now()->subMinute(),
+        ]);
         $scannedUserIds = RankedGamesScannedUserIds::query()->create([
-            'user_ids' => [$changedPlayer->user_id, $unchangedPlayer->user_id, $otherUserId],
+            'user_ids'   => [$changedPlayer->user_id, $unchangedPlayer->user_id, $otherUserId],
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         Http::fake([
@@ -93,6 +100,7 @@ class UpdatePlayerRatingsTest extends TestCase
             [$unchangedPlayer->user_id, $otherUserId],
             $scannedUserIds->refresh()->user_ids
         );
+        $this->assertSame([$changedPlayer->user_id], $previousScannedUserIds->refresh()->user_ids);
     }
 
     public function test_prod()
