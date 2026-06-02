@@ -60,6 +60,8 @@ type RatingDistributionResponse = {
         rating_max: number;
         bucket_size: number;
         smoothing_window: number;
+        x_axis: string;
+        y_axis: string;
     };
 };
 

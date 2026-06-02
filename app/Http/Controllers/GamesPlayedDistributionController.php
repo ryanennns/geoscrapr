@@ -32,8 +32,7 @@ class GamesPlayedDistributionController extends Controller
             ->get();
 
         $bands = [
-            '1-100'    => [1, 100],
-            '101-250'  => [101, 250],
+            '1-250'    => [1, 250],
             '251-500'  => [251, 500],
             '501-1000' => [501, 1000],
             '1001+'    => [1001, null],
