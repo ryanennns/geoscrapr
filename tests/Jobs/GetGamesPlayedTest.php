@@ -32,9 +32,9 @@ class GetGamesPlayedTest extends TestCase
     public function test_it_updates_rating_and_creates_rating_change()
     {
         $player = $this->createActivePlayer([
-            'user_id' => Str::uuid()->toString(),
-            'nmpz_rating' => 1000,
-            'moving_rating' => 1000,
+            'user_id'             => Str::uuid()->toString(),
+            'nmpz_rating'         => 1000,
+            'moving_rating'       => 1000,
             'ranked_duels_played' => 0,
         ]);
 
@@ -45,11 +45,11 @@ class GetGamesPlayedTest extends TestCase
         new GetGamesPlayed(0)->handle();
 
         $this->assertDatabaseHas('players', [
-            'user_id' => $player->user_id,
-            'ranked_duels_played' => 219,
+            'user_id'                    => $player->user_id,
+            'ranked_duels_played'        => 219,
             'single_player_games_played' => 3,
-            'unranked_duels_played' => 2,
-            'ranked_team_duels_played' => 8,
+            'unranked_duels_played'      => 2,
+            'ranked_team_duels_played'   => 8,
             'unranked_team_duels_played' => 0,
         ]);
     }
@@ -59,9 +59,9 @@ class GetGamesPlayedTest extends TestCase
         $this->assertDatabaseEmpty('ranked_games_scanned_user_ids');
 
         $player = $this->createActivePlayer([
-            'user_id' => self::ID,
-            'nmpz_rating' => 1000,
-            'moving_rating' => 1000,
+            'user_id'             => self::ID,
+            'nmpz_rating'         => 1000,
+            'moving_rating'       => 1000,
             'ranked_duels_played' => 0,
         ]);
 
@@ -72,7 +72,7 @@ class GetGamesPlayedTest extends TestCase
         new GetGamesPlayed(0)->handle();
 
         $this->assertDatabaseHas('ranked_games_scanned_user_ids', [
-            'user_ids' => json_encode([$player->user_id]),
+            'user_ids' => json_encode([$player->getKey()]),
         ]);
     }
 
@@ -81,16 +81,16 @@ class GetGamesPlayedTest extends TestCase
         $this->assertDatabaseEmpty('ranked_games_scanned_user_ids');
 
         $player = $this->createActivePlayer([
-            'nmpz_rating' => 1000,
-            'moving_rating' => 1000,
+            'nmpz_rating'         => 1000,
+            'moving_rating'       => 1000,
             'ranked_duels_played' => 0,
-            'created_at' => now(),
+            'created_at'          => now(),
         ]);
         $playerTwo = $this->createActivePlayer([
-            'nmpz_rating' => 1000,
-            'moving_rating' => 1000,
+            'nmpz_rating'         => 1000,
+            'moving_rating'       => 1000,
             'ranked_duels_played' => 0,
-            'created_at' => now()->subSecond(),
+            'created_at'          => now()->subSecond(),
         ]);
 
         Http::fake([
@@ -100,13 +100,13 @@ class GetGamesPlayedTest extends TestCase
         new GetGamesPlayed(0)->handle();
 
         $this->assertDatabaseHas('ranked_games_scanned_user_ids', [
-            'user_ids' => json_encode([$player->user_id]),
+            'user_ids' => json_encode([$player->getKey()]),
         ]);
 
         new GetGamesPlayed(1)->handle();
 
         $this->assertDatabaseHas('ranked_games_scanned_user_ids', [
-            'user_ids' => json_encode([$player->user_id, $playerTwo->user_id]),
+            'user_ids' => json_encode([$player->getKey(), $playerTwo->getKey()]),
         ]);
     }
 
@@ -115,20 +115,20 @@ class GetGamesPlayedTest extends TestCase
         $this->assertDatabaseEmpty('ranked_games_scanned_user_ids');
 
         $player = $this->createActivePlayer([
-            'nmpz_rating' => 1000,
-            'moving_rating' => 1000,
+            'nmpz_rating'         => 1000,
+            'moving_rating'       => 1000,
             'ranked_duels_played' => 0,
-            'created_at' => now(),
+            'created_at'          => now(),
         ]);
         $playerTwo = $this->createActivePlayer([
-            'nmpz_rating' => 1000,
-            'moving_rating' => 1000,
+            'nmpz_rating'         => 1000,
+            'moving_rating'       => 1000,
             'ranked_duels_played' => 0,
-            'created_at' => now()->subSecond(),
+            'created_at'          => now()->subSecond(),
         ]);
 
         RankedGamesScannedUserIds::query()->create([
-            'user_ids' => [$player->user_id, $playerTwo->user_id],
+            'user_ids' => [$player->getKey(), $playerTwo->getKey()],
         ]);
 
         Http::fake([
@@ -139,7 +139,7 @@ class GetGamesPlayedTest extends TestCase
 
         $this->assertDatabaseCount('ranked_games_scanned_user_ids', 2);
         $this->assertDatabaseHas('ranked_games_scanned_user_ids', [
-            'user_ids' => json_encode([$player->user_id]),
+            'user_ids' => json_encode([$player->getKey()]),
         ]);
     }
 
@@ -147,11 +147,11 @@ class GetGamesPlayedTest extends TestCase
     {
         $inactivePlayer = $this->createInactivePlayer([
             'ranked_duels_played' => 0,
-            'created_at' => now(),
+            'created_at'          => now(),
         ]);
         $activePlayer = $this->createActivePlayer([
             'ranked_duels_played' => 0,
-            'created_at' => now()->subSecond(),
+            'created_at'          => now()->subSecond(),
         ]);
 
         Http::fake([
@@ -161,11 +161,11 @@ class GetGamesPlayedTest extends TestCase
         new GetGamesPlayed(0)->handle();
 
         $this->assertDatabaseHas('players', [
-            'user_id' => $activePlayer->user_id,
+            'user_id'             => $activePlayer->user_id,
             'ranked_duels_played' => 219,
         ]);
         $this->assertDatabaseHas('players', [
-            'user_id' => $inactivePlayer->user_id,
+            'user_id'             => $inactivePlayer->user_id,
             'ranked_duels_played' => 0,
         ]);
     }
@@ -173,9 +173,9 @@ class GetGamesPlayedTest extends TestCase
     public function test_it_stores_null_when_ranked_duels_stat_is_missing()
     {
         $player = $this->createActivePlayer([
-            'ranked_duels_played' => 0,
+            'ranked_duels_played'        => 0,
             'single_player_games_played' => 0,
-            'created_at' => now(),
+            'created_at'                 => now(),
         ]);
 
         Http::fake([
@@ -191,6 +191,33 @@ class GetGamesPlayedTest extends TestCase
         $this->assertNotSame(0, $player->ranked_duels_played);
     }
 
+    public function test_it_skips_players_that_have_already_been_scanned()
+    {
+        $scannedPlayer = $this->createActivePlayer();
+        $unscannedPlayer = $this->createActivePlayer([
+            'created_at' => now()->subSecond(),
+        ]);
+
+        Http::fake([
+            '*' => Http::response($this->contents),
+        ]);
+
+        RankedGamesScannedUserIds::query()->create([
+            'user_ids' => [$scannedPlayer->getKey()],
+        ]);
+
+        new GetGamesPlayed()->handle();
+
+        $this->assertDatabaseHas('players', [
+            'id'                  => $scannedPlayer->getKey(),
+            'ranked_duels_played' => 0,
+        ]);
+        $this->assertDatabaseHas('players', [
+            'id'                  => $unscannedPlayer->getKey(),
+            'ranked_duels_played' => 219,
+        ]);
+    }
+
     private function createActivePlayer(array $attributes = []): Player
     {
         $player = Player::factory()->create([
@@ -199,7 +226,7 @@ class GetGamesPlayedTest extends TestCase
         ]);
 
         $player->ratingChanges()->create([
-            'rating' => 1000,
+            'rating'     => 1000,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -215,7 +242,7 @@ class GetGamesPlayedTest extends TestCase
         ]);
 
         $player->ratingChanges()->create([
-            'rating' => 1000,
+            'rating'     => 1000,
             'created_at' => now()->subDays(8),
             'updated_at' => now()->subDays(8),
         ]);
