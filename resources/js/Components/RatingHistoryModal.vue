@@ -228,21 +228,6 @@ const fetchExpandedPlayerRatingHistory = async (
     ]);
 };
 
-const fetchAllPlayerRatingHistory = async (
-    playerId: string,
-): Promise<RateableHistoryByType> => {
-    const responses = await Promise.all([
-        getRateableHistory("player", playerId, "overall"),
-        getRateableHistory("player", playerId, "moving"),
-        getRateableHistory("player", playerId, "no_move"),
-        getRateableHistory("player", playerId, "nmpz"),
-    ]);
-
-    return splitRatingHistoryByType(
-        responses.flatMap((response) => response.data ?? []),
-    );
-};
-
 const handleKeydown = (e: KeyboardEvent) => {
     if (e.key !== "Escape") {
         return;
@@ -359,7 +344,11 @@ const renderRatingChart = () => {
         },
     ];
 
-    if (expanded.value && props.leaderboardRow.type === "player") {
+    if (
+        expanded.value &&
+        props.leaderboardRow.type === "player" &&
+        !isComparingPlayers.value
+    ) {
         (["moving", "no_move", "nmpz"] as RatingType[]).forEach(
             (ratingType) => {
                 const history = allRatingHistory.value[ratingType];
@@ -437,6 +426,9 @@ const renderRatingChart = () => {
 };
 
 const playerToCompareWith = ref<LeaderboardRow | null>(null);
+const isComparingPlayers = computed<boolean>(
+    () => playerToCompareWith.value !== null,
+);
 const playerToCompareWithRatingHistory = ref<RatingChange[]>([]);
 const playerToCompareWithAllRatingHistory = ref<RateableHistoryByType>(
     createEmptyRatingHistory(),
@@ -453,9 +445,9 @@ const handleSelectPlayerToCompareWith = async (event: {
     playerToCompareWithRatingHistory.value = sortRatingHistory(
         result.data || [],
     );
-    playerToCompareWithAllRatingHistory.value = expanded.value
-        ? await fetchAllPlayerRatingHistory(playerToCompareWith.value.id)
-        : splitRatingHistoryByType(playerToCompareWithRatingHistory.value);
+    playerToCompareWithAllRatingHistory.value = splitRatingHistoryByType(
+        playerToCompareWithRatingHistory.value,
+    );
 
     set("compare_with", String(playerToCompareWith.value.id));
 
@@ -471,6 +463,17 @@ const handleClearComparison = async () => {
     playerToCompareWithRatingHistory.value = [];
     playerToCompareWithAllRatingHistory.value = createEmptyRatingHistory();
     clear("compare_with");
+
+    if (
+        expanded.value &&
+        props.leaderboardRow.type === "player" &&
+        !hasExpandedRatingHistory.value
+    ) {
+        allRatingHistory.value = await fetchExpandedPlayerRatingHistory(
+            props.leaderboardRow.id,
+            props.ratingHistory,
+        );
+    }
 
     chartVisible.value = false;
     await new Promise<void>((resolve) => setTimeout(resolve, 150));
@@ -501,6 +504,7 @@ watch(
             !isExpanded ||
             !showModal ||
             props.leaderboardRow.type !== "player" ||
+            isComparingPlayers.value ||
             hasExpandedRatingHistory.value
         ) {
             return;
@@ -510,11 +514,6 @@ watch(
             props.leaderboardRow.id,
             props.ratingHistory,
         );
-
-        if (playerToCompareWith.value) {
-            playerToCompareWithAllRatingHistory.value =
-                await fetchAllPlayerRatingHistory(playerToCompareWith.value.id);
-        }
 
         await nextTick();
         renderRatingChart();
@@ -606,9 +605,9 @@ onMounted(async () => {
         playerToCompareWithRatingHistory.value = sortRatingHistory(
             (await getRateableHistory("player", compareWith))?.data ?? [],
         );
-        playerToCompareWithAllRatingHistory.value = expanded.value
-            ? await fetchAllPlayerRatingHistory(compareWith)
-            : splitRatingHistoryByType(playerToCompareWithRatingHistory.value);
+        playerToCompareWithAllRatingHistory.value = splitRatingHistoryByType(
+            playerToCompareWithRatingHistory.value,
+        );
 
         await nextTick();
 
