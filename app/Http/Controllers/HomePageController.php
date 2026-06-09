@@ -88,8 +88,17 @@ class HomePageController extends Controller
             ->whereNotNull('rating')
             ->orderBy('rating', 'desc');
 
-        $playerData = $playerQuery->limit(10)->get();
-        $totalCount = $playerQuery->count();
+        $playerData = Cache::remember(
+            "{$today}_player_data",
+            now()->addDay(),
+            fn() => $playerQuery->limit(10)->get(),
+        );
+
+        $totalCount = Cache::remember(
+            "{$today}_total_count",
+            now()->addDay(),
+            fn() => $playerQuery->count(),
+        );
         $playerData = $playerData->map(fn($item) => [
             ...$item->toArray(),
             'percentile' => 100 - (($item->rank - 1) / $totalCount * 100),
