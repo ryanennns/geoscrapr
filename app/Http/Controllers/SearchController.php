@@ -8,6 +8,7 @@ use App\Models\Player;
 use App\Models\Team;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Cache;
 
 class SearchController extends Controller
 {
@@ -15,23 +16,31 @@ class SearchController extends Controller
     {
         $query = $request->input('q');
 
-        $players = Player::query()
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'ilike', "%$query%")
-                    ->orWhere('user_id', 'like', "%$query%");
-            })
-            ->whereNotNull('rating')
-            ->orderBy('rating', 'desc')
-            ->limit(5)
-            ->get();
+        $players = Cache::remember(
+            'players.' . $query,
+            now()->addDay(),
+            fn() => Player::query()
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'ilike', "%$query%")
+                        ->orWhere('user_id', 'like', "%$query%");
+                })
+                ->whereNotNull('rating')
+                ->orderBy('rating', 'desc')
+                ->limit(5)
+                ->get()
+        );
 
 
-        $teams = Team::query()
-            ->where('name', 'like', "%$query%")
-            ->orWhere('team_id', 'like', "%$query%")
-            ->orderBy('rating', 'desc')
-            ->limit(5)
-            ->get();
+        $teams = Cache::remember(
+            'teams.' . $query,
+            now()->addDay(),
+            fn() => Team::query()
+                ->where('name', 'like', "%$query%")
+                ->orWhere('team_id', 'like', "%$query%")
+                ->orderBy('rating', 'desc')
+                ->limit(5)
+                ->get()
+        );
 
         return JsonResource::collection([
             'players' => PlayerResource::collection($players),
