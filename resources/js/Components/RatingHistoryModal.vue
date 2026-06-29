@@ -58,32 +58,6 @@
                     <CloseButton v-else @close="() => onClose()" />
                 </div>
 
-                <div
-                    v-if="playerToCompareWith"
-                    class="mt-3 flex justify-center"
-                >
-                    <div
-                        class="inline-flex rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden text-sm"
-                    >
-                        <button
-                            v-for="option in comparisonRatingTypeOptions"
-                            :key="option.value"
-                            type="button"
-                            class="px-3 py-1.5 transition-colors"
-                            :class="
-                                selectedComparisonRatingType === option.value
-                                    ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-                                    : 'bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700'
-                            "
-                            @click="
-                                handleSelectComparisonRatingType(option.value)
-                            "
-                        >
-                            {{ option.label }}
-                        </button>
-                    </div>
-                </div>
-
                 <div class="relative flex-1 min-h-0">
                     <div
                         class="absolute inset-0 flex items-start justify-center pt-10 z-10 pointer-events-none transition-opacity duration-300"
@@ -199,24 +173,11 @@ const ratingTypeStyles: Record<
         borderColor: "rgba(126, 34, 206, 0.9)",
     },
 };
-const comparisonRatingTypeOptions: Array<{ label: string; value: RatingType }> =
-    [
-        { label: "Overall", value: "overall" },
-        { label: "Moving", value: "moving" },
-        { label: "NM", value: "no_move" },
-        { label: "NMPZ", value: "nmpz" },
-    ];
 const createEmptyRatingHistory = (): RateableHistoryByType => ({
     overall: [],
     moving: [],
     no_move: [],
     nmpz: [],
-});
-const createFetchedRatingTypes = (): Record<RatingType, boolean> => ({
-    overall: true,
-    moving: false,
-    no_move: false,
-    nmpz: false,
 });
 
 const sortRatingHistory = (ratingHistory: RatingChange[]): RatingChange[] => {
@@ -293,8 +254,6 @@ const toggleExpand = async (rerender: boolean = true) => {
     playerToCompareWith.value = null;
     playerToCompareWithRatingHistory.value = [];
     playerToCompareWithAllRatingHistory.value = createEmptyRatingHistory();
-    selectedComparisonRatingType.value = "overall";
-    comparisonFetchedRatingTypes.value = createFetchedRatingTypes();
 
     if (rerender) {
         chartVisible.value = false;
@@ -333,9 +292,6 @@ const onClose = () => {
     playerToCompareWith.value = null;
     playerToCompareWithRatingHistory.value = [];
     playerToCompareWithAllRatingHistory.value = createEmptyRatingHistory();
-    selectedComparisonRatingType.value = "overall";
-    primaryFetchedRatingTypes.value = createFetchedRatingTypes();
-    comparisonFetchedRatingTypes.value = createFetchedRatingTypes();
     allRatingHistory.value = createEmptyRatingHistory();
 };
 
@@ -357,9 +313,7 @@ const renderRatingChart = () => {
         ratingChartInstance.value.destroy();
     }
 
-    const primaryRatingType = isComparingPlayers.value
-        ? selectedComparisonRatingType.value
-        : "overall";
+    const primaryRatingType = "overall";
     const primaryRatingStyle = ratingTypeStyles[primaryRatingType];
     const { labels, data: primaryRatingData } = getRatingHistoryChartData({
         daysToShow: daysToShow.value,
@@ -427,15 +381,13 @@ const renderRatingChart = () => {
     }
 
     if (playerToCompareWith.value) {
-        const comparisonRatingType = selectedComparisonRatingType.value;
         const { data } = getRatingHistoryChartData({
             daysToShow: daysToShow.value,
-            ratingHistory:
-                playerToCompareWithAllRatingHistory.value[comparisonRatingType],
+            ratingHistory: playerToCompareWithAllRatingHistory.value.overall,
         });
 
         datasets.push({
-            label: `${playerToCompareWith.value.name} ${ratingTypeStyles[comparisonRatingType].label}`,
+            label: `${playerToCompareWith.value.name} ${ratingTypeStyles.overall.label}`,
             data,
             borderColor: "rgba(220, 38, 38, 0.9)",
             backgroundColor: "rgba(255, 255, 255, 0)",
@@ -478,86 +430,15 @@ const playerToCompareWith = ref<LeaderboardRow | null>(null);
 const isComparingPlayers = computed<boolean>(
     () => playerToCompareWith.value !== null,
 );
-const selectedComparisonRatingType = ref<RatingType>("overall");
-const primaryFetchedRatingTypes = ref<Record<RatingType, boolean>>(
-    createFetchedRatingTypes(),
-);
-const comparisonFetchedRatingTypes = ref<Record<RatingType, boolean>>(
-    createFetchedRatingTypes(),
-);
 const playerToCompareWithRatingHistory = ref<RatingChange[]>([]);
 const playerToCompareWithAllRatingHistory = ref<RateableHistoryByType>(
     createEmptyRatingHistory(),
 );
 
-const fetchRatingHistoryForType = async (
-    playerId: string,
-    ratingType: RatingType,
-): Promise<RatingChange[]> => {
-    const result = await getRateableHistory("player", playerId, ratingType);
-
-    return sortRatingHistory(result.data ?? []);
-};
-
-const ensureComparisonRatingHistory = async (ratingType: RatingType) => {
-    if (ratingType === "overall") {
-        return;
-    }
-
-    const fetches: Promise<void>[] = [];
-
-    if (!primaryFetchedRatingTypes.value[ratingType]) {
-        fetches.push(
-            fetchRatingHistoryForType(props.leaderboardRow.id, ratingType).then(
-                (history) => {
-                    allRatingHistory.value = {
-                        ...allRatingHistory.value,
-                        [ratingType]: history,
-                    };
-                    primaryFetchedRatingTypes.value[ratingType] = true;
-                },
-            ),
-        );
-    }
-
-    if (
-        playerToCompareWith.value &&
-        !comparisonFetchedRatingTypes.value[ratingType]
-    ) {
-        fetches.push(
-            fetchRatingHistoryForType(
-                playerToCompareWith.value.id,
-                ratingType,
-            ).then((history) => {
-                playerToCompareWithAllRatingHistory.value = {
-                    ...playerToCompareWithAllRatingHistory.value,
-                    [ratingType]: history,
-                };
-                comparisonFetchedRatingTypes.value[ratingType] = true;
-            }),
-        );
-    }
-
-    await Promise.all(fetches);
-};
-
-const handleSelectComparisonRatingType = async (ratingType: RatingType) => {
-    selectedComparisonRatingType.value = ratingType;
-    chartVisible.value = false;
-
-    await ensureComparisonRatingHistory(ratingType);
-    await new Promise<void>((resolve) => setTimeout(resolve, 150));
-    renderRatingChart();
-    await nextTick();
-
-    chartVisible.value = true;
-};
-
 const handleSelectPlayerToCompareWith = async (event: {
     rateable: LeaderboardRow;
 }) => {
     playerToCompareWith.value = event.rateable;
-    comparisonFetchedRatingTypes.value = createFetchedRatingTypes();
 
     const result = await getRateableHistory(
         "player",
@@ -569,8 +450,6 @@ const handleSelectPlayerToCompareWith = async (event: {
     playerToCompareWithAllRatingHistory.value = splitRatingHistoryByType(
         playerToCompareWithRatingHistory.value,
     );
-
-    await ensureComparisonRatingHistory(selectedComparisonRatingType.value);
 
     set("compare_with", String(playerToCompareWith.value.id));
 
@@ -585,8 +464,6 @@ const handleClearComparison = async () => {
     playerToCompareWith.value = null;
     playerToCompareWithRatingHistory.value = [];
     playerToCompareWithAllRatingHistory.value = createEmptyRatingHistory();
-    selectedComparisonRatingType.value = "overall";
-    comparisonFetchedRatingTypes.value = createFetchedRatingTypes();
     clear("compare_with");
 
     if (
@@ -598,12 +475,6 @@ const handleClearComparison = async () => {
             props.leaderboardRow.id,
             props.ratingHistory,
         );
-        primaryFetchedRatingTypes.value = {
-            overall: true,
-            moving: true,
-            no_move: true,
-            nmpz: true,
-        };
     }
 
     chartVisible.value = false;
@@ -623,7 +494,6 @@ watch(
     () => props.leaderboardRow.id,
     async () => {
         allRatingHistory.value = splitRatingHistoryByType(props.ratingHistory);
-        primaryFetchedRatingTypes.value = createFetchedRatingTypes();
         await nextTick();
         renderRatingChart();
     },
@@ -646,12 +516,6 @@ watch(
             props.leaderboardRow.id,
             props.ratingHistory,
         );
-        primaryFetchedRatingTypes.value = {
-            overall: true,
-            moving: true,
-            no_move: true,
-            nmpz: true,
-        };
 
         await nextTick();
         renderRatingChart();
@@ -668,7 +532,6 @@ watch(
         ];
 
         allRatingHistory.value = splitRatingHistoryByType(ratingHistory);
-        primaryFetchedRatingTypes.value = createFetchedRatingTypes();
 
         if (show && ratingHistory) {
             await nextTick();
@@ -741,7 +604,6 @@ onMounted(async () => {
         playerToCompareWith.value = rateableToLeaderboardRows(
             (await getRateable(compareWith)).data!,
         );
-        comparisonFetchedRatingTypes.value = createFetchedRatingTypes();
         playerToCompareWithRatingHistory.value = sortRatingHistory(
             (await getRateableHistory("player", compareWith))?.data ?? [],
         );
