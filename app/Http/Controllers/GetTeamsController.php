@@ -30,7 +30,7 @@ class GetTeamsController extends Controller
             $this->cacheKey($order, $active, $page),
             now()->addDay(),
             function () use ($order, $active, $page) {
-                $query = Team::query();
+                $query = Team::query()->playedSinceRatingCorrection();
 
                 if ($order) {
                     $query->orderBy('rating', $order);
@@ -54,9 +54,9 @@ class GetTeamsController extends Controller
     {
         return 'teams.index:' . http_build_query([
             'active' => (bool) $active,
-            'date' => now()->toDateString(),
-            'order' => $order ?? 'desc',
-            'page' => $page,
+            'date'   => now()->toDateString(),
+            'order'  => $order ?? 'desc',
+            'page'   => $page,
         ], '', '&', PHP_QUERY_RFC3986);
     }
 }

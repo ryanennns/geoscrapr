@@ -19,7 +19,7 @@ class SearchController extends Controller
         $players = Cache::remember(
             'players.' . $query,
             now()->addDay(),
-            fn() => Player::query()
+            fn () => Player::query()
                 ->where(function ($q) use ($query) {
                     $q->where('name', 'ilike', "%$query%")
                         ->orWhere('user_id', 'like', "%$query%");
@@ -30,11 +30,10 @@ class SearchController extends Controller
                 ->get()
         );
 
-
         $teams = Cache::remember(
             'teams.' . $query,
             now()->addDay(),
-            fn() => Team::query()
+            fn () => Team::query()
                 ->where('name', 'like', "%$query%")
                 ->orWhere('team_id', 'like', "%$query%")
                 ->orderBy('rating', 'desc')

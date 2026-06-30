@@ -26,14 +26,16 @@ class CreateEloDistributionSnapshot implements ShouldQueue
         try {
             $playerN = Player::query()
                 ->whereNotNull('rating')
+                ->playedSinceRatingCorrection()
                 ->count();
 
             Player::query()
                 ->whereNotNull('rating')
+                ->playedSinceRatingCorrection()
                 ->select('rating')
                 ->chunk(100, function ($players) use (&$singleplayerBuckets) {
                     foreach ($players as $player) {
-                        $bucketIndex = min((int)($player->rating / self::INTERVAL_SIZE), count($singleplayerBuckets) - 1);
+                        $bucketIndex = min((int) ($player->rating / self::INTERVAL_SIZE), count($singleplayerBuckets) - 1);
                         $singleplayerBuckets[$bucketIndex]++;
                     }
                 });
@@ -44,9 +46,10 @@ class CreateEloDistributionSnapshot implements ShouldQueue
                 'buckets'  => collect($singleplayerBuckets)->mapWithKeys(function ($count, $i) {
                     $lower = $i * self::INTERVAL_SIZE;
                     $upper = $lower + self::INTERVAL_SIZE - 1;
+
                     return ["$lower-$upper" => $count];
                 }),
-                'n'        => $playerN,
+                'n' => $playerN,
             ]);
 
             Log::info("Generated singleplayer ELO snapshot for $playerN players");
@@ -58,13 +61,15 @@ class CreateEloDistributionSnapshot implements ShouldQueue
         try {
             $teamN = Team::query()
                 ->whereNotNull('rating')
+                ->playedSinceRatingCorrection()
                 ->count();
 
             Team::query()
                 ->whereNotNull('rating')
+                ->playedSinceRatingCorrection()
                 ->select('rating')->chunk(100, function ($teams) use (&$teamsBuckets) {
                     foreach ($teams as $team) {
-                        $bucketIndex = min((int)($team->rating / self::INTERVAL_SIZE), count($teamsBuckets) - 1);
+                        $bucketIndex = min((int) ($team->rating / self::INTERVAL_SIZE), count($teamsBuckets) - 1);
                         $teamsBuckets[$bucketIndex]++;
                     }
                 });
@@ -75,9 +80,10 @@ class CreateEloDistributionSnapshot implements ShouldQueue
                 'buckets'  => collect($teamsBuckets)->mapWithKeys(function ($count, $i) {
                     $lower = $i * self::INTERVAL_SIZE;
                     $upper = $lower + self::INTERVAL_SIZE - 1;
+
                     return ["$lower-$upper" => $count];
                 }),
-                'n'        => $teamN,
+                'n' => $teamN,
             ]);
 
             Log::info("Generated teams ELO snapshot for $teamN players");

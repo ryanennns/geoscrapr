@@ -21,29 +21,29 @@ class HomePageController extends Controller
         $rangeDates = Cache::remember(
             "{$today}_range_dates",
             now()->addDay(),
-            fn() => EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
+            fn () => EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
                 ->where('type', EloSnapshot::TYPE_ELO_RANGE)
                 ->distinct()
                 ->orderBy('date')
                 ->pluck('date')
-                ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
+                ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
         );
 
         $percentileDates = Cache::remember(
             "{$today}_percentile_dates",
             now()->addDay(),
-            fn() => EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
+            fn () => EloSnapshot::query()->select(DB::raw('DATE(created_at) as date'))
                 ->where('type', EloSnapshot::TYPE_PERCENTILE)
                 ->distinct()
                 ->orderBy('date')
                 ->pluck('date')
-                ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
+                ->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))
         );
 
         $soloRangeSnapshots = Cache::remember(
             "{$today}_solo_range_snapshots",
             now()->addDay(),
-            fn() => EloSnapshot::query()
+            fn () => EloSnapshot::query()
                 ->where('gamemode', 'solo')
                 ->where('type', EloSnapshot::TYPE_ELO_RANGE)
                 ->orderByDesc('date')
@@ -54,7 +54,7 @@ class HomePageController extends Controller
         $teamRangeSnapshots = Cache::remember(
             "{$today}_team_range_snapshots",
             now()->addDay(),
-            fn() => EloSnapshot::query()
+            fn () => EloSnapshot::query()
                 ->where('gamemode', 'team')
                 ->where('type', EloSnapshot::TYPE_ELO_RANGE)
                 ->orderByDesc('date')
@@ -65,7 +65,7 @@ class HomePageController extends Controller
         $soloPercentileSnapshots = Cache::remember(
             "{$today}_solo_percentile_snapshots",
             now()->addDay(),
-            fn() => EloSnapshot::query()
+            fn () => EloSnapshot::query()
                 ->where('gamemode', 'solo')
                 ->where('type', EloSnapshot::TYPE_PERCENTILE)
                 ->orderByDesc('date')
@@ -76,7 +76,7 @@ class HomePageController extends Controller
         $teamPercentileSnapshots = Cache::remember(
             "{$today}_team_percentile_snapshots",
             now()->addDay(),
-            fn() => EloSnapshot::query()
+            fn () => EloSnapshot::query()
                 ->where('gamemode', 'team')
                 ->where('type', EloSnapshot::TYPE_PERCENTILE)
                 ->orderByDesc('date')
@@ -86,49 +86,50 @@ class HomePageController extends Controller
 
         $playerQuery = Player::query()
             ->whereNotNull('rating')
+            ->playedSinceRatingCorrection()
             ->orderBy('rating', 'desc');
 
         $playerData = Cache::remember(
             "{$today}_player_data",
             now()->addDay(),
-            fn() => $playerQuery->limit(10)->get(),
+            fn () => $playerQuery->limit(10)->get(),
         );
 
         $totalCount = Cache::remember(
             "{$today}_total_count",
             now()->addDay(),
-            fn() => $playerQuery->count(),
+            fn () => $playerQuery->count(),
         );
-        $playerData = $playerData->map(fn($item) => [
+        $playerData = $playerData->map(fn ($item) => [
             ...$item->toArray(),
             'percentile' => 100 - (($item->rank - 1) / $totalCount * 100),
         ]);
 
         return Inertia::render('HomePage', [
-            'solo_snapshots'            => $soloRangeSnapshots->map(fn($snapshot) => [
+            'solo_snapshots' => $soloRangeSnapshots->map(fn ($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
-            'team_snapshots'            => $teamRangeSnapshots->map(fn($snapshot) => [
+            'team_snapshots' => $teamRangeSnapshots->map(fn ($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
-            'solo_percentile_snapshots' => $soloPercentileSnapshots->map(fn($snapshot) => [
+            'solo_percentile_snapshots' => $soloPercentileSnapshots->map(fn ($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
-            'team_percentile_snapshots' => $teamPercentileSnapshots->map(fn($snapshot) => [
+            'team_percentile_snapshots' => $teamPercentileSnapshots->map(fn ($snapshot) => [
                 'date'    => Carbon::parse($snapshot->date)->format('Y-m-d'),
                 'buckets' => json_decode($snapshot->buckets, true),
                 'n'       => $snapshot->n,
             ])->toArray(),
-            'range_dates'               => $rangeDates,
-            'percentile_dates'          => $percentileDates,
-            'leaderboard'               => $playerData->toArray(),
-            'leaderboard_count'         => $totalCount,
+            'range_dates'       => $rangeDates,
+            'percentile_dates'  => $percentileDates,
+            'leaderboard'       => $playerData->toArray(),
+            'leaderboard_count' => $totalCount,
         ]);
     }
 }

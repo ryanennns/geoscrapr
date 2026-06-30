@@ -3,12 +3,12 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Query\Builder;
 
 class Team extends Model
 {
@@ -35,5 +35,12 @@ class Team extends Model
     public function scopeIsActive(Builder $query): void
     {
         $query->where('updated_at', '>=', Carbon::now()->subWeek());
+    }
+
+    public function scopePlayedSinceRatingCorrection(Builder $query): void
+    {
+        $query->whereHas('ratingChanges', function (Builder $query) {
+            $query->where('created_at', '>=', Carbon::parse(RatingChange::RATING_CORRECTION_CUTOFF));
+        });
     }
 }

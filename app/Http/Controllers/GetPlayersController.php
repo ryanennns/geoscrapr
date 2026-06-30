@@ -29,8 +29,9 @@ class GetPlayersController extends Controller
                 $query = Player::query();
 
                 $query->whereNotIn('user_id', Player::BLACKLIST);
+                $query->playedSinceRatingCorrection();
 
-                if (!empty($countries)) {
+                if (! empty($countries)) {
                     $countries = is_array($countries) ? $countries : [$countries];
                     if (count($countries) > 0) {
                         $query->whereIn('country_code', $countries);
@@ -67,12 +68,12 @@ class GetPlayersController extends Controller
         sort($countries);
 
         return 'players.index:' . http_build_query([
-            'active' => (bool) $active,
-            'country' => $countries,
-            'date' => now()->toDateString(),
+            'active'    => (bool) $active,
+            'country'   => $countries,
+            'date'      => now()->toDateString(),
             'game_type' => $gameType ?? 'rating',
-            'order' => $order ?? 'desc',
-            'page' => $page,
+            'order'     => $order ?? 'desc',
+            'page'      => $page,
         ], '', '&', PHP_QUERY_RFC3986);
     }
 }

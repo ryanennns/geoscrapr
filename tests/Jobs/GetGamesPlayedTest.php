@@ -42,7 +42,7 @@ class GetGamesPlayedTest extends TestCase
             '*' => Http::response($this->contents),
         ]);
 
-        new GetGamesPlayed(0)->handle();
+        (new GetGamesPlayed(0))->handle();
 
         $this->assertDatabaseHas('players', [
             'user_id'                    => $player->user_id,
@@ -69,7 +69,7 @@ class GetGamesPlayedTest extends TestCase
             '*' => Http::response($this->contents),
         ]);
 
-        new GetGamesPlayed(0)->handle();
+        (new GetGamesPlayed(0))->handle();
 
         $this->assertDatabaseHas('ranked_games_scanned_user_ids', [
             'user_ids' => json_encode([$player->getKey()]),
@@ -97,13 +97,13 @@ class GetGamesPlayedTest extends TestCase
             '*' => Http::response($this->contents),
         ]);
 
-        new GetGamesPlayed(0)->handle();
+        (new GetGamesPlayed(0))->handle();
 
         $this->assertDatabaseHas('ranked_games_scanned_user_ids', [
             'user_ids' => json_encode([$player->getKey()]),
         ]);
 
-        new GetGamesPlayed(1)->handle();
+        (new GetGamesPlayed(1))->handle();
 
         $this->assertDatabaseHas('ranked_games_scanned_user_ids', [
             'user_ids' => json_encode([$player->getKey(), $playerTwo->getKey()]),
@@ -135,7 +135,7 @@ class GetGamesPlayedTest extends TestCase
             '*' => Http::response($this->contents),
         ]);
 
-        new GetGamesPlayed(1)->handle();
+        (new GetGamesPlayed(1))->handle();
 
         $this->assertDatabaseCount('ranked_games_scanned_user_ids', 2);
         $this->assertDatabaseHas('ranked_games_scanned_user_ids', [
@@ -158,7 +158,7 @@ class GetGamesPlayedTest extends TestCase
             '*' => Http::response($this->contents),
         ]);
 
-        new GetGamesPlayed(0)->handle();
+        (new GetGamesPlayed(0))->handle();
 
         $this->assertDatabaseHas('players', [
             'user_id'             => $activePlayer->user_id,
@@ -182,7 +182,7 @@ class GetGamesPlayedTest extends TestCase
             '*' => Http::response($this->singlePlayerPresentCompetitiveMissingContents),
         ]);
 
-        new GetGamesPlayed()->handle();
+        (new GetGamesPlayed)->handle();
 
         $player->refresh();
 
@@ -206,7 +206,7 @@ class GetGamesPlayedTest extends TestCase
             'user_ids' => [$scannedPlayer->getKey()],
         ]);
 
-        new GetGamesPlayed()->handle();
+        (new GetGamesPlayed)->handle();
 
         $this->assertDatabaseHas('players', [
             'id'                  => $scannedPlayer->getKey(),

@@ -13,6 +13,7 @@ class GenerateEloSnapshot extends Command
     public const INTERVAL_SIZE = 100;
 
     protected $signature = 'snapshot:generate';
+
     protected $description = 'Generates an ELO snapshot based on playerbase stored in the db.';
 
     public function handle(): void
@@ -24,14 +25,16 @@ class GenerateEloSnapshot extends Command
         try {
             $playerN = Player::query()
                 ->whereNotNull('rating')
+                ->playedSinceRatingCorrection()
                 ->count();
 
             Player::query()
                 ->whereNotNull('rating')
+                ->playedSinceRatingCorrection()
                 ->select('rating')
                 ->chunk(100, function ($players) use (&$singleplayerBuckets) {
                     foreach ($players as $player) {
-                        $bucketIndex = min((int)($player->rating / self::INTERVAL_SIZE), count($singleplayerBuckets) - 1);
+                        $bucketIndex = min((int) ($player->rating / self::INTERVAL_SIZE), count($singleplayerBuckets) - 1);
                         $singleplayerBuckets[$bucketIndex]++;
                     }
                 });
@@ -42,9 +45,10 @@ class GenerateEloSnapshot extends Command
                 'buckets'  => collect($singleplayerBuckets)->mapWithKeys(function ($count, $i) {
                     $lower = $i * self::INTERVAL_SIZE;
                     $upper = $lower + self::INTERVAL_SIZE - 1;
+
                     return ["$lower-$upper" => $count];
                 }),
-                'n'        => $playerN,
+                'n' => $playerN,
             ]);
 
             Log::info("Generated singleplayer ELO snapshot for $playerN players");
@@ -56,13 +60,15 @@ class GenerateEloSnapshot extends Command
         try {
             $teamN = Team::query()
                 ->whereNotNull('rating')
+                ->playedSinceRatingCorrection()
                 ->count();
 
             Team::query()
                 ->whereNotNull('rating')
+                ->playedSinceRatingCorrection()
                 ->select('rating')->chunk(100, function ($teams) use (&$teamsBuckets) {
                     foreach ($teams as $team) {
-                        $bucketIndex = min((int)($team->rating / self::INTERVAL_SIZE), count($teamsBuckets) - 1);
+                        $bucketIndex = min((int) ($team->rating / self::INTERVAL_SIZE), count($teamsBuckets) - 1);
                         $teamsBuckets[$bucketIndex]++;
                     }
                 });
@@ -73,9 +79,10 @@ class GenerateEloSnapshot extends Command
                 'buckets'  => collect($teamsBuckets)->mapWithKeys(function ($count, $i) {
                     $lower = $i * self::INTERVAL_SIZE;
                     $upper = $lower + self::INTERVAL_SIZE - 1;
+
                     return ["$lower-$upper" => $count];
                 }),
-                'n'        => $teamN,
+                'n' => $teamN,
             ]);
 
             Log::info("Generated teams ELO snapshot for $teamN players");
