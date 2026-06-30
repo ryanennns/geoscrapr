@@ -228,21 +228,6 @@ const fetchExpandedPlayerRatingHistory = async (
     ]);
 };
 
-const fetchAllPlayerRatingHistory = async (
-    playerId: string,
-): Promise<RateableHistoryByType> => {
-    const responses = await Promise.all([
-        getRateableHistory("player", playerId, "overall"),
-        getRateableHistory("player", playerId, "moving"),
-        getRateableHistory("player", playerId, "no_move"),
-        getRateableHistory("player", playerId, "nmpz"),
-    ]);
-
-    return splitRatingHistoryByType(
-        responses.flatMap((response) => response.data ?? []),
-    );
-};
-
 const handleKeydown = (e: KeyboardEvent) => {
     if (e.key !== "Escape") {
         return;
@@ -328,22 +313,24 @@ const renderRatingChart = () => {
         ratingChartInstance.value.destroy();
     }
 
-    const { labels, data: overallData } = getRatingHistoryChartData({
+    const primaryRatingType = "overall";
+    const primaryRatingStyle = ratingTypeStyles[primaryRatingType];
+    const { labels, data: primaryRatingData } = getRatingHistoryChartData({
         daysToShow: daysToShow.value,
-        ratingHistory: allRatingHistory.value.overall,
+        ratingHistory: allRatingHistory.value[primaryRatingType],
     });
 
-    if (overallData.length === 0) {
+    if (primaryRatingData.length === 0) {
         return;
     }
 
     const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
-    const overallGradientStops = ratingTypeStyles.overall.gradientStops ?? [
+    const primaryGradientStops = primaryRatingStyle.gradientStops ?? [
         "rgba(79, 70, 229, 0.4)",
         "rgba(79, 70, 229, 0.05)",
     ];
-    gradient.addColorStop(0, overallGradientStops[0]);
-    gradient.addColorStop(1, overallGradientStops[1]);
+    gradient.addColorStop(0, primaryGradientStops[0]);
+    gradient.addColorStop(1, primaryGradientStops[1]);
 
     const datasets: Array<{
         label: string;
@@ -352,14 +339,20 @@ const renderRatingChart = () => {
         backgroundColor: string | CanvasGradient;
     }> = [
         {
-            label: ratingTypeStyles.overall.label,
-            data: overallData,
-            borderColor: ratingTypeStyles.overall.borderColor,
+            label: isComparingPlayers.value
+                ? `${props.leaderboardRow.name} ${primaryRatingStyle.label}`
+                : primaryRatingStyle.label,
+            data: primaryRatingData,
+            borderColor: primaryRatingStyle.borderColor,
             backgroundColor: gradient,
         },
     ];
 
-    if (expanded.value && props.leaderboardRow.type === "player") {
+    if (
+        expanded.value &&
+        props.leaderboardRow.type === "player" &&
+        !isComparingPlayers.value
+    ) {
         (["moving", "no_move", "nmpz"] as RatingType[]).forEach(
             (ratingType) => {
                 const history = allRatingHistory.value[ratingType];
@@ -387,17 +380,14 @@ const renderRatingChart = () => {
         );
     }
 
-    if (
-        playerToCompareWith.value &&
-        playerToCompareWithRatingHistory.value.length > 0
-    ) {
+    if (playerToCompareWith.value) {
         const { data } = getRatingHistoryChartData({
             daysToShow: daysToShow.value,
             ratingHistory: playerToCompareWithAllRatingHistory.value.overall,
         });
 
         datasets.push({
-            label: `${playerToCompareWith.value.name} Overall`,
+            label: `${playerToCompareWith.value.name} ${ratingTypeStyles.overall.label}`,
             data,
             borderColor: "rgba(220, 38, 38, 0.9)",
             backgroundColor: "rgba(255, 255, 255, 0)",
@@ -437,10 +427,14 @@ const renderRatingChart = () => {
 };
 
 const playerToCompareWith = ref<LeaderboardRow | null>(null);
+const isComparingPlayers = computed<boolean>(
+    () => playerToCompareWith.value !== null,
+);
 const playerToCompareWithRatingHistory = ref<RatingChange[]>([]);
 const playerToCompareWithAllRatingHistory = ref<RateableHistoryByType>(
     createEmptyRatingHistory(),
 );
+
 const handleSelectPlayerToCompareWith = async (event: {
     rateable: LeaderboardRow;
 }) => {
@@ -453,9 +447,9 @@ const handleSelectPlayerToCompareWith = async (event: {
     playerToCompareWithRatingHistory.value = sortRatingHistory(
         result.data || [],
     );
-    playerToCompareWithAllRatingHistory.value = expanded.value
-        ? await fetchAllPlayerRatingHistory(playerToCompareWith.value.id)
-        : splitRatingHistoryByType(playerToCompareWithRatingHistory.value);
+    playerToCompareWithAllRatingHistory.value = splitRatingHistoryByType(
+        playerToCompareWithRatingHistory.value,
+    );
 
     set("compare_with", String(playerToCompareWith.value.id));
 
@@ -471,6 +465,17 @@ const handleClearComparison = async () => {
     playerToCompareWithRatingHistory.value = [];
     playerToCompareWithAllRatingHistory.value = createEmptyRatingHistory();
     clear("compare_with");
+
+    if (
+        expanded.value &&
+        props.leaderboardRow.type === "player" &&
+        !hasExpandedRatingHistory.value
+    ) {
+        allRatingHistory.value = await fetchExpandedPlayerRatingHistory(
+            props.leaderboardRow.id,
+            props.ratingHistory,
+        );
+    }
 
     chartVisible.value = false;
     await new Promise<void>((resolve) => setTimeout(resolve, 150));
@@ -501,6 +506,7 @@ watch(
             !isExpanded ||
             !showModal ||
             props.leaderboardRow.type !== "player" ||
+            isComparingPlayers.value ||
             hasExpandedRatingHistory.value
         ) {
             return;
@@ -510,11 +516,6 @@ watch(
             props.leaderboardRow.id,
             props.ratingHistory,
         );
-
-        if (playerToCompareWith.value) {
-            playerToCompareWithAllRatingHistory.value =
-                await fetchAllPlayerRatingHistory(playerToCompareWith.value.id);
-        }
 
         await nextTick();
         renderRatingChart();
@@ -606,9 +607,9 @@ onMounted(async () => {
         playerToCompareWithRatingHistory.value = sortRatingHistory(
             (await getRateableHistory("player", compareWith))?.data ?? [],
         );
-        playerToCompareWithAllRatingHistory.value = expanded.value
-            ? await fetchAllPlayerRatingHistory(compareWith)
-            : splitRatingHistoryByType(playerToCompareWithRatingHistory.value);
+        playerToCompareWithAllRatingHistory.value = splitRatingHistoryByType(
+            playerToCompareWithRatingHistory.value,
+        );
 
         await nextTick();
 
