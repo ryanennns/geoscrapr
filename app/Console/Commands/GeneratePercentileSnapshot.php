@@ -21,13 +21,14 @@ class GeneratePercentileSnapshot extends Command
 
         $percentileUser = Player::query()
             ->whereNotNull('rating')
+            ->playedSinceRatingCorrection()
             ->orderBy('rating')
             ->select('rating')
             ->pluck('rating')
             ->skip($index)
             ->first();
 
-        $ratingMap[(string)$i] = $percentileUser;
+        $ratingMap[(string) $i] = $percentileUser;
     }
 
     private function determineTeamPercentile($i, $k, &$ratingMap): void
@@ -37,18 +38,22 @@ class GeneratePercentileSnapshot extends Command
 
         $percentileUser = Team::query()
             ->whereNotNull('rating')
+            ->playedSinceRatingCorrection()
             ->orderBy('rating')
             ->select('rating')
             ->pluck('rating')
             ->skip($index)
             ->first();
 
-        $ratingMap[(string)$i] = $percentileUser;
+        $ratingMap[(string) $i] = $percentileUser;
     }
 
     public function handle(): void
     {
-        $playerK = Player::query()->whereNotNull('rating')->count();
+        $playerK = Player::query()
+            ->whereNotNull('rating')
+            ->playedSinceRatingCorrection()
+            ->count();
 
         $soloRatingMap = [];
 
@@ -71,7 +76,10 @@ class GeneratePercentileSnapshot extends Command
             'n'       => $playerK,
         ]);
 
-        $teamK = Team::query()->whereNotNull('rating')->count();
+        $teamK = Team::query()
+            ->whereNotNull('rating')
+            ->playedSinceRatingCorrection()
+            ->count();
         $teamRatingMap = [];
 
         for ($i = 1; $i < 100; $i++) {
@@ -85,10 +93,10 @@ class GeneratePercentileSnapshot extends Command
         );
 
         EloSnapshot::query()->create([
-            'date'    => Carbon::now(),
-            'buckets' => json_encode($teamRatingMap),
-            'type'    => EloSnapshot::TYPE_PERCENTILE,
-            'n'       => $teamK,
+            'date'     => Carbon::now(),
+            'buckets'  => json_encode($teamRatingMap),
+            'type'     => EloSnapshot::TYPE_PERCENTILE,
+            'n'        => $teamK,
             'gamemode' => 'team',
         ]);
     }

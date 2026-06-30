@@ -4,11 +4,17 @@
             <div
                 class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3"
             >
-                <h2
-                    class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100"
-                >
-                    Rating Leaderboard
-                </h2>
+                <div class="flex flex-wrap items-center gap-2">
+                    <h2
+                        class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100"
+                    >
+                        Rating Leaderboard
+                    </h2>
+                    <Badge
+                        text="Since Jun 29"
+                        class="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs"
+                    />
+                </div>
                 <div class="flex flex-wrap gap-2 sm:gap-4">
                     <div class="relative">
                         <CountryDropdown
@@ -138,6 +144,7 @@ import { useApiClient } from "@/Composables/useApiClient.ts";
 import PaginationControls from "@/Components/PaginationControls.vue";
 import Row from "@/Pages/Row.vue";
 import ResetButton from "@/Components/ResetButton.vue";
+import Badge from "@/Components/Badge.vue";
 
 const { getRateables } = useApiClient();
 const { rateableToLeaderboardRows } = usePlayerUtils();

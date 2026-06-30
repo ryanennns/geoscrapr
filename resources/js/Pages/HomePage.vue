@@ -51,15 +51,21 @@
             <div
                 class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md"
             >
-                <div class="flex justify-between items-start mb-3 md:mb-4">
-                    <h2
-                        class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100"
-                    >
-                        Solo Rating Distribution
-                    </h2>
+                <div class="flex justify-between items-start mb-3 md:mb-4 gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h2
+                            class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100"
+                        >
+                            Solo Rating Distribution
+                        </h2>
+                        <Badge
+                            text="Since Jun 29"
+                            class="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs"
+                        />
+                    </div>
                     <Badge
                         :text="`n = ${currentSoloRangeSnapshot?.n.toLocaleString() || 0}`"
-                        class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs md:text-sm ml-1"
+                        class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs md:text-sm"
                     />
                 </div>
                 <div class="w-full h-64 md:h-[62vh]">
@@ -73,15 +79,21 @@
             <div
                 class="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow-md"
             >
-                <div class="flex justify-between items-start mb-3 md:mb-4">
-                    <h2
-                        class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100"
-                    >
-                        Team Rating Distribution
-                    </h2>
+                <div class="flex justify-between items-start mb-3 md:mb-4 gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h2
+                            class="text-lg md:text-2xl font-bold text-gray-800 dark:text-gray-100"
+                        >
+                            Team Rating Distribution
+                        </h2>
+                        <Badge
+                            text="Since Jun 29"
+                            class="bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs"
+                        />
+                    </div>
                     <Badge
                         :text="`n = ${currentTeamRangeSnapshot?.n.toLocaleString() || 0}`"
-                        class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs md:text-sm ml-1"
+                        class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs md:text-sm"
                     />
                 </div>
                 <div class="w-full h-64 md:h-[62vh]">

@@ -58,10 +58,10 @@ class GetPlayersControllerTest extends TestCase
         Carbon::setTestNow('2026-04-03 12:00:00');
 
         $cachedPlayer = Player::factory()->make([
-            'id' => 999,
-            'user_id' => 'cached-user',
-            'name' => 'Cached Player',
-            'rating' => 2123,
+            'id'           => 999,
+            'user_id'      => 'cached-user',
+            'name'         => 'Cached Player',
+            'rating'       => 2123,
             'country_code' => 'US',
         ]);
 
@@ -105,13 +105,13 @@ class GetPlayersControllerTest extends TestCase
     #[DataProvider('provideValidationCases')]
     public function test_it_returns_unprocessable_if_validation_fails($key, $value)
     {
-        $this->getJson('players?'.$key.'='.$value)->assertStatus(422);
+        $this->getJson('players?' . $key . '=' . $value)->assertStatus(422);
     }
 
     public static function provideValidationCases(): array
     {
         return [
-            'invalid order' => ['order', 'asdf'],
+            'invalid order'   => ['order', 'asdf'],
             'invalid country' => ['country', 'not a country'],
         ];
     }
@@ -120,40 +120,40 @@ class GetPlayersControllerTest extends TestCase
     public function test_it_orders_by_ratings($gameType)
     {
         $playerOne = Player::factory()->create([
-            'rating' => 1000,
-            $gameType.'_rating' => 1000,
+            'rating'              => 1000,
+            $gameType . '_rating' => 1000,
         ]);
 
         $playerTwo = Player::factory()->create([
-            'rating' => 1000,
-            $gameType.'_rating' => 2000,
+            'rating'              => 1000,
+            $gameType . '_rating' => 2000,
         ]);
 
         Cache::shouldReceive('remember')
             ->once()
             ->andReturn(collect([$playerTwo, $playerOne]));
 
-        $response = $this->getJson('players?game_type='.$gameType);
+        $response = $this->getJson('players?game_type=' . $gameType);
 
         $response->assertSuccessful();
 
         $response->assertJson([
             'data' => [
                 [
-                    'id' => $playerTwo->id,
-                    'user_id' => $playerTwo->user_id,
-                    'name' => $playerTwo->name,
-                    'rating' => $playerTwo->rating,
-                    $gameType.'_rating' => $playerTwo->{$gameType.'_rating'},
-                    'country_code' => $playerTwo->country_code,
+                    'id'                  => $playerTwo->id,
+                    'user_id'             => $playerTwo->user_id,
+                    'name'                => $playerTwo->name,
+                    'rating'              => $playerTwo->rating,
+                    $gameType . '_rating' => $playerTwo->{$gameType . '_rating'},
+                    'country_code'        => $playerTwo->country_code,
                 ],
                 [
-                    'id' => $playerOne->id,
-                    'user_id' => $playerOne->user_id,
-                    'name' => $playerOne->name,
-                    'rating' => $playerOne->rating,
-                    $gameType.'_rating' => $playerOne->{$gameType.'_rating'},
-                    'country_code' => $playerOne->country_code, ],
+                    'id'                  => $playerOne->id,
+                    'user_id'             => $playerOne->user_id,
+                    'name'                => $playerOne->name,
+                    'rating'              => $playerOne->rating,
+                    $gameType . '_rating' => $playerOne->{$gameType . '_rating'},
+                    'country_code'        => $playerOne->country_code, ],
             ],
         ]);
     }
@@ -173,7 +173,7 @@ class GetPlayersControllerTest extends TestCase
             function ($player, $index) use ($players) {
                 $this->assertEquals(
                     Arr::get($players->sortByDesc('rating')
-                        ->values(), $index.'.id'), Arr::get($player, 'id')
+                        ->values(), $index . '.id'), Arr::get($player, 'id')
                 );
             }
         );
@@ -199,12 +199,37 @@ class GetPlayersControllerTest extends TestCase
         );
     }
 
+    public function test_it_only_returns_players_who_played_since_the_rating_correction()
+    {
+        Cache::flush();
+
+        Carbon::setTestNow('2026-06-28 12:00:00');
+        $oldPlayer = Player::factory()->create([
+            'name'   => 'Pre Correction',
+            'rating' => 2500,
+        ]);
+
+        Carbon::setTestNow('2026-06-29 00:00:00');
+        $newPlayer = Player::factory()->create([
+            'name'   => 'Post Correction',
+            'rating' => 2000,
+        ]);
+
+        Carbon::setTestNow('2026-06-30 12:00:00');
+
+        $response = $this->getJson('players');
+
+        $response->assertSuccessful();
+        $response->assertJsonPath('data.0.id', $newPlayer->id);
+        $response->assertJsonMissing(['id' => $oldPlayer->id]);
+    }
+
     public static function provideRatingOptions(): array
     {
         return [
-            'moving' => ['moving'],
+            'moving'  => ['moving'],
             'no_move' => ['no_move'],
-            'nmpz' => ['nmpz'],
+            'nmpz'    => ['nmpz'],
         ];
     }
 }

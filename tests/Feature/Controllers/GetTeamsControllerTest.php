@@ -45,22 +45,22 @@ class GetTeamsControllerTest extends TestCase
         Carbon::setTestNow('2026-04-03 12:00:00');
 
         $playerA = Player::factory()->make([
-            'id' => '00000000-0000-0000-0000-000000000001',
-            'user_id' => 'cached-player-a',
-            'name' => 'Cached Player A',
+            'id'           => '00000000-0000-0000-0000-000000000001',
+            'user_id'      => 'cached-player-a',
+            'name'         => 'Cached Player A',
             'country_code' => 'us',
         ]);
         $playerB = Player::factory()->make([
-            'id' => '00000000-0000-0000-0000-000000000002',
-            'user_id' => 'cached-player-b',
-            'name' => 'Cached Player B',
+            'id'           => '00000000-0000-0000-0000-000000000002',
+            'user_id'      => 'cached-player-b',
+            'name'         => 'Cached Player B',
             'country_code' => 'ca',
         ]);
         $team = Team::factory()->make([
-            'id' => '00000000-0000-0000-0000-000000000003',
-            'team_id' => 'cached-team',
-            'name' => 'Cached Team',
-            'rating' => 2222,
+            'id'       => '00000000-0000-0000-0000-000000000003',
+            'team_id'  => 'cached-team',
+            'name'     => 'Cached Team',
+            'rating'   => 2222,
             'player_a' => $playerA->user_id,
             'player_b' => $playerB->user_id,
         ]);
@@ -153,8 +153,8 @@ class GetTeamsControllerTest extends TestCase
                     'rating'   => $team1->rating,
                     'player_a' => (new PlayerResource($team1->playerA))->toArray(request()),
                     'player_b' => (new PlayerResource($team1->playerB))->toArray(request()),
-                ]
-            ]
+                ],
+            ],
         ]);
     }
 
@@ -177,5 +177,37 @@ class GetTeamsControllerTest extends TestCase
         $response = $this->getJson('teams?page=2');
         $response->assertSuccessful();
         $response->assertJsonCount(5, 'data');
+    }
+
+    public function test_it_only_returns_teams_that_played_since_the_rating_correction()
+    {
+        Cache::flush();
+
+        $playerA = Player::factory()->create();
+        $playerB = Player::factory()->create();
+
+        Carbon::setTestNow('2026-06-28 12:00:00');
+        $oldTeam = Team::factory()->create([
+            'name'     => 'Pre Correction',
+            'rating'   => 2500,
+            'player_a' => $playerA->user_id,
+            'player_b' => $playerB->user_id,
+        ]);
+
+        Carbon::setTestNow('2026-06-29 00:00:00');
+        $newTeam = Team::factory()->create([
+            'name'     => 'Post Correction',
+            'rating'   => 2000,
+            'player_a' => $playerA->user_id,
+            'player_b' => $playerB->user_id,
+        ]);
+
+        Carbon::setTestNow('2026-06-30 12:00:00');
+
+        $response = $this->getJson('teams');
+
+        $response->assertSuccessful();
+        $response->assertJsonFragment(['id' => $newTeam->id]);
+        $response->assertJsonMissing(['id' => $oldTeam->id]);
     }
 }
